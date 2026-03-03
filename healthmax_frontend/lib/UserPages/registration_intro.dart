@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:healthmax_frontend/dashboard.dart';
+import 'package:healthmax_frontend/UserPages/user_dashboard.dart';
 import '../GeneralPages/helper_widgets.dart';
 // import 'package:sliding_action_button/sliding_action_button.dart';
 
