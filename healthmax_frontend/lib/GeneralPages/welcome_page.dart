@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart' hide BackButton;
-import '../helper_widgets.dart';
-import 'user_start_pages.dart';
-import 'hp_start_pages.dart';
+import 'helper_widgets.dart';
+import '../UserPages/user_start_pages.dart';
+import '../HPPages/hp_start_pages.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});

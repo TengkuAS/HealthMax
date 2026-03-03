@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'start_pages_base.dart';
-import '../UserRegistrationPages/registration_intro.dart';
+import '../GeneralPages/start_pages_base.dart';
+import 'registration_intro.dart';
 
 class UserStartPage extends StatelessWidget {
   const UserStartPage({super.key});
