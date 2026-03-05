@@ -21,7 +21,9 @@ final bgWhite = const BoxDecoration(color: Colors.white);
 // Screen template for welcome, user registration and user login pages.
 class Screen extends StatelessWidget {
   final Widget child;
-  const Screen({super.key, required this.child});
+  final BoxDecoration? bgDecoration;
+
+  const Screen({super.key, required this.child, this.bgDecoration});
 
   @override
   Widget build(BuildContext context) {
@@ -29,14 +31,14 @@ class Screen extends StatelessWidget {
       body: Container(
         padding: EdgeInsets.all(19),
         width: double.infinity,
-        decoration: bgGradient1,
+        decoration: bgDecoration ?? bgGradient1,
         child: child,
       ),
     );
   }
 }
 
-// Back button that runs Navigator.pop() when pressed
+// Back button that calls Navigator.pop() when pressed
 class BackButton extends StatelessWidget {
   const BackButton({super.key});
 
@@ -252,5 +254,59 @@ class CustomHeading2 extends StatelessWidget {
         fontWeight: FontWeight.w600,
       ),
     );
+  }
+}
+
+// The following are at least being used in registration_questions.dart
+class HorizontalBar extends StatelessWidget {
+  final bool isActive;
+  final Color? activeColor;
+  final Color? inactiveColor;
+  const HorizontalBar({
+    super.key,
+    required this.isActive,
+    this.activeColor,
+    this.inactiveColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Padding(
+        padding: EdgeInsets.all(3),
+        child: SizedBox(
+          height: 8,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(50)),
+              color: isActive
+                  ? activeColor ?? Colors.black
+                  : inactiveColor ?? Colors.grey,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ProgressBar extends StatelessWidget {
+  final int current;
+  final int countBars;
+
+  const ProgressBar({
+    super.key,
+    required this.current,
+    required this.countBars,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    List<HorizontalBar> bars = List.generate(
+      countBars,
+      (index) => HorizontalBar(isActive: index == current),
+    );
+
+    return Row(children: bars);
   }
 }
