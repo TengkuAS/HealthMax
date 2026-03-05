@@ -20,6 +20,16 @@ class RegistrationQuestions extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(50, 0, 50, 0),
             child: ProgressBar(current: currentIndex, countBars: numQuestions),
           ),
+          const SizedBox(height: 100),
+          Text(
+            "Enter your Age",
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 30,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );
