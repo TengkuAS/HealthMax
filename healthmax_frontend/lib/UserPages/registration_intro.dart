@@ -83,15 +83,13 @@ class RegistrationIntro extends StatelessWidget {
             top: 600,
             left: 0,
             right: 0,
+            // TODO: This should be a sliding bar (simplified atm)
             child: CustomButton(
               label: "Start.",
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        RegistrationQuestions(currentIndex: 1, numQuestions: 4),
-                  ),
+                  MaterialPageRoute(builder: (_) => RegistrationGender()),
                 );
               },
             ),
