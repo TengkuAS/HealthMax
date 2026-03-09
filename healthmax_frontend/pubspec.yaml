@@ -34,6 +34,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  sliding_action_button: ^0.0.8
 
 dev_dependencies:
   flutter_test:
@@ -109,3 +110,10 @@ flutter:
       fonts:
         - asset: assets/fonts/lexend-mega-latin-400-normal.ttf
           weight: 400
+
+  assets:
+    - assets/images/registration-intro-track.png
+    - assets/images/registration-intro-plan.png
+    - assets/images/registration-intro-balance.png
+    - assets/images/registration-intro-move.png
+    - assets/images/registration-intro-rest.png

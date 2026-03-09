@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart' hide BackButton;
-import '../helper_widgets.dart';
+import 'helper_widgets.dart';
 
 class StartPage extends StatelessWidget {
   final String heading1;
@@ -20,7 +20,7 @@ class StartPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Screen(
-      decoration: decoration, // Pass it to Screen
+      bgDecoration: decoration, // Pass it to Screen
       child: ListView(
         children: [
           const BackButton(),
@@ -76,21 +76,20 @@ class StartPage extends StatelessWidget {
 }
 
 class RegistrationPage extends StatelessWidget {
+  final WidgetBuilder postRegistration;
   final WidgetBuilder loginPage;
-  final BoxDecoration? decoration;
-  final VoidCallback? onRegisterPressed; // Add this line
 
   const RegistrationPage({
     super.key, 
-    required this.loginPage, 
-    this.decoration,
-    this.onRegisterPressed, // Add this to constructor
+    required this.loginPage,
+    required this.postRegistration,
+     // Add this to constructor
   });
 
   @override
   Widget build(BuildContext context) {
     return Screen(
-      decoration: decoration,
+      bgDecoration: bgGradientHP,
       child: ListView(
         children: [
           const BackButton(),
@@ -107,14 +106,17 @@ class RegistrationPage extends StatelessWidget {
           const SizedBox(height: 20),
           const CustomInputBox(hint: "Confirm Password"),
           const SizedBox(height: 50),
-          
-          // Use the passed function here
+          // TODO: Add functionality to button
           CustomShortButton(
-            label: "Register", 
-            width: 200, 
-            onPressed: onRegisterPressed, 
+            label: "Register",
+            width: 200,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: postRegistration),
+              );
+            },
           ),
-
           CustomQuestionLink(
             question: "Already have an account?",
             linkText: "Login now!",
@@ -137,7 +139,7 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Screen(
-      decoration: decoration, // Pass it to Screen
+      bgDecoration: decoration, // Pass it to Screen
       child: ListView(
         children: [
           const BackButton(),

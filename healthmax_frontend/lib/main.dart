@@ -1,7 +1,7 @@
 // dart format width=68
 import 'package:flutter/material.dart';
-import 'StartPages/welcome_page.dart';
-import 'dashboard.dart';
+import 'GeneralPages/welcome_page.dart';
+import 'UserPages/user_dashboard.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,6 +25,7 @@ class _MyAppState extends State<MyApp> {
       title: 'HealthMax',
       theme: ThemeData(
         colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        scaffoldBackgroundColor: Colors.white,
         textTheme: TextTheme(
           titleLarge: TextStyle(
             fontSize: 35,

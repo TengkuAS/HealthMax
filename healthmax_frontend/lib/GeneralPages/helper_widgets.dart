@@ -16,6 +16,8 @@ final bgGradient1 = const BoxDecoration(
   ),
 );
 
+final bgWhite = const BoxDecoration(color: Colors.white);
+
 // New Blue gradient for Healthcare Providers
 final bgGradientHP = const BoxDecoration(
   gradient: LinearGradient(
@@ -33,9 +35,9 @@ final bgGradientHP = const BoxDecoration(
 
 class Screen extends StatelessWidget {
   final Widget child;
-  final BoxDecoration? decoration; // Added optional decoration
+  final BoxDecoration? bgDecoration;
 
-  const Screen({super.key, required this.child, this.decoration});
+  const Screen({super.key, required this.child, this.bgDecoration});
 
 // Screen template for welcome, user registration and user login pages.
   @override
@@ -44,8 +46,7 @@ class Screen extends StatelessWidget {
       body: Container(
         padding: const EdgeInsets.all(19),
         width: double.infinity,
-        // Use the passed decoration, or default to purple if null
-        decoration: decoration ?? bgGradient1, 
+        decoration: bgDecoration ?? bgGradient1,
         child: child,
       ),
     );
@@ -53,7 +54,7 @@ class Screen extends StatelessWidget {
 }
 
 
-// Back button that runs Navigator.pop() when pressed
+// Back button that calls Navigator.pop() when pressed
 class BackButton extends StatelessWidget {
   const BackButton({super.key});
 
@@ -137,7 +138,13 @@ class CustomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      style: buttonStyle,
+      style:
+          buttonStyle ??
+          ElevatedButton.styleFrom(
+            backgroundColor: Color.fromRGBO(150, 171, 222, 0.0),
+            side: BorderSide(color: Color.fromARGB(51, 0, 0, 0)),
+            padding: EdgeInsets.all(5),
+          ),
       onPressed:
           onPressed ??
           () {
@@ -148,7 +155,7 @@ class CustomButton extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            color: textColor ?? Colors.black,
+            color: textColor ?? Colors.white,
             fontFamily: "LexendDecaNormal",
             fontSize: 22,
           ),
@@ -157,6 +164,24 @@ class CustomButton extends StatelessWidget {
     );
   }
 }
+
+// class CustomNavigationButton extends CustomButton {
+//   final WidgetBuilder toPage;
+
+//   const CustomNavigationButton({
+//     super.key,
+//     required super.label,
+//     super.buttonStyle,
+//     super.textColor,
+//     required this.toPage,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     onPresed = (_) => {Navigator.push(context, MaterialPageRoute(builder: this.toPage))}
+//     return super();
+//   }
+// }
 
 class CustomShortButton extends CustomButton {
   final double width;
@@ -245,5 +270,59 @@ class CustomHeading2 extends StatelessWidget {
         fontWeight: FontWeight.w600,
       ),
     );
+  }
+}
+
+// The following are at least being used in registration_questions.dart
+class HorizontalBar extends StatelessWidget {
+  final bool isActive;
+  final Color? activeColor;
+  final Color? inactiveColor;
+  const HorizontalBar({
+    super.key,
+    required this.isActive,
+    this.activeColor,
+    this.inactiveColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Padding(
+        padding: EdgeInsets.all(3),
+        child: SizedBox(
+          height: 8,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(50)),
+              color: isActive
+                  ? activeColor ?? Colors.black
+                  : inactiveColor ?? Colors.grey,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ProgressBar extends StatelessWidget {
+  final int current;
+  final int countBars;
+
+  const ProgressBar({
+    super.key,
+    required this.current,
+    required this.countBars,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    List<HorizontalBar> bars = List.generate(
+      countBars,
+      (index) => HorizontalBar(isActive: index == current),
+    );
+
+    return Row(children: bars);
   }
 }
