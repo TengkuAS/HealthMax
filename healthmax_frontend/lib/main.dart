@@ -1,6 +1,7 @@
 // dart format width=68
 import 'package:flutter/material.dart';
 import 'package:healthmax_frontend/GeneralPages/page_not_found.dart';
+import 'package:healthmax_frontend/HPPages/hp_profileclicked.dart';
 import 'GeneralPages/welcome_page.dart';
 import 'UserPages/user_dashboard.dart';
 import 'HPPages/hp_homepage.dart';
@@ -56,6 +57,7 @@ class _MyAppState extends State<MyApp> {
         '/hp_home': (context) => const HPHomePage(),
         '/hp_users': (context) => const HPUsersPage(),
         '/hp_requests': (context) => const HPRequestsPage(),
+        '/hp_settings': (context) => const HPProfileClicked(),
       },
     );
   }

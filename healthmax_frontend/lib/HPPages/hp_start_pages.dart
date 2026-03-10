@@ -15,7 +15,7 @@ class HPStartPage extends StatelessWidget {
       loginPage: (_) => const HPLoginPage(),
       registrationPage: (_) => const HPRegistrationPage(),
       onLoginSuccess: () {
-      Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+      Navigator.pushNamedAndRemoveUntil(context, '/hp_home', (route) => false);
       },
     );
   }

@@ -177,7 +177,7 @@ class HPProfileClicked extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context); // Close dialog
-              Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+              Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false); // Navigate to home page
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFFF4B4B),

@@ -17,15 +17,7 @@ class HPGlassyProfile extends StatelessWidget {
           color: Colors.transparent,
           child: InkWell(
             onTap: () {
-              // Priority given to custom onTap, otherwise default to Profile Page
-              if (onTap != null) {
-                onTap!();
-              } else {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const HPProfileClicked()),
-                );
-              }
+              Navigator.pushNamed(context, '/hp_settings');
             },
             child: _buildGlassyContainer(),
           ),

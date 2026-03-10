@@ -169,9 +169,9 @@ class LoginPage extends StatelessWidget {
             label: "Login", 
             width: 200,
             onPressed: (){
-              Navigator.pushNamedAndRemoveUntil(
+              Navigator.pushNamedAndRemoveUntil( 
                 context,
-                'hp_home',
+                '/hp_home',
                 (route) => false
               );
             },),
