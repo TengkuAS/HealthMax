@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:healthmax_frontend/GeneralPages/helper_widgets.dart';
+import 'package:riff_switch/riff_switch.dart';
 
 class RegistrationQuestions extends StatelessWidget {
   final int numQuestions;
@@ -182,7 +183,8 @@ class _RegistrationGenderState extends State<RegistrationGender> {
 }
 
 class EnterDOBWidget extends StatefulWidget {
-  const EnterDOBWidget({super.key});
+  final UserAnswers userAnswers;
+  const EnterDOBWidget({super.key, required this.userAnswers});
 
   @override
   State<EnterDOBWidget> createState() => _EnterDOBWidgetState();
@@ -247,7 +249,9 @@ class _EnterDOBWidgetState extends State<EnterDOBWidget> {
           ),
           const SizedBox(height: 80),
           TextButton(
-            onPressed: () => getDate(),
+            onPressed: () {
+              getDate();
+            },
             style: ButtonStyle(
               padding: WidgetStateProperty.all(EdgeInsets.all(10)),
             ),
@@ -281,7 +285,119 @@ class RegistrationDOB extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 100),
-        EnterDOBWidget(),
+        EnterDOBWidget(userAnswers: userAnswers),
+        const SizedBox(height: 100),
+        CustomButton(
+          label: "Next",
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => RegistrationWeight(userAnswers: userAnswers),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class GetWeight extends StatelessWidget {
+  const GetWeight({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        RiffSwitch(
+          value: true,
+          onChanged: (bool newVal) {
+            print("$newVal set!");
+          },
+          type: RiffSwitchType.simple,
+          activeText: Text("kg"),
+          activeColor: Color.from(
+            alpha: 1,
+            red: 0.557,
+            green: 0.686,
+            blue: 0.035,
+          ),
+          inactiveText: Text("lb"),
+          inactiveTrackColor: Colors.white,
+        ),
+        PageView(children: [
+            
+        ],),
+      ],
+    );
+  }
+}
+
+class RegistrationWeight extends StatelessWidget {
+  final UserAnswers userAnswers;
+  const RegistrationWeight({super.key, required this.userAnswers});
+
+  @override
+  Widget build(BuildContext context) {
+    return RegistrationQuestions(
+      numQuestions: 4,
+      currentIndex: 2,
+      children: [
+        const SizedBox(height: 100),
+        Text(
+          "Enter your weight",
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+            fontFamily: "LexendExaNormal",
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 100),
+        //GetWeight(),
+        const SizedBox(height: 100),
+        CustomButton(
+          label: "Next",
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => RegistrationHeight(userAnswers: userAnswers),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class RegistrationHeight extends StatelessWidget {
+  final UserAnswers userAnswers;
+  const RegistrationHeight({super.key, required this.userAnswers});
+
+  @override
+  Widget build(BuildContext context) {
+    return RegistrationQuestions(
+      numQuestions: 4,
+      currentIndex: 2,
+      children: [
+        const SizedBox(height: 100),
+        Text(
+          "Enter your height",
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+            fontFamily: "LexendExaNormal",
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 100),
+        // GetWeight(),
         const SizedBox(height: 100),
         CustomButton(
           label: "Next",
