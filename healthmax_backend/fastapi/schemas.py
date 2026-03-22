@@ -49,4 +49,12 @@ class FoodLogResponse(FoodLogBase):
 
     model_config = ConfigDict(from_attributes=True)
 
+
+class HealthLogAggregate(BaseModel):
+    period: str               # 聚合周期，如 "2026-03-22"
+    avg_value: Optional[float] = None
+    sum_value: Optional[float] = None
+    count: int                # 该周期内记录条数
+
+    model_config = ConfigDict(from_attributes=True)
 # 其他表可按相同模式补充……
