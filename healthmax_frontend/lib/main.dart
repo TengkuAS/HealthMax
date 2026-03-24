@@ -7,6 +7,7 @@ import 'UserPages/user_dashboard.dart';
 import 'HPPages/hp_homepage.dart';
 import 'HPPages/hp_userspage.dart';
 import 'HPPages/hp_requestspage.dart';
+import 'UserPages/user_homepage.dart';
 
 void main() {
   runApp(const MyApp());
@@ -58,6 +59,8 @@ class _MyAppState extends State<MyApp> {
         '/hp_users': (context) => const HPUsersPage(),
         '/hp_requests': (context) => const HPRequestsPage(),
         '/hp_settings': (context) => const HPProfileClicked(),
+        '/user_homepage': (context) => const UserHomePage(),
+        // Add more routes as needed
       },
     );
   }
