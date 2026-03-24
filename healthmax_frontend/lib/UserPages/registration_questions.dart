@@ -725,7 +725,7 @@ class RegistrationHeight extends StatelessWidget {
       currentIndex: 3,
       children: [
         const SizedBox(height: 60),
-        Text(
+        const Text(
           "Enter your height",
           style: TextStyle(
             color: Colors.black,
@@ -741,18 +741,50 @@ class RegistrationHeight extends StatelessWidget {
         HeightInputSection(userAnswers: userAnswers),
         
         const SizedBox(height: 60),
-        CustomButton(
-          label: "Next",
-          onPressed: () {
-            print(userAnswers.toString());
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => RegistrationDOB(userAnswers: userAnswers),
+        
+        // --- PREMIUM COMPLETION BUTTON ---
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: ElevatedButton(
+            onPressed: () {
+              // Save the data here
+              print("Registration Complete: ${userAnswers.toString()}");
+              
+              Navigator.pushNamedAndRemoveUntil(
+                context, 
+                '/user_homepage', 
+                (route) => false, // This prevents the user from swiping back to registration
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFFFB300), 
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
               ),
-            );
-          },
+              elevation: 8,
+              shadowColor: const Color(0xFFFFB300).withOpacity(0.6), 
+            ),
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Complete Registration",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                    fontFamily: "LexendExaNormal",
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                SizedBox(width: 10),
+                Icon(Icons.check_circle_rounded, size: 24),
+              ],
+            ),
+          ),
         ),
+        const SizedBox(height: 40),
       ],
     );
   }
