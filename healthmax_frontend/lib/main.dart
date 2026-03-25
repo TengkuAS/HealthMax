@@ -7,7 +7,7 @@ import 'HPPages/hp_homepage.dart';
 import 'HPPages/hp_userspage.dart';
 import 'HPPages/hp_requestspage.dart';
 import 'UserPages/user_homepage.dart';
-import 'UserPages/user_history.dart';
+import 'UserPages/HistoryPages/user_history_calorie.dart';
 import 'UserPages/user_calorie.dart';
 import 'UserPages/user_statistic.dart';
 import 'UserPages/user_target.dart';
@@ -70,7 +70,7 @@ class _MyAppState extends State<MyApp> {
 
         // User routes
         '/user_homepage': (context) => const UserHomePage(),
-        '/user_history': (context) => const UserHistoryPage(),
+        '/user_history': (context) => const UserHistoryCaloriePage(),
         '/user_calorie': (context) => const UserCaloriePage(),
         '/user_statistic': (context) => const UserStatisticPage(),
         '/user_target': (context) => const UserTargetPage(),

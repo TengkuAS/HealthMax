@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "C:/Users/New Windows/.vscode/HealthMax/healthmax_frontend/linux"
+    "cmake.sourceDirectory": "C:/Users/New Windows/.vscode/HealthMax/healthmax_frontend/linux",
+    "java.configuration.updateBuildConfiguration": "interactive"
 }
