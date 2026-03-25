@@ -11,11 +11,12 @@ class HPStartPage extends StatelessWidget {
     return StartPage(
       heading1: "CARE",
       heading2: "Beyond Clinic",
+      homeRoute: '/hp_home', // Pass the home route for dynamic navigation
       decoration: bgGradientHP,
       loginPage: (_) => const HPLoginPage(),
       registrationPage: (_) => const HPRegistrationPage(),
       onLoginSuccess: () {
-      Navigator.pushNamedAndRemoveUntil(context, '/hp_home', (route) => false);
+        Navigator.pushNamedAndRemoveUntil(context, '/hp_home', (route) => false);
       },
     );
   }
@@ -58,7 +59,7 @@ class HPRegistrationPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return RegistrationPage(
       loginPage: (_) => const HPLoginPage(),
-      postRegistration: (_) => PageNotFound(),
+      postRegistration: (_) => const PageNotFound(),
     );
   }
 }
@@ -71,6 +72,7 @@ class HPLoginPage extends StatelessWidget {
     return LoginPage(
       decoration: bgGradientHP,
       registrationPage: (_) => const HPRegistrationPage(),
+      homeRoute: '/hp_home', // Added the missing required parameter
     );
   }
 }

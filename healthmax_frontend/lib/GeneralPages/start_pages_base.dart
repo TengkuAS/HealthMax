@@ -6,8 +6,9 @@ class StartPage extends StatelessWidget {
   final String heading2;
   final WidgetBuilder loginPage;
   final WidgetBuilder registrationPage;
-  final BoxDecoration? decoration; // Added property
-  final VoidCallback? onLoginSuccess; // Added optional callback for successful login
+  final BoxDecoration? decoration; 
+  final VoidCallback? onLoginSuccess; 
+  final String homeRoute; // 1. Added property for dynamic routing
 
   const StartPage({
     super.key,
@@ -15,14 +16,15 @@ class StartPage extends StatelessWidget {
     required this.heading2,
     required this.loginPage,
     required this.registrationPage,
-    this.decoration, // Added to constructor
-    this.onLoginSuccess, // Added to constructor
+    required this.homeRoute, // Added to constructor
+    this.decoration, 
+    this.onLoginSuccess, 
   });
 
   @override
   Widget build(BuildContext context) {
     return Screen(
-      bgDecoration: decoration, // Pass it to Screen
+      bgDecoration: decoration, 
       child: ListView(
         children: [
           BackButton(),
@@ -57,9 +59,10 @@ class StartPage extends StatelessWidget {
                     context, 
                     MaterialPageRoute(
                       builder: (context) => LoginPage(
-                        registrationPage: registrationPage, // Pass the registration page to the login page for navigation
-                        decoration: decoration, // Pass the decoration to the login page for consistent styling
-                        onLoginSuccess: onLoginSuccess, // Pass the callback to the login page
+                        registrationPage: registrationPage, 
+                        decoration: decoration, 
+                        onLoginSuccess: onLoginSuccess,
+                        homeRoute: homeRoute, // 2. Pass the route down to LoginPage
                       ),
                     ),
                   );
@@ -94,7 +97,6 @@ class RegistrationPage extends StatelessWidget {
     super.key, 
     required this.loginPage,
     required this.postRegistration,
-     // Add this to constructor
   });
 
   @override
@@ -143,15 +145,22 @@ class RegistrationPage extends StatelessWidget {
 
 class LoginPage extends StatelessWidget {
   final WidgetBuilder registrationPage;
-  final BoxDecoration? decoration; // Added property
-  final VoidCallback? onLoginSuccess; // Added optional callback for successful login
+  final BoxDecoration? decoration; 
+  final VoidCallback? onLoginSuccess; 
+  final String homeRoute; // 3. Added property to catch the route
 
-  const LoginPage({super.key, required this.registrationPage, this.decoration, this.onLoginSuccess});
+  const LoginPage({
+    super.key, 
+    required this.registrationPage, 
+    required this.homeRoute, // Added to constructor
+    this.decoration, 
+    this.onLoginSuccess
+  });
 
   @override
   Widget build(BuildContext context) {
     return Screen(
-      bgDecoration: decoration, // Pass it to Screen
+      bgDecoration: decoration, 
       child: ListView(
         children: [
           BackButton(),
@@ -169,11 +178,16 @@ class LoginPage extends StatelessWidget {
             label: "Login", 
             width: 200,
             onPressed: (){
-              Navigator.pushNamedAndRemoveUntil( 
-                context,
-                '/hp_home',
-                (route) => false
-              );
+              // 4. If a custom success callback is provided, use it. Otherwise, route dynamically.
+              if (onLoginSuccess != null) {
+                onLoginSuccess!();
+              } else {
+                Navigator.pushNamedAndRemoveUntil( 
+                  context,
+                  homeRoute, // Dynamic routing applied here
+                  (route) => false
+                );
+              }
             },),
           CustomQuestionLink(
             question: "Don't have an account?",

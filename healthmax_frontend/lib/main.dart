@@ -15,6 +15,7 @@ import 'UserPages/user_target.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter bindings are initialized before loading .env
   await dotenv.load(fileName: '.env');
   runApp(const MyApp());
 }
@@ -61,10 +62,13 @@ class _MyAppState extends State<MyApp> {
       ),
       home: isSignedIn ? UserDashboard() : WelcomePage(),
       routes: {
+        // Healthcare Provider routes
         '/hp_home': (context) => const HPHomePage(),
         '/hp_users': (context) => const HPUsersPage(),
         '/hp_requests': (context) => const HPRequestsPage(),
         '/hp_settings': (context) => const HPProfileClicked(),
+
+        // User routes
         '/user_homepage': (context) => const UserHomePage(),
         '/user_history': (context) => const UserHistoryPage(),
         '/user_calorie': (context) => const UserCaloriePage(),

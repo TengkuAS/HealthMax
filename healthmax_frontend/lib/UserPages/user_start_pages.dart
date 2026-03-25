@@ -10,8 +10,13 @@ class UserStartPage extends StatelessWidget {
     return StartPage(
       heading1: "WELLNESS",
       heading2: "BEGINS HERE",
-      loginPage: (_) => UserLoginPage(),
-      registrationPage: (_) => UserRegistrationPage(),
+      homeRoute: '/user_home', // Ensured this matches your main.dart routes
+      loginPage: (_) => const UserLoginPage(),
+      registrationPage: (_) => const UserRegistrationPage(),
+      onLoginSuccess: () {
+        // Clears the stack and routes to the User Dashboard/Home
+        Navigator.pushNamedAndRemoveUntil(context, '/user_homepage', (route) => false);
+      },
     );
   }
 }
@@ -22,8 +27,9 @@ class UserRegistrationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RegistrationPage(
-      loginPage: (_) => UserLoginPage(),
-      postRegistration: (_) => RegistrationIntro(),
+      loginPage: (_) => const UserLoginPage(),
+      postRegistration: (_) => const RegistrationIntro(),
+      // Note: Removed homeRoute here because RegistrationPage base class doesn't use it
     );
   }
 }
@@ -33,6 +39,9 @@ class UserLoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LoginPage(registrationPage: (_) => UserRegistrationPage());
+    return LoginPage(
+      registrationPage: (_) => const UserRegistrationPage(),
+      homeRoute: '/user_homepage', // Added the required parameter here
+    );
   }
 }
