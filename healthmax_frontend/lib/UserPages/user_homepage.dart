@@ -44,17 +44,20 @@ class _UserHomePageState extends State<UserHomePage> {
   final Color themeBlue = const Color(0xFF5A84F1);
   final Color bgOffWhite = const Color(0xFFF8F9FA);
 
-  // ==========================================
-  // 2. INITIALIZE MOCK DATA
-  // Replace this later with your HealthMaxDB fetch logic
-  // ==========================================
+  // --- SCROLL ANIMATION STATE ---
+  late ScrollController _scrollController;
+  bool _isScrolled = false;
+
   late UserHealthData myData;
 
   @override
   void initState() {
     super.initState();
+    
+    // 2. INITIALIZE MOCK DATA
+    // Try changing the username to something very long to test the blur effect!
     myData = UserHealthData(
-      username: "Adam",
+      username: "Tengku Adam", 
       heartRate: 90,
       heartRateStatus: "Normal",
       bloodGlucose: 90,
@@ -66,6 +69,23 @@ class _UserHomePageState extends State<UserHomePage> {
       caloriesToBurn: 1234,
       lastUpdated: "1 minute ago",
     );
+
+    // 3. SET UP SCROLL LISTENER
+    _scrollController = ScrollController();
+    _scrollController.addListener(() {
+      // 90px is exactly when the large text starts to hide under the app bar
+      if (_scrollController.offset > 90 && !_isScrolled) {
+        setState(() => _isScrolled = true);
+      } else if (_scrollController.offset <= 90 && _isScrolled) {
+        setState(() => _isScrolled = false);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -73,10 +93,11 @@ class _UserHomePageState extends State<UserHomePage> {
     return Scaffold(
       backgroundColor: bgOffWhite,
       body: CustomScrollView(
+        controller: _scrollController, // Attach the scroll listener
         physics: const BouncingScrollPhysics(),
         slivers: [
           // ==========================================
-          // 3. COLLAPSING SLIVER APP BAR
+          // 4. DYNAMIC SLIVER APP BAR
           // ==========================================
           SliverAppBar(
             backgroundColor: themeBlue,
@@ -84,12 +105,43 @@ class _UserHomePageState extends State<UserHomePage> {
             toolbarHeight: 90.0, 
             pinned: true, 
             
-            // --- THE MAGIC FIX FOR THE FAINT LINE ---
             elevation: 0,
-            scrolledUnderElevation: 0.0,         // Turns off the scroll shadow
-            surfaceTintColor: Colors.transparent, // Turns off the scroll color tint
+            scrolledUnderElevation: 0.0,         
+            surfaceTintColor: Colors.transparent, 
             
-            // The Profile Button stays pinned at the top right
+            // --- THE FOLDED TITLE (Fades in on scroll) ---
+            title: AnimatedOpacity(
+              duration: const Duration(milliseconds: 250),
+              opacity: _isScrolled ? 1.0 : 0.0, // Only visible when scrolled down
+              child: Padding(
+                padding: const EdgeInsets.only(left: 15.0, top: 10.0),
+                child: ShaderMask(
+                  // Creates the blur/fade effect for long usernames
+                  shaderCallback: (Rect bounds) {
+                    return const LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [Colors.white, Colors.white, Colors.transparent],
+                      stops: [0.0, 0.85, 1.0], // Fades out the last 15% of the text
+                    ).createShader(bounds);
+                  },
+                  blendMode: BlendMode.dstIn,
+                  child: Text(
+                    "Hi, ${myData.username}!",
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.clip, // Prevents "..." from appearing
+                    style: const TextStyle(
+                      fontSize: 24, 
+                      fontWeight: FontWeight.w900, 
+                      color: Colors.white, 
+                      fontFamily: "LexendExaNormal"
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
             actions: const [
               Padding(
                 padding: EdgeInsets.only(right: 30.0, top: 10.0),
@@ -97,6 +149,7 @@ class _UserHomePageState extends State<UserHomePage> {
               ),
             ],
             
+            // --- THE EXPANDED LARGE TEXT ---
             flexibleSpace: FlexibleSpaceBar(
               collapseMode: CollapseMode.parallax, 
               background: SafeArea(
@@ -105,6 +158,7 @@ class _UserHomePageState extends State<UserHomePage> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // This large text automatically hides under the solid AppBar as you scroll
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -119,7 +173,7 @@ class _UserHomePageState extends State<UserHomePage> {
                             ),
                           ),
                           Text(
-                            "${myData.username}!", // Using Mock Data
+                            "${myData.username}!", 
                             style: const TextStyle(
                               fontSize: 35, 
                               fontWeight: FontWeight.bold, 
@@ -135,7 +189,6 @@ class _UserHomePageState extends State<UserHomePage> {
               ),
             ),
             
-            // The curved white container pulled down by 1px to hide the gap
             bottom: PreferredSize(
               preferredSize: const Size.fromHeight(30),
               child: Transform.translate(
@@ -156,7 +209,7 @@ class _UserHomePageState extends State<UserHomePage> {
           ),
 
           // ==========================================
-          // 4. SCROLLABLE BODY CONTENT
+          // 5. SCROLLABLE BODY CONTENT
           // ==========================================
           SliverToBoxAdapter(
             child: Container(
@@ -185,7 +238,6 @@ class _UserHomePageState extends State<UserHomePage> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              // Left Column: Metrics
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -221,7 +273,6 @@ class _UserHomePageState extends State<UserHomePage> {
                                 ],
                               ),
                               
-                              // Right Column: Steps Progress
                               SizedBox(
                                 width: 140,
                                 height: 140,
@@ -371,6 +422,7 @@ class _UserHomePageState extends State<UserHomePage> {
   }
 
   // --- HELPER WIDGETS ---
+  // (Remaining helper widgets stay the same as previous)
 
   Widget _buildMetric({
     required IconData icon, 
