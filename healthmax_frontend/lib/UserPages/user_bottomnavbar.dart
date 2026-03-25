@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 
 class UserBottomNavBar extends StatelessWidget {
   final int currentIndex;
-  
-  // Using the specific blue color from your screenshot
   final Color activeColor = const Color(0xFF5A84F1); 
 
   const UserBottomNavBar({
@@ -15,8 +13,6 @@ class UserBottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      // FIX: Removed "height: 95" so the navbar can dynamically adapt 
-      // to the device's bottom Safe Area without overflowing.
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: const BorderRadius.only(
@@ -25,42 +21,95 @@ class UserBottomNavBar extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withOpacity(0.08),
             blurRadius: 20,
             offset: const Offset(0, -5),
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(35),
-          topRight: Radius.circular(35),
+      // SafeArea ensures it doesn't overlap with the iPhone home bar / Android gestures
+      child: SafeArea(
+        child: SizedBox(
+          height: 75, // Fixed height for the interactive area
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildNavItem(context, Icons.home_filled, 'Home', 0),
+              _buildNavItem(context, Icons.book, 'History', 1),
+              _buildNavItem(context, Icons.restaurant, 'Calorie', 2),
+              _buildNavItem(context, Icons.bar_chart, 'Statistics', 3),
+              _buildNavItem(context, Icons.track_changes_rounded, 'Target', 4),
+            ],
+          ),
         ),
-        child: BottomNavigationBar(
-          elevation: 0,
-          backgroundColor: Colors.white,
-          selectedItemColor: activeColor,
-          unselectedItemColor: Colors.black,
-          currentIndex: currentIndex,
-          type: BottomNavigationBarType.fixed,
-          selectedFontSize: 12,
-          unselectedFontSize: 12,
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w900, fontFamily: "LexendExaNormal"),
-          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700, fontFamily: "LexendExaNormal"),
-          onTap: (index) => _handleNavigation(context, index),
-          items: [
-            _buildNavItem(Icons.home_filled, 'Home', currentIndex == 0),
-            _buildNavItem(Icons.book, 'History', currentIndex == 1),
-            _buildNavItem(Icons.restaurant, 'Calorie', currentIndex == 2),
-            _buildNavItem(Icons.bar_chart, 'Statistics', currentIndex == 3),
-            _buildNavItem(Icons.track_changes_rounded, 'Target', currentIndex == 4),
+      ),
+    );
+  }
+
+  // ---------- 2. CUSTOM NAV ITEM BUILDER ----------
+  Widget _buildNavItem(BuildContext context, IconData icon, String label, int index) {
+    bool isActive = currentIndex == index;
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => _handleNavigation(context, index),
+        behavior: HitTestBehavior.opaque, // Makes the whole expanded area clickable
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // --- THE FIXED TOP INDICATOR ---
+            if (isActive)
+              Positioned(
+                top: 0, // Locks it exactly to the top edge of the white container
+                child: Container(
+                  height: 5,
+                  width: 40,
+                  decoration: BoxDecoration(
+                    color: activeColor,
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(6),
+                      bottomRight: Radius.circular(6),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: activeColor.withOpacity(0.3),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            
+            // --- ICON AND TEXT ---
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 5), // Slight push down so it doesn't hit the indicator
+                Icon(
+                  icon,
+                  size: 28,
+                  color: isActive ? activeColor : Colors.black,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: isActive ? activeColor : Colors.black,
+                    fontSize: 11,
+                    fontWeight: isActive ? FontWeight.w900 : FontWeight.w700,
+                    fontFamily: "LexendExaNormal",
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
     );
   }
 
-  // ---------- 2. NAVIGATION LOGIC ----------
+  // ---------- 3. NAVIGATION LOGIC ----------
   void _handleNavigation(BuildContext context, int index) {
     if (index == currentIndex) return;
 
@@ -81,51 +130,5 @@ class UserBottomNavBar extends StatelessWidget {
         Navigator.pushReplacementNamed(context, '/user_target');
         break;
     }
-  }
-
-  // ---------- 3. UI COMPONENT HELPERS ----------
-  BottomNavigationBarItem _buildNavItem(IconData icon, String label, bool isActive) {
-    return BottomNavigationBarItem(
-      icon: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Stack(
-            alignment: Alignment.topCenter,
-            clipBehavior: Clip.none,
-            children: [
-              Padding(
-                // FIX: Reduced top padding from 15.0 to 10.0 and icon size to 28 
-                // to prevent internal overflow while keeping the premium look.
-                padding: const EdgeInsets.only(top: 10.0, bottom: 4.0),
-                child: Icon(icon, size: 28), 
-              ),
-              if (isActive)
-                Positioned(
-                  top: -7, // FIX: Adjusted offset so it stays pinned to the top edge
-                  child: Container(
-                    height: 6,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      color: activeColor,
-                      borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(6),
-                        bottomRight: Radius.circular(6),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: activeColor.withOpacity(0.3),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ],
-      ),
-      label: label,
-    );
   }
 }
