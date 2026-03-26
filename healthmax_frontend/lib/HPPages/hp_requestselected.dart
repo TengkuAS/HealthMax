@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:provider/provider.dart';
+import '../theme_provider.dart'; // Ensure this path is correct
 import 'usermodel.dart';
 
 class HPRequestSelected extends StatefulWidget {
@@ -12,18 +14,13 @@ class HPRequestSelected extends StatefulWidget {
 }
 
 class _HPRequestSelectedState extends State<HPRequestSelected> {
-  final Color themePurple = const Color(0xFF8E33FF);
-  final Color bgOffWhite = const Color(0xFFFFFFFF); 
-
   // --- STATE VARIABLES ---
   String selectedMetric = 'Heart Rate';
   String selectedTimeframe = 'Week';
 
-  // --- DYNAMIC GRAPH LOGIC ---
+  // --- DYNAMIC GRAPH LOGIC (Unchanged) ---
   double _getMaxX() => selectedTimeframe == "Week" ? 6 : (selectedTimeframe == "Month" ? 3 : 11);
-  
   double _getMinY() => selectedMetric == 'Heart Rate' ? 60 : 0;
-  
   double _getMaxY() {
     switch (selectedMetric) {
       case 'Heart Rate': return 100;
@@ -33,7 +30,6 @@ class _HPRequestSelectedState extends State<HPRequestSelected> {
       default: return 100;
     }
   }
-
   double _getIntervalY() {
     switch (selectedMetric) {
       case 'Heart Rate': return 5;
@@ -63,13 +59,22 @@ class _HPRequestSelectedState extends State<HPRequestSelected> {
 
   @override
   Widget build(BuildContext context) {
+    // ==========================================
+    // DYNAMIC THEME VARIABLES
+    // ==========================================
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
+
+    final themePurple = Theme.of(context).primaryColor;
+    final bgColor = Theme.of(context).scaffoldBackgroundColor;
+    final surfaceColor = Theme.of(context).colorScheme.surface;
+    final textPrimary = Theme.of(context).colorScheme.onSurface;
+    final dividerColor = Theme.of(context).dividerColor;
+
     return Scaffold(
-      backgroundColor: bgOffWhite,
+      backgroundColor: bgColor,
       body: Stack(
         children: [
-          // ==========================================
-          // 1. SCROLLABLE ARCHITECTURE
-          // ==========================================
           CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
@@ -123,7 +128,7 @@ class _HPRequestSelectedState extends State<HPRequestSelected> {
                   preferredSize: const Size.fromHeight(30),
                   child: Transform.translate(
                     offset: const Offset(0, 1),
-                    child: Container(height: 31, width: double.infinity, decoration: BoxDecoration(color: bgOffWhite, borderRadius: const BorderRadius.vertical(top: Radius.circular(35)))),
+                    child: Container(height: 31, width: double.infinity, decoration: BoxDecoration(color: bgColor, borderRadius: const BorderRadius.vertical(top: Radius.circular(35)))),
                   ),
                 ),
               ),
@@ -138,29 +143,27 @@ class _HPRequestSelectedState extends State<HPRequestSelected> {
                       const Text("ANALYTICS OVERVIEW", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 11, color: Colors.grey, letterSpacing: 1.2)),
                       const SizedBox(height: 20),
                       
-                      // THE DROPDOWNS (Now fully visible!)
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _buildDropdown(['Heart Rate', 'Steps', 'Glucose Level', 'Calories'], selectedMetric, (v) => setState(() => selectedMetric = v!), isMetric: true),
-                          _buildDropdown(['Week', 'Month', 'Year'], selectedTimeframe, (v) => setState(() => selectedTimeframe = v!), isMetric: false),
+                          _buildDropdown(['Heart Rate', 'Steps', 'Glucose Level', 'Calories'], selectedMetric, (v) => setState(() => selectedMetric = v!), isMetric: true, isDark: isDark, surfaceColor: surfaceColor, textPrimary: textPrimary),
+                          _buildDropdown(['Week', 'Month', 'Year'], selectedTimeframe, (v) => setState(() => selectedTimeframe = v!), isMetric: false, isDark: isDark, surfaceColor: surfaceColor, textPrimary: textPrimary),
                         ],
                       ),
                       
                       const SizedBox(height: 25),
-                      _buildMainGraph(),
+                      _buildMainGraph(themePurple, surfaceColor, textPrimary, dividerColor, isDark),
                       const SizedBox(height: 25),
                       
-                      // Stat Cards matching the screenshot
                       Row(
                         children: [
-                          Expanded(child: _buildStatCard("Daily Avg", "72 bpm", Colors.orange.shade400, Colors.orange.shade50)),
+                          Expanded(child: _buildStatCard("Daily Avg", "72 bpm", isDark ? Colors.orangeAccent : Colors.orange.shade800, isDark ? Colors.orange.withOpacity(0.1) : Colors.orange.shade50, textPrimary)),
                           const SizedBox(width: 15),
-                          Expanded(child: _buildStatCard("Status", "Normal", Colors.blue.shade400, Colors.blue.shade50)),
+                          Expanded(child: _buildStatCard("Status", "Normal", isDark ? Colors.lightBlueAccent : Colors.blue.shade800, isDark ? Colors.blue.withOpacity(0.1) : Colors.blue.shade50, textPrimary)),
                         ],
                       ),
                       
-                      const SizedBox(height: 140), // Spacer for floating bottom bar
+                      const SizedBox(height: 140), 
                     ],
                   ),
                 ),
@@ -176,9 +179,9 @@ class _HPRequestSelectedState extends State<HPRequestSelected> {
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
               decoration: BoxDecoration(
-                color: const Color(0xFF2C2C2E), // Dark premium grey
+                color: const Color(0xFF2C2C2E), 
                 borderRadius: BorderRadius.circular(40),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 20, offset: const Offset(0, 10))],
+                boxShadow: [BoxShadow(color: Colors.black.withOpacity(isDark ? 0.6 : 0.2), blurRadius: 20, offset: const Offset(0, 10))],
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -199,57 +202,45 @@ class _HPRequestSelectedState extends State<HPRequestSelected> {
   // UI COMPONENT HELPERS
   // ==========================================
 
- Widget _buildDropdown(List<String> items, String val, ValueChanged<String?> onChanged, {required bool isMetric}) {
+  Widget _buildDropdown(List<String> items, String val, ValueChanged<String?> onChanged, {required bool isMetric, required bool isDark, required Color surfaceColor, required Color textPrimary}) {
+    final dropBg = isDark ? const Color(0xFF2C2C2E) : Colors.grey.shade100;
+    
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100, // Light grey background
-        borderRadius: BorderRadius.circular(15),
-      ),
+      decoration: BoxDecoration(color: dropBg, borderRadius: BorderRadius.circular(15)),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: val,
+          dropdownColor: surfaceColor,
           icon: Padding(
             padding: const EdgeInsets.only(left: 8.0),
-            // Changed icon color to pure black
-            child: Icon(
-              isMetric ? Icons.keyboard_arrow_down_rounded : Icons.calendar_today_outlined, 
-              color: Colors.black, 
-              size: 16
-            ),
+            child: Icon(isMetric ? Icons.keyboard_arrow_down_rounded : Icons.calendar_today_outlined, color: textPrimary, size: 16),
           ),
-          // This controls the text when the dropdown is CLOSED
           selectedItemBuilder: (BuildContext context) {
             return items.map<Widget>((String item) {
-              return Center(
-                child: Text(
-                  item, 
-                  style: const TextStyle(fontWeight: FontWeight.w900, color: Colors.black, fontSize: 13, fontFamily: "LexendExaNormal")
-                ),
-              );
+              return Center(child: Text(item, style: TextStyle(fontWeight: FontWeight.w900, color: textPrimary, fontSize: 13, fontFamily: "LexendExaNormal")));
             }).toList();
           },
           onChanged: onChanged,
-          // This controls the text when the dropdown is OPEN
-          items: items.map((i) => DropdownMenuItem(value: i, child: Text(i, style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 13)))).toList(),
+          items: items.map((i) => DropdownMenuItem(value: i, child: Text(i, style: TextStyle(color: textPrimary, fontWeight: FontWeight.bold, fontSize: 13)))).toList(),
         ),
       ),
     );
   }
 
-  Widget _buildMainGraph() {
+  Widget _buildMainGraph(Color themePurple, Color surfaceColor, Color textPrimary, Color dividerColor, bool isDark) {
     return Container(
       height: 260,
       padding: const EdgeInsets.fromLTRB(15, 25, 25, 15),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: Colors.grey.shade100),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 15, offset: const Offset(0, 5))],
+        border: Border.all(color: dividerColor),
+        boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 15, offset: const Offset(0, 5))],
       ),
       child: LineChart(
         LineChartData(
-          gridData: FlGridData(show: true, drawVerticalLine: false, getDrawingHorizontalLine: (value) => FlLine(color: Colors.grey.shade100, strokeWidth: 1.5)),
+          gridData: FlGridData(show: true, drawVerticalLine: false, getDrawingHorizontalLine: (value) => FlLine(color: dividerColor, strokeWidth: 1.5)),
           titlesData: FlTitlesData(
             show: true,
             rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -258,7 +249,7 @@ class _HPRequestSelectedState extends State<HPRequestSelected> {
               sideTitles: SideTitles(
                 showTitles: true, reservedSize: 30, interval: 1,
                 getTitlesWidget: (value, meta) {
-                  const style = TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey);
+                  final style = TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: textPrimary.withOpacity(0.5));
                   String text = '';
                   if (selectedTimeframe == "Week") {
                     const days = ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7'];
@@ -282,7 +273,7 @@ class _HPRequestSelectedState extends State<HPRequestSelected> {
                 getTitlesWidget: (value, meta) {
                   if (value == _getMinY() || value == _getMaxY()) return const SizedBox.shrink();
                   String text = selectedMetric == 'Steps' ? '${(value / 1000).toInt()}k' : (selectedMetric == 'Glucose Level' ? value.toStringAsFixed(1) : value.toInt().toString());
-                  return Text(text, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey));
+                  return Text(text, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: textPrimary.withOpacity(0.5)));
                 },
               ),
             ),
@@ -295,7 +286,7 @@ class _HPRequestSelectedState extends State<HPRequestSelected> {
               spots: _getChartData(),
               isCurved: true, curveSmoothness: 0.35,
               color: themePurple, barWidth: 3.5, isStrokeCapRound: true,
-              dotData: FlDotData(show: true, getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(radius: 4, color: themePurple, strokeWidth: 1.5, strokeColor: Colors.white)),
+              dotData: FlDotData(show: true, getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(radius: 4, color: themePurple, strokeWidth: 1.5, strokeColor: surfaceColor)),
               belowBarData: BarAreaData(show: true, color: themePurple.withOpacity(0.1)), 
             ),
           ],
@@ -306,7 +297,7 @@ class _HPRequestSelectedState extends State<HPRequestSelected> {
     );
   }
 
-  Widget _buildStatCard(String title, String value, Color titleColor, Color bgColor) {
+  Widget _buildStatCard(String title, String value, Color titleColor, Color bgColor, Color textPrimary) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 15),
       decoration: BoxDecoration(
@@ -318,7 +309,7 @@ class _HPRequestSelectedState extends State<HPRequestSelected> {
         children: [
           Text(title, style: TextStyle(color: titleColor, fontWeight: FontWeight.bold, fontSize: 12)),
           const SizedBox(height: 8),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: Colors.black87)),
+          Text(value, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: textPrimary)),
         ],
       ),
     );

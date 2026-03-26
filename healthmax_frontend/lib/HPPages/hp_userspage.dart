@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../theme_provider.dart'; 
 import 'hp_bottomnavbar.dart';
-import 'hp_glassy_profile.dart'; 
+import 'hp_glassy_profile.dart';
+import 'usermodel.dart';
 import 'hp_userselected.dart';
-import "usermodel.dart";
 
 class HPUsersPage extends StatefulWidget {
   const HPUsersPage({super.key});
@@ -12,205 +14,158 @@ class HPUsersPage extends StatefulWidget {
 }
 
 class _HPUsersPageState extends State<HPUsersPage> {
-  // --- STATE VARIABLES ---
-  final TextEditingController _searchController = TextEditingController();
-  bool _isAscending = true;
-  List<UserModel> _foundUsers = [];
-
-  // Mocking 10 Users as requested
-  final List<UserModel> _allUsers = [
-    UserModel(username: "adam_t", fullName: "Tengku Adam", gender: "M", height: 175, weight: 75, device: "Apple Watch 9"),
-    UserModel(username: "sarah_j", fullName: "Sarah Jenkins", gender: "F", height: 165, weight: 55, device: "Garmin Venu 3"),
-    UserModel(username: "mike_r", fullName: "Mike Ross", gender: "M", height: 182, weight: 80, device: "Fitbit Sense 2"),
-    UserModel(username: "clara_o", fullName: "Clara Oswald", gender: "F", height: 160, weight: 52, device: "Apple Watch SE"),
-    UserModel(username: "bruce_w", fullName: "Bruce Wayne", gender: "M", height: 188, weight: 95, device: "Oura Ring Gen3"),
-    UserModel(username: "diana_p", fullName: "Diana Prince", gender: "F", height: 178, weight: 65, device: "Garmin Fenix 7"),
-    UserModel(username: "barry_a", fullName: "Barry Allen", gender: "M", height: 180, weight: 70, device: "Whoop 4.0"),
-    UserModel(username: "selina_k", fullName: "Selina Kyle", gender: "F", height: 172, weight: 58, device: "Apple Watch S9"),
-    UserModel(username: "arthur_c", fullName: "Arthur Curry", gender: "M", height: 193, weight: 105, device: "Suunto Vertical"),
-    UserModel(username: "hal_j", fullName: "Hal Jordan", gender: "M", height: 185, weight: 85, device: "Galaxy Watch 6"),
+  // --- STATE & DATA ---
+  final List<UserModel> _activeUsers = [
+    UserModel(username: "john_d", fullName: "John Doe", gender: "M", height: 175, weight: 70, device: "Apple Watch S8"),
+    UserModel(username: "jane_s", fullName: "Jane Smith", gender: "F", height: 165, weight: 58, device: "Fitbit Charge 5"),
+    UserModel(username: "robert_k", fullName: "Robert King", gender: "M", height: 182, weight: 85, device: "Garmin Fenix 7"),
+    UserModel(username: "emily_r", fullName: "Emily Rose", gender: "F", height: 170, weight: 62, device: "Oura Ring Gen3"),
   ];
 
   @override
-  void initState() {
-    _foundUsers = List.from(_allUsers);
-    _applyCurrentSort();
-    super.initState();
-  }
-
-  // ---------- 1. MAIN BUILD METHOD ----------
-  @override
   Widget build(BuildContext context) {
-    const Color themeColor = Color(0xFF8E33FF);
+    // ==========================================
+    // DYNAMIC THEME VARIABLES
+    // ==========================================
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
+
+    final themePurple = Theme.of(context).primaryColor;
+    final bgColor = Theme.of(context).scaffoldBackgroundColor;
+    final surfaceColor = Theme.of(context).colorScheme.surface;
+    final textPrimary = Theme.of(context).colorScheme.onSurface;
+    final textSecondary = isDark ? Colors.white54 : Colors.grey.shade600;
+    final dividerColor = Theme.of(context).dividerColor;
 
     return Scaffold(
-      backgroundColor: themeColor,
+      backgroundColor: bgColor,
       body: Stack(
         children: [
-          // BACKGROUND HEADER
-          Positioned(
-            top: 80, left: 25,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text("Connected", 
-                  style: TextStyle(fontSize: 55, fontWeight: FontWeight.bold, color: Colors.white, height: 1.0)),
-                Text("Users.", 
-                  style: TextStyle(fontSize: 55, fontWeight: FontWeight.bold, color: Colors.white, height: 1.0)),
-              ],
-            ),
-          ),
-
-          // PROFILE BUTTON
-          Positioned(top: 75, right: 25, child: HPGlassyProfile(onTap: () {})),
-          
-          // MAIN WHITE BODY
-          Column(
-            children: [
-              const SizedBox(height: 220),
-              Expanded(
-                child: Container(
-                  width: double.infinity,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(topLeft: Radius.circular(40), topRight: Radius.circular(40)),
+          CustomScrollView(
+            physics: const BouncingScrollPhysics(),
+            slivers: [
+              // --- PREMIUM SLIVER APP BAR ---
+              SliverAppBar(
+                backgroundColor: themePurple,
+                expandedHeight: 200.0,
+                toolbarHeight: 90.0,
+                pinned: true,
+                elevation: 0,
+                scrolledUnderElevation: 0.0,
+                surfaceTintColor: Colors.transparent,
+                actions: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 30.0, top: 10.0),
+                    child: Center(child: HPGlassyProfile(onTap: () => Navigator.pushNamed(context, '/hp_settings'))),
                   ),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 25),
-                      _buildSearchBar(),
-                      const SizedBox(height: 20),
-                      _buildUserHeader(),
-                      const SizedBox(height: 10),
-                      Expanded(
-                        child: _foundUsers.isNotEmpty 
-                          ? ListView.separated(
-                              physics: const BouncingScrollPhysics(),
-                              padding: const EdgeInsets.fromLTRB(25, 10, 25, 120),
-                              itemCount: _foundUsers.length,
-                              separatorBuilder: (context, index) => const Divider(height: 30, thickness: 0.5),
-                              itemBuilder: (context, index) => _buildUserTile(_foundUsers[index]),
-                            )
-                          : const Center(child: Text("No users found.", style: TextStyle(color: Colors.grey))),
+                ],
+                flexibleSpace: FlexibleSpaceBar(
+                  collapseMode: CollapseMode.parallax,
+                  background: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(30, 40, 30, 0),
+                      child: const Text(
+                        "Users.",
+                        style: TextStyle(fontSize: 45, fontWeight: FontWeight.w900, color: Colors.white, fontFamily: "LexendExaNormal", letterSpacing: -1.0, height: 1.1),
                       ),
+                    ),
+                  ),
+                ),
+                bottom: PreferredSize(
+                  preferredSize: const Size.fromHeight(30),
+                  child: Transform.translate(
+                    offset: const Offset(0, 1),
+                    child: Container(
+                      height: 31, 
+                      width: double.infinity, 
+                      decoration: BoxDecoration(color: bgColor, borderRadius: const BorderRadius.vertical(top: Radius.circular(40)))
+                    ),
+                  ),
+                ),
+              ),
+
+              // --- MAIN BODY CONTENT ---
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 10),
+                      Text(
+                        "ACTIVE PATIENTS", 
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: textSecondary, letterSpacing: 1.2)
+                      ),
+                      const SizedBox(height: 15),
+
+                      // Users List Container
+                      Container(
+                        padding: const EdgeInsets.fromLTRB(15, 15, 15, 5),
+                        decoration: BoxDecoration(
+                          color: surfaceColor,
+                          borderRadius: BorderRadius.circular(30),
+                          border: Border.all(color: dividerColor),
+                          boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 15, offset: const Offset(0, 8))],
+                        ),
+                        child: ListView.builder(
+                          padding: EdgeInsets.zero,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: _activeUsers.length,
+                          itemBuilder: (context, index) {
+                            return _buildUserTile(_activeUsers[index], bgColor, surfaceColor, textPrimary, textSecondary, dividerColor, themePurple, isDark);
+                          },
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 120), // Bottom padding for NavBar
                     ],
                   ),
                 ),
               ),
             ],
           ),
-          
-          // BOTTOM NAVIGATION BAR
+
+          // --- BOTTOM NAVIGATION BAR ---
           Positioned(
             bottom: 0, left: 0, right: 0,
-            child: HPBottomNavBar(currentIndex: 1, activeColor: themeColor),
+            child: HPBottomNavBar(currentIndex: 1, activeColor: themePurple), // Current index is 1 for Users
           ),
         ],
       ),
     );
   }
 
-  // ---------- 2. UI COMPONENT HELPERS ----------
-  // INDIVIDUAL USER TILE
-  Widget _buildUserTile(UserModel user) {
-    return InkWell(
-      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => HPUserSelected(user: user))),
-      child: Row(
-        children: [
-          const CircleAvatar(radius: 25, backgroundColor: Colors.black, child: Icon(Icons.person, color: Colors.white)),
-          const SizedBox(width: 15),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(user.fullName, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
-                Text(user.infoString, style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
-              ],
-            ),
-          ),
-          const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
-        ],
+  // ==========================================
+  // UI COMPONENT HELPERS
+  // ==========================================
+  Widget _buildUserTile(UserModel user, Color bgColor, Color surfaceColor, Color textPrimary, Color textSecondary, Color dividerColor, Color themePurple, bool isDark) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: bgColor, 
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: dividerColor),
       ),
-    );
-  }
-
-  // SEARCH BAR
-  Widget _buildSearchBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25),
-      child: Container(
-        height: 50,
-        decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(18)),
-        child: TextField(
-          controller: _searchController,
-          onChanged: _runFilter,
-          decoration: const InputDecoration(
-            hintText: "Search for Patient",
-            hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
-            prefixIcon: Icon(Icons.search, color: Colors.grey, size: 20),
-            border: InputBorder.none,
-            contentPadding: EdgeInsets.symmetric(vertical: 12),
-          ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 2),
+        leading: CircleAvatar(
+          radius: 20, 
+          backgroundColor: isDark ? surfaceColor : Colors.white, 
+          child: Icon(Icons.person, size: 20, color: themePurple),
         ),
+        title: Text(user.fullName, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: textPrimary)),
+        subtitle: Text("Device: ${user.device}", style: TextStyle(fontSize: 11, color: textSecondary, fontWeight: FontWeight.w600)),
+        trailing: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(color: surfaceColor, shape: BoxShape.circle),
+          child: Icon(Icons.arrow_forward_ios_rounded, size: 12, color: textPrimary),
+        ),
+        onTap: () {
+          // Navigates to the selected user's detail page
+          Navigator.push(context, MaterialPageRoute(builder: (context) => HPUserSelected(user: user)));
+        },
       ),
     );
-  }
-
-  // HEADER FOR THE LIST (Count and Sort toggle)
-  Widget _buildUserHeader() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 30),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text("CONNECTED PATIENTS (${_foundUsers.length})", 
-            style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w800, fontSize: 11, letterSpacing: 1.1)),
-          GestureDetector(
-            onTap: _toggleSort,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(10)),
-              child: Row(
-            children: [
-              Text(_isAscending ? "A-Z " : "Z-A ", 
-              style: TextStyle(color: Colors.grey.shade700, fontSize: 11, fontWeight: FontWeight.bold)),
-              Icon(
-                _isAscending ? Icons.arrow_downward : Icons.arrow_upward, 
-                size: 14, 
-                color: Colors.grey.shade700
-                ),
-              ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ---------- 3. LOGIC & FILTERING HELPERS ----------
-  void _runFilter(String enteredKeyword) {
-    List<UserModel> results = enteredKeyword.isEmpty 
-        ? List.from(_allUsers) 
-        : _allUsers.where((user) => user.fullName.toLowerCase().contains(enteredKeyword.toLowerCase())).toList();
-    setState(() {
-      _foundUsers = results;
-      _applyCurrentSort();
-    });
-  }
-
-  void _applyCurrentSort() {
-    setState(() {
-      _foundUsers.sort((a, b) => _isAscending
-          ? a.fullName.compareTo(b.fullName)
-          : b.fullName.compareTo(a.fullName));
-    });
-  }
-
-  void _toggleSort() {
-    setState(() {
-      _isAscending = !_isAscending;
-      _applyCurrentSort();
-    });
   }
 }
