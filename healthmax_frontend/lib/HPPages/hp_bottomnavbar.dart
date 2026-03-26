@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../theme_provider.dart';
 
 class HPBottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -13,31 +15,38 @@ class HPBottomNavBar extends StatelessWidget {
   // ---------- 1. MAIN BUILD METHOD ----------
   @override
   Widget build(BuildContext context) {
+    // Listen to the theme provider
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
+
+    // Dynamically grab colors
+    final bgColor = Theme.of(context).colorScheme.surface; // White in light, Dark Grey in dark
+    final shadowColor = isDark ? Colors.black.withOpacity(0.3) : Colors.black.withOpacity(0.08);
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: bgColor,
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(35),
           topRight: Radius.circular(35),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08), // Matches user shadow
+            color: shadowColor,
             blurRadius: 20,
             offset: const Offset(0, -5),
           ),
         ],
       ),
-      // SafeArea ensures it perfectly hugs the bottom of the screen
       child: SafeArea(
         child: SizedBox(
-          height: 75, // Fixed height for perfect indicator alignment
+          height: 75,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(context, Icons.home_rounded, 'Home', 0),
-              _buildNavItem(context, Icons.people_alt_outlined, 'Users', 1),
-              _buildNavItem(context, Icons.analytics_outlined, 'Requests', 2),
+              _buildNavItem(context, Icons.home_rounded, 'Home', 0, isDark),
+              _buildNavItem(context, Icons.people_alt_outlined, 'Users', 1, isDark),
+              _buildNavItem(context, Icons.analytics_outlined, 'Requests', 2, isDark),
             ],
           ),
         ),
@@ -46,20 +55,23 @@ class HPBottomNavBar extends StatelessWidget {
   }
 
   // ---------- 2. CUSTOM NAV ITEM BUILDER ----------
-  Widget _buildNavItem(BuildContext context, IconData icon, String label, int index) {
+  Widget _buildNavItem(BuildContext context, IconData icon, String label, int index, bool isDark) {
     bool isActive = currentIndex == index;
+    
+    // Dynamic text/icon color for unselected items
+    final defaultColor = isDark ? Colors.white54 : Colors.black87;
 
     return Expanded(
       child: GestureDetector(
         onTap: () => _handleNavigation(context, index),
-        behavior: HitTestBehavior.opaque, // Makes the whole expanded area clickable
+        behavior: HitTestBehavior.opaque, 
         child: Stack(
           alignment: Alignment.center,
           children: [
             // --- THE FIXED TOP INDICATOR ---
             if (isActive)
               Positioned(
-                top: 0, // Locks it exactly to the top edge of the white container
+                top: 0, 
                 child: Container(
                   height: 5,
                   width: 40,
@@ -70,11 +82,7 @@ class HPBottomNavBar extends StatelessWidget {
                       bottomRight: Radius.circular(6),
                     ),
                     boxShadow: [
-                      BoxShadow(
-                        color: activeColor.withOpacity(0.3),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
+                      BoxShadow(color: activeColor.withOpacity(0.3), blurRadius: 4, offset: const Offset(0, 2)),
                     ],
                   ),
                 ),
@@ -84,17 +92,17 @@ class HPBottomNavBar extends StatelessWidget {
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 5), // Slight push down so it doesn't hit the indicator
+                const SizedBox(height: 5), 
                 Icon(
                   icon,
                   size: 28,
-                  color: isActive ? activeColor : Colors.black, // Matches user text coloring
+                  color: isActive ? activeColor : defaultColor, 
                 ),
                 const SizedBox(height: 4),
                 Text(
                   label,
                   style: TextStyle(
-                    color: isActive ? activeColor : Colors.black,
+                    color: isActive ? activeColor : defaultColor,
                     fontSize: 11,
                     fontWeight: isActive ? FontWeight.w900 : FontWeight.w700,
                     fontFamily: "LexendExaNormal",

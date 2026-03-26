@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'hp_profileclicked.dart';
+import 'hp_settings.dart';
 
 class HPGlassyProfile extends StatelessWidget {
   final VoidCallback? onTap;

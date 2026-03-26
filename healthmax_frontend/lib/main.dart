@@ -1,23 +1,37 @@
-// dart format width=68
 import 'package:flutter/material.dart';
-import 'package:healthmax_frontend/HPPages/hp_profileclicked.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:provider/provider.dart';
+
+// --- Theme & Provider ---
+import 'theme_provider.dart';
+
+// --- General & User Pages ---
 import 'GeneralPages/welcome_page.dart';
 import 'UserPages/user_dashboard.dart';
-import 'HPPages/hp_homepage.dart';
-import 'HPPages/hp_userspage.dart';
-import 'HPPages/hp_requestspage.dart';
 import 'UserPages/user_homepage.dart';
 import 'UserPages/HistoryPages/user_history_calorie.dart';
 import 'UserPages/user_calorie.dart';
 import 'UserPages/user_statistic.dart';
 import 'UserPages/user_target.dart';
 
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+// --- HP Pages ---
+import 'package:healthmax_frontend/HPPages/hp_settings.dart';
+import 'HPPages/hp_homepage.dart';
+import 'HPPages/hp_userspage.dart';
+import 'HPPages/hp_requestspage.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter bindings are initialized before loading .env
+  // Ensure Flutter bindings are initialized before loading .env
+  WidgetsFlutterBinding.ensureInitialized(); 
   await dotenv.load(fileName: '.env');
-  runApp(const MyApp());
+  
+  runApp(
+    // 1. The Provider sits at the very top of the app
+    ChangeNotifierProvider(
+      create: (context) => ThemeProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {
@@ -30,37 +44,23 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   var isSignedIn = false;
 
-  // Root of the application
   @override
   Widget build(BuildContext context) {
+    // 2. The app listens to the ThemeProvider
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'HealthMax',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-        ),
-        scaffoldBackgroundColor: Colors.white,
-        textTheme: TextTheme(
-          titleLarge: TextStyle(
-            fontSize: 35,
-            fontFamily: "LexendExaNormal",
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-          titleMedium: TextStyle(
-            fontSize: 25,
-            fontFamily: "LexendExaNormal",
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-          bodySmall: TextStyle(
-            fontSize: 20,
-            fontFamily: "LexendDecaNormal",
-          ),
-        ),
-      ),
-      home: isSignedIn ? UserDashboard() : WelcomePage(),
+      
+      // 3. Magic happens here: The app switches based on the provider's state
+      themeMode: themeProvider.themeMode,
+      theme: ThemeProvider.lightTheme,
+      darkTheme: ThemeProvider.darkTheme,
+      
+      // Added const for performance optimization
+      home: isSignedIn ? const UserDashboard() : const WelcomePage(),
+      
       routes: {
         // Healthcare Provider routes
         '/hp_home': (context) => const HPHomePage(),
@@ -74,7 +74,6 @@ class _MyAppState extends State<MyApp> {
         '/user_calorie': (context) => const UserCaloriePage(),
         '/user_statistic': (context) => const UserStatisticPage(),
         '/user_target': (context) => const UserTargetPage(),
-        // Add more routes as needed
       },
     );
   }
