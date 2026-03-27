@@ -57,9 +57,9 @@ class HPProfileClicked extends StatelessWidget {
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(color: themePurple.withOpacity(0.5), width: 2),
+                        border: Border.all(color: themePurple.withValues(alpha: 0.5), width: 2),
                         boxShadow: [
-                          BoxShadow(color: themePurple.withOpacity(0.15), blurRadius: 20, spreadRadius: 5),
+                          BoxShadow(color: themePurple.withValues(alpha: 0.15), blurRadius: 20, spreadRadius: 5),
                         ],
                       ),
                       child: CircleAvatar(
@@ -94,7 +94,7 @@ class HPProfileClicked extends StatelessWidget {
               decoration: BoxDecoration(
                 color: surfaceColor, // Changes automatically based on theme
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
-                boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 20, offset: const Offset(0, -5))],
+                boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 20, offset: const Offset(0, -5))],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,7 +121,7 @@ class HPProfileClicked extends StatelessWidget {
                         // --- THE WORKING THEME TOGGLE SWITCH ---
                         SwitchListTile(
                           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
-                          secondary: Icon(isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded, color: textPrimary.withOpacity(0.8), size: 22),
+                          secondary: Icon(isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded, color: textPrimary.withValues(alpha: 0.8), size: 22),
                           title: Text("Dark Mode", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: textPrimary)),
                           value: isDark,
                           activeColor: themePurple,
@@ -150,7 +150,7 @@ class HPProfileClicked extends StatelessWidget {
                   _buildActionButton(
                     label: "EXPORT PORTAL DATA", 
                     icon: Icons.share_rounded, 
-                    bgColor: const Color(0xFF00D1FF).withOpacity(0.1), 
+                    bgColor: const Color(0xFF00D1FF).withValues(alpha: 0.1), 
                     textColor: const Color(0xFF00B0D6), // Slightly deeper cyan for better light mode contrast
                     onTap: () => _handleExport(context)
                   ),
@@ -158,7 +158,7 @@ class HPProfileClicked extends StatelessWidget {
                   _buildActionButton(
                     label: "LOG OUT", 
                     icon: Icons.logout_rounded, 
-                    bgColor: const Color(0xFFFF4B4B).withOpacity(0.1), 
+                    bgColor: const Color(0xFFFF4B4B).withValues(alpha: 0.1), 
                     textColor: const Color(0xFFFF4B4B),
                     onTap: () => _showLogoutConfirmation(context, surfaceColor, textPrimary, textSecondary, dividerColor)
                   ),
@@ -183,14 +183,14 @@ class HPProfileClicked extends StatelessWidget {
     return ListTile(
       onTap: () {},
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-      leading: Icon(icon, color: textPrimary.withOpacity(0.8), size: 22),
+      leading: Icon(icon, color: textPrimary.withValues(alpha: 0.8), size: 22),
       title: Text(title, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: textPrimary)),
       trailing: Wrap(
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           Text(value, style: TextStyle(color: valueColor, fontSize: 13, fontWeight: FontWeight.bold)),
           const SizedBox(width: 8),
-          Icon(Icons.arrow_forward_ios, color: textPrimary.withOpacity(0.2), size: 14),
+          Icon(Icons.arrow_forward_ios, color: textPrimary.withValues(alpha: 0.2), size: 14),
         ],
       ),
     );
@@ -204,7 +204,7 @@ class HPProfileClicked extends StatelessWidget {
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: textColor.withOpacity(0.2)),
+          border: Border.all(color: textColor.withValues(alpha: 0.2)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

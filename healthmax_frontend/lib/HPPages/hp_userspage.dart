@@ -106,7 +106,7 @@ class _HPUsersPageState extends State<HPUsersPage> {
                           color: surfaceColor,
                           borderRadius: BorderRadius.circular(30),
                           border: Border.all(color: dividerColor),
-                          boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 15, offset: const Offset(0, 8))],
+                          boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 15, offset: const Offset(0, 8))],
                         ),
                         child: ListView.builder(
                           padding: EdgeInsets.zero,

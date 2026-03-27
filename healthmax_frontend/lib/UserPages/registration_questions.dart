@@ -254,12 +254,12 @@ class _EnterDOBWidgetState extends State<EnterDOBWidget> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
-            color: hasDate ? const Color(0xFF8E33FF).withOpacity(0.5) : Colors.grey.shade300,
+            color: hasDate ? const Color(0xFF8E33FF).withValues(alpha: 0.5) : Colors.grey.shade300,
             width: 2,
           ),
           boxShadow: [
             BoxShadow(
-              color: hasDate ? const Color(0xFF8E33FF).withOpacity(0.15) : Colors.black.withOpacity(0.05),
+              color: hasDate ? const Color(0xFF8E33FF).withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.05),
               blurRadius: 20,
               offset: const Offset(0, 10),
             )
@@ -519,7 +519,7 @@ class _PremiumHorizontalRulerState extends State<PremiumHorizontalRuler> {
                 borderRadius: BorderRadius.circular(10),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF8E33FF).withOpacity(0.5),
+                    color: const Color(0xFF8E33FF).withValues(alpha: 0.5),
                     blurRadius: 10,
                     spreadRadius: 2,
                   )
@@ -764,7 +764,7 @@ class RegistrationHeight extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
               ),
               elevation: 8,
-              shadowColor: const Color(0xFFFFB300).withOpacity(0.6), 
+              shadowColor: const Color(0xFFFFB300).withValues(alpha: 0.6), 
             ),
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,

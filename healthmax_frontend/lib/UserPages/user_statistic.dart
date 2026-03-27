@@ -210,7 +210,7 @@ class _UserStatisticPageState extends State<UserStatisticPage> {
                           color: surfaceColor, 
                           borderRadius: BorderRadius.circular(30), 
                           border: isDark ? Border.all(color: dividerColor) : null,
-                          boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))]
+                          boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))]
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -257,7 +257,7 @@ class _UserStatisticPageState extends State<UserStatisticPage> {
                               color: isDark ? const Color(0xFF2C2C2E) : Colors.white, 
                               borderRadius: BorderRadius.circular(20), 
                               border: Border.all(color: dividerColor), 
-                              boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 5, offset: const Offset(0, 2))]
+                              boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 5, offset: const Offset(0, 2))]
                             ),
                             child: DropdownButtonHideUnderline(
                               child: DropdownButton<String>(
@@ -283,7 +283,7 @@ class _UserStatisticPageState extends State<UserStatisticPage> {
                           color: surfaceColor, 
                           borderRadius: BorderRadius.circular(30), 
                           border: Border.all(color: dividerColor),
-                          boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 15, offset: const Offset(0, 8))]
+                          boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 15, offset: const Offset(0, 8))]
                         ),
                         child: LineChart(
                           LineChartData(
@@ -320,7 +320,7 @@ class _UserStatisticPageState extends State<UserStatisticPage> {
                                 dotData: const FlDotData(show: false),
                                 belowBarData: BarAreaData(
                                   show: true,
-                                  color: _currentMetricColor.withOpacity(0.1), 
+                                  color: _currentMetricColor.withValues(alpha: 0.1), 
                                 )
                               ),
                             ],
@@ -342,7 +342,7 @@ class _UserStatisticPageState extends State<UserStatisticPage> {
                           color: surfaceColor, 
                           borderRadius: BorderRadius.circular(30), 
                           border: Border.all(color: dividerColor), 
-                          boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 15, offset: const Offset(0, 8))]
+                          boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 15, offset: const Offset(0, 8))]
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -437,7 +437,7 @@ class _UserStatisticPageState extends State<UserStatisticPage> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.bottomCenter, end: Alignment.topCenter,
-                  colors: [bgColor, bgColor.withOpacity(0.95), bgColor.withOpacity(0.0)],
+                  colors: [bgColor, bgColor.withValues(alpha: 0.95), bgColor.withValues(alpha: 0.0)],
                   stops: const [0.0, 0.6, 1.0],
                 ),
               ),
@@ -447,7 +447,7 @@ class _UserStatisticPageState extends State<UserStatisticPage> {
                   Expanded(
                     child: Container(
                       height: 55,
-                      decoration: BoxDecoration(boxShadow: [BoxShadow(color: const Color(0xFFFF9F43).withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 4))]),
+                      decoration: BoxDecoration(boxShadow: [BoxShadow(color: const Color(0xFFFF9F43).withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 4))]),
                       child: ElevatedButton(
                         onPressed: () {},
                         style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF9F43), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), elevation: 0),
@@ -459,7 +459,7 @@ class _UserStatisticPageState extends State<UserStatisticPage> {
                   Expanded(
                     child: Container(
                       height: 55,
-                      decoration: BoxDecoration(boxShadow: [BoxShadow(color: const Color(0xFF2ED573).withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 4))]),
+                      decoration: BoxDecoration(boxShadow: [BoxShadow(color: const Color(0xFF2ED573).withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 4))]),
                       child: ElevatedButton(
                         onPressed: () {},
                         style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2ED573), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), elevation: 0),

@@ -146,7 +146,7 @@ class _HPRequestsPageState extends State<HPRequestsPage> {
         color: surfaceColor,
         borderRadius: BorderRadius.circular(30),
         border: Border.all(color: dividerColor),
-        boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 15, offset: const Offset(0, 8))],
+        boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 15, offset: const Offset(0, 8))],
       ),
       child: Stack(
         alignment: Alignment.bottomCenter,
@@ -173,10 +173,10 @@ class _HPRequestsPageState extends State<HPRequestsPage> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                     decoration: BoxDecoration(
-                      color: themePurple.withOpacity(0.85),
+                      color: themePurple.withValues(alpha: 0.85),
                       borderRadius: BorderRadius.circular(30),
-                      border: Border.all(color: Colors.white.withOpacity(0.3), width: 1.5),
-                      boxShadow: [BoxShadow(color: themePurple.withOpacity(0.4), blurRadius: 10, offset: const Offset(0, 4))],
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 1.5),
+                      boxShadow: [BoxShadow(color: themePurple.withValues(alpha: 0.4), blurRadius: 10, offset: const Offset(0, 4))],
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -237,7 +237,7 @@ class _HPRequestsPageState extends State<HPRequestsPage> {
         color: containerColor, 
         borderRadius: BorderRadius.circular(30),
         border: isDark ? Border.all(color: dividerColor) : null,
-        boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 15, offset: const Offset(0, 8))],
+        boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 15, offset: const Offset(0, 8))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -246,7 +246,7 @@ class _HPRequestsPageState extends State<HPRequestsPage> {
             children: [
               Container(
                 padding: const EdgeInsets.all(8), 
-                decoration: BoxDecoration(color: Colors.greenAccent.withOpacity(0.1), borderRadius: BorderRadius.circular(12)), 
+                decoration: BoxDecoration(color: Colors.greenAccent.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)), 
                 child: const Icon(Icons.chat_bubble_outline, color: Colors.greenAccent, size: 20),
               ),
               const SizedBox(width: 15),
@@ -264,7 +264,7 @@ class _HPRequestsPageState extends State<HPRequestsPage> {
                 _feedbackAvatar("Mike", "HR"),
                 Container(
                   width: 45, height: 45,
-                  decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), shape: BoxShape.circle, border: Border.all(color: Colors.white24)),
+                  decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.05), shape: BoxShape.circle, border: Border.all(color: Colors.white24)),
                   child: const Center(child: Text("+5", style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold))),
                 ),
               ],
@@ -294,7 +294,7 @@ class _HPRequestsPageState extends State<HPRequestsPage> {
         children: [
           Container(
             width: 45, height: 45,
-            decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), shape: BoxShape.circle),
+            decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.05), shape: BoxShape.circle),
             child: Center(child: Text(label, style: const TextStyle(color: Colors.greenAccent, fontSize: 12, fontWeight: FontWeight.bold))),
           ),
           const SizedBox(height: 8),

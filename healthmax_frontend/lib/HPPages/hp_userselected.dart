@@ -151,7 +151,7 @@ class _HPUserSelectedState extends State<HPUserSelected> {
         color: surfaceColor,
         borderRadius: BorderRadius.circular(30),
         border: Border.all(color: dividerColor),
-        boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 15, offset: const Offset(0, 5))],
+        boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 15, offset: const Offset(0, 5))],
       ),
       padding: const EdgeInsets.fromLTRB(10, 25, 25, 15),
       child: LineChart(_sampleChartData(color, dividerColor, textPrimary, surfaceColor)),
@@ -173,9 +173,9 @@ class _HPUserSelectedState extends State<HPUserSelected> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 20),
         decoration: BoxDecoration(
-          color: col.withOpacity(0.06), 
+          color: col.withValues(alpha: 0.06), 
           borderRadius: BorderRadius.circular(25), 
-          border: Border.all(color: col.withOpacity(0.12))
+          border: Border.all(color: col.withValues(alpha: 0.12))
         ),
         child: Column(
           children: [
@@ -194,7 +194,7 @@ class _HPUserSelectedState extends State<HPUserSelected> {
       decoration: BoxDecoration(
         color: const Color(0xFF2C2C2E),
         borderRadius: BorderRadius.circular(40),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(isDark ? 0.6 : 0.2), blurRadius: 20, offset: const Offset(0, 10))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: isDark ? 0.6 : 0.2), blurRadius: 20, offset: const Offset(0, 10))],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -230,7 +230,7 @@ class _HPUserSelectedState extends State<HPUserSelected> {
         rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 30, getTitlesWidget: (v, m) => _getBottomTitles(v, textPrimary))),
-        leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 35, getTitlesWidget: (v, m) => Text(v.toInt().toString(), style: TextStyle(color: textPrimary.withOpacity(0.5), fontSize: 10, fontWeight: FontWeight.bold)))),
+        leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 35, getTitlesWidget: (v, m) => Text(v.toInt().toString(), style: TextStyle(color: textPrimary.withValues(alpha: 0.5), fontSize: 10, fontWeight: FontWeight.bold)))),
       ),
       borderData: FlBorderData(show: false),
       lineBarsData: [
@@ -242,7 +242,7 @@ class _HPUserSelectedState extends State<HPUserSelected> {
           barWidth: 3.5,
           isStrokeCapRound: true,
           dotData: FlDotData(show: true, getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(radius: 4, color: color, strokeWidth: 1.5, strokeColor: surfaceColor)),
-          belowBarData: BarAreaData(show: true, color: color.withOpacity(0.1)),
+          belowBarData: BarAreaData(show: true, color: color.withValues(alpha: 0.1)),
         ),
       ],
     );
@@ -253,7 +253,7 @@ class _HPUserSelectedState extends State<HPUserSelected> {
     if (selectedTimeframe == 'Day' && value % 4 == 0) text = '${value.toInt()}h';
     if (selectedTimeframe == 'Week') text = 'D${value.toInt()}';
     if (selectedTimeframe == 'Month') text = 'W${value.toInt()}';
-    return Padding(padding: const EdgeInsets.only(top: 10.0), child: Text(text, style: TextStyle(color: textPrimary.withOpacity(0.5), fontSize: 10, fontWeight: FontWeight.bold)));
+    return Padding(padding: const EdgeInsets.only(top: 10.0), child: Text(text, style: TextStyle(color: textPrimary.withValues(alpha: 0.5), fontSize: 10, fontWeight: FontWeight.bold)));
   }
 
   List<FlSpot> _generateMockSpots() {

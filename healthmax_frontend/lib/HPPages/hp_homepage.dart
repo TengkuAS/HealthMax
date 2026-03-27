@@ -148,9 +148,9 @@ class _HPHomePageState extends State<HPHomePage> {
                       
                       const Text("RECENT PATIENT ALERTS", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 11, color: Colors.grey, letterSpacing: 1.2)),
                       const SizedBox(height: 15),
-                      _buildAlertTile("Tengku Adam", "Critical Heart Rate", "142 BPM", Colors.redAccent.withOpacity(0.15), textPrimary, textSecondary),
-                      _buildAlertTile("Sarah Jenkins", "Low Glucose Level", "3.2 mmol/L", Colors.orangeAccent.withOpacity(0.15), textPrimary, textSecondary),
-                      _buildAlertTile("Mike Ross", "Data Sync Interrupted", "2 hours ago", Colors.grey.withOpacity(isDark ? 0.2 : 0.1), textPrimary, textSecondary),
+                      _buildAlertTile("Tengku Adam", "Critical Heart Rate", "142 BPM", Colors.redAccent.withValues(alpha: 0.15), textPrimary, textSecondary),
+                      _buildAlertTile("Sarah Jenkins", "Low Glucose Level", "3.2 mmol/L", Colors.orangeAccent.withValues(alpha: 0.15), textPrimary, textSecondary),
+                      _buildAlertTile("Mike Ross", "Data Sync Interrupted", "2 hours ago", Colors.grey.withValues(alpha: isDark ? 0.2 : 0.1), textPrimary, textSecondary),
                       const SizedBox(height: 35),
                       
                       _buildSystemHealthCard(),
@@ -172,7 +172,7 @@ class _HPHomePageState extends State<HPHomePage> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.bottomCenter, end: Alignment.topCenter,
-                  colors: [bgColor, bgColor.withOpacity(0.95), bgColor.withOpacity(0.0)],
+                  colors: [bgColor, bgColor.withValues(alpha: 0.95), bgColor.withValues(alpha: 0.0)],
                   stops: const [0.0, 0.6, 1.0],
                 ),
               ),
@@ -220,7 +220,7 @@ class _HPHomePageState extends State<HPHomePage> {
       child: Container(
         height: isLarge ? 116 : 52,
         padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(25), boxShadow: [BoxShadow(color: color.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 4))]),
+        decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(25), boxShadow: [BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 4))]),
         child: isLarge
             ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -248,7 +248,7 @@ class _HPHomePageState extends State<HPHomePage> {
         color: surfaceColor, 
         borderRadius: BorderRadius.circular(30), 
         border: Border.all(color: dividerColor),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 15, offset: const Offset(0, 8))]
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 15, offset: const Offset(0, 8))]
       ),
       child: Column(
         children: [
@@ -321,7 +321,7 @@ class _HPHomePageState extends State<HPHomePage> {
                     isCurved: true, curveSmoothness: 0.35,
                     color: currentColor, barWidth: 3.5, isStrokeCapRound: true,
                     dotData: const FlDotData(show: false),
-                    belowBarData: BarAreaData(show: true, color: currentColor.withOpacity(0.1)), 
+                    belowBarData: BarAreaData(show: true, color: currentColor.withValues(alpha: 0.1)), 
                   ),
                 ],
               ),
@@ -337,7 +337,7 @@ class _HPHomePageState extends State<HPHomePage> {
   Widget _actionBtn(String label, Color col, IconData icon, Color textColor) {
     return Container(
       height: 55,
-      decoration: BoxDecoration(color: col, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: col.withOpacity(0.4), blurRadius: 10, offset: const Offset(0, 4))]),
+      decoration: BoxDecoration(color: col, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: col.withValues(alpha: 0.4), blurRadius: 10, offset: const Offset(0, 4))]),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -377,10 +377,10 @@ class _HPHomePageState extends State<HPHomePage> {
   Widget _buildSystemHealthCard() {
     return Container(
       padding: const EdgeInsets.all(25),
-      decoration: BoxDecoration(color: const Color(0xFF1A1A1A), borderRadius: BorderRadius.circular(25), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 5))]),
+      decoration: BoxDecoration(color: const Color(0xFF1A1A1A), borderRadius: BorderRadius.circular(25), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 5))]),
       child: Row(
         children: [
-          Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.greenAccent.withOpacity(0.1), borderRadius: BorderRadius.circular(15)), child: const Icon(Icons.cloud_done, color: Colors.greenAccent)),
+          Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.greenAccent.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(15)), child: const Icon(Icons.cloud_done, color: Colors.greenAccent)),
           const SizedBox(width: 15),
           const Expanded(child: Text("All hospital systems are operational. Device sync is at 98% efficiency.", style: TextStyle(color: Colors.white70, fontSize: 12, height: 1.4, fontWeight: FontWeight.w600))),
         ],

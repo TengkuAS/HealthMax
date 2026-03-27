@@ -210,7 +210,7 @@ class _UserHomePageState extends State<UserHomePage> {
                         color: surfaceColor,
                         borderRadius: BorderRadius.circular(35),
                         border: isDark ? Border.all(color: dividerColor) : null,
-                        boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 20, offset: const Offset(0, 8))],
+                        boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 20, offset: const Offset(0, 8))],
                       ),
                       child: Column(
                         children: [
@@ -400,7 +400,7 @@ class _UserHomePageState extends State<UserHomePage> {
           children: [
             Container(
               padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: color, shape: BoxShape.circle, boxShadow: [BoxShadow(color: color.withOpacity(0.4), blurRadius: 8, offset: const Offset(0, 4))]),
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle, boxShadow: [BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 8, offset: const Offset(0, 4))]),
               child: Icon(icon, color: Colors.white, size: 28),
             ),
             const SizedBox(width: 15),
@@ -418,7 +418,7 @@ class _UserHomePageState extends State<UserHomePage> {
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-                  decoration: BoxDecoration(color: Colors.greenAccent.withOpacity(0.2), borderRadius: BorderRadius.circular(10)),
+                  decoration: BoxDecoration(color: Colors.greenAccent.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(10)),
                   child: Text(status, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.green)),
                 ),
               ],
@@ -441,7 +441,7 @@ class _UserHomePageState extends State<UserHomePage> {
         color: surfaceColor,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: dividerColor),
-        boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 5))],
+        boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 5))],
       ),
       child: Row(
         children: [
@@ -495,12 +495,12 @@ class _UserHomePageState extends State<UserHomePage> {
         color: surfaceColor,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: dividerColor),
-        boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 5))],
+        boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 5))],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(backgroundColor: userBlue.withOpacity(0.1), child: Icon(Icons.medical_services_rounded, color: userBlue, size: 20)),
+          CircleAvatar(backgroundColor: userBlue.withValues(alpha: 0.1), child: Icon(Icons.medical_services_rounded, color: userBlue, size: 20)),
           const SizedBox(width: 15),
           Expanded(
             child: Column(
@@ -543,7 +543,7 @@ class _UserHomePageState extends State<UserHomePage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(width: 50, height: 5, margin: const EdgeInsets.only(bottom: 30), decoration: BoxDecoration(color: dividerColor, borderRadius: BorderRadius.circular(10))),
-              Container(padding: const EdgeInsets.all(20), decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle), child: Icon(Icons.insights_rounded, color: color, size: 50)),
+              Container(padding: const EdgeInsets.all(20), decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle), child: Icon(Icons.insights_rounded, color: color, size: 50)),
               const SizedBox(height: 20),
               Text(title, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: textPrimary, fontFamily: "LexendExaNormal")),
               const SizedBox(height: 10),

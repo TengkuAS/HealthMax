@@ -20,7 +20,7 @@ class UserBottomNavBar extends StatelessWidget {
 
     // Dynamically grab colors based on the theme
     final bgColor = Theme.of(context).colorScheme.surface; // White in light mode, Dark Grey in dark mode
-    final shadowColor = isDark ? Colors.black.withOpacity(0.3) : Colors.black.withOpacity(0.08);
+    final shadowColor = isDark ? Colors.black.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.08);
 
     return Container(
       decoration: BoxDecoration(
@@ -85,7 +85,7 @@ class UserBottomNavBar extends StatelessWidget {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: activeColor.withOpacity(0.3),
+                        color: activeColor.withValues(alpha: 0.3),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),

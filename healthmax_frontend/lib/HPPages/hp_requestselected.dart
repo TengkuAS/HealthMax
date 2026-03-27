@@ -157,9 +157,9 @@ class _HPRequestSelectedState extends State<HPRequestSelected> {
                       
                       Row(
                         children: [
-                          Expanded(child: _buildStatCard("Daily Avg", "72 bpm", isDark ? Colors.orangeAccent : Colors.orange.shade800, isDark ? Colors.orange.withOpacity(0.1) : Colors.orange.shade50, textPrimary)),
+                          Expanded(child: _buildStatCard("Daily Avg", "72 bpm", isDark ? Colors.orangeAccent : Colors.orange.shade800, isDark ? Colors.orange.withValues(alpha: 0.1) : Colors.orange.shade50, textPrimary)),
                           const SizedBox(width: 15),
-                          Expanded(child: _buildStatCard("Status", "Normal", isDark ? Colors.lightBlueAccent : Colors.blue.shade800, isDark ? Colors.blue.withOpacity(0.1) : Colors.blue.shade50, textPrimary)),
+                          Expanded(child: _buildStatCard("Status", "Normal", isDark ? Colors.lightBlueAccent : Colors.blue.shade800, isDark ? Colors.blue.withValues(alpha: 0.1) : Colors.blue.shade50, textPrimary)),
                         ],
                       ),
                       
@@ -181,7 +181,7 @@ class _HPRequestSelectedState extends State<HPRequestSelected> {
               decoration: BoxDecoration(
                 color: const Color(0xFF2C2C2E), 
                 borderRadius: BorderRadius.circular(40),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(isDark ? 0.6 : 0.2), blurRadius: 20, offset: const Offset(0, 10))],
+                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: isDark ? 0.6 : 0.2), blurRadius: 20, offset: const Offset(0, 10))],
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -236,7 +236,7 @@ class _HPRequestSelectedState extends State<HPRequestSelected> {
         color: surfaceColor,
         borderRadius: BorderRadius.circular(30),
         border: Border.all(color: dividerColor),
-        boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 15, offset: const Offset(0, 5))],
+        boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 15, offset: const Offset(0, 5))],
       ),
       child: LineChart(
         LineChartData(
@@ -249,7 +249,7 @@ class _HPRequestSelectedState extends State<HPRequestSelected> {
               sideTitles: SideTitles(
                 showTitles: true, reservedSize: 30, interval: 1,
                 getTitlesWidget: (value, meta) {
-                  final style = TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: textPrimary.withOpacity(0.5));
+                  final style = TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: textPrimary.withValues(alpha: 0.5));
                   String text = '';
                   if (selectedTimeframe == "Week") {
                     const days = ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7'];
@@ -273,7 +273,7 @@ class _HPRequestSelectedState extends State<HPRequestSelected> {
                 getTitlesWidget: (value, meta) {
                   if (value == _getMinY() || value == _getMaxY()) return const SizedBox.shrink();
                   String text = selectedMetric == 'Steps' ? '${(value / 1000).toInt()}k' : (selectedMetric == 'Glucose Level' ? value.toStringAsFixed(1) : value.toInt().toString());
-                  return Text(text, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: textPrimary.withOpacity(0.5)));
+                  return Text(text, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: textPrimary.withValues(alpha: 0.5)));
                 },
               ),
             ),
@@ -287,7 +287,7 @@ class _HPRequestSelectedState extends State<HPRequestSelected> {
               isCurved: true, curveSmoothness: 0.35,
               color: themePurple, barWidth: 3.5, isStrokeCapRound: true,
               dotData: FlDotData(show: true, getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(radius: 4, color: themePurple, strokeWidth: 1.5, strokeColor: surfaceColor)),
-              belowBarData: BarAreaData(show: true, color: themePurple.withOpacity(0.1)), 
+              belowBarData: BarAreaData(show: true, color: themePurple.withValues(alpha: 0.1)), 
             ),
           ],
         ),
@@ -303,7 +303,7 @@ class _HPRequestSelectedState extends State<HPRequestSelected> {
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(25),
-        border: Border.all(color: titleColor.withOpacity(0.2)),
+        border: Border.all(color: titleColor.withValues(alpha: 0.2)),
       ),
       child: Column(
         children: [

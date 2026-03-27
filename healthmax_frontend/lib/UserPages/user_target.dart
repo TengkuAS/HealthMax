@@ -220,7 +220,7 @@ class _UserTargetPageState extends State<UserTargetPage> {
                       color: surfaceColor, 
                       borderRadius: BorderRadius.circular(30), 
                       border: isDark ? Border.all(color: dividerColor) : null,
-                      boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 15, offset: const Offset(0, 8))]
+                      boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 15, offset: const Offset(0, 8))]
                     ),
                     child: Column(
                       children: [
@@ -268,7 +268,7 @@ class _UserTargetPageState extends State<UserTargetPage> {
                       color: surfaceColor, 
                       borderRadius: BorderRadius.circular(30), 
                       border: Border.all(color: dividerColor), 
-                      boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 15, offset: const Offset(0, 8))]
+                      boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 15, offset: const Offset(0, 8))]
                     ),
                     child: Column(
                       children: [

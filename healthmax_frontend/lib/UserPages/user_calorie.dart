@@ -176,7 +176,7 @@ class _UserCaloriePageState extends State<UserCaloriePage> {
                           color: surfaceColor, 
                           borderRadius: BorderRadius.circular(30), 
                           border: isDark ? Border.all(color: dividerColor) : null,
-                          boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 15, offset: const Offset(0, 8))]
+                          boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 15, offset: const Offset(0, 8))]
                         ),
                         child: Column(
                           children: [
@@ -245,7 +245,7 @@ class _UserCaloriePageState extends State<UserCaloriePage> {
                               decoration: BoxDecoration(
                                 color: surfaceColor, borderRadius: BorderRadius.circular(30), 
                                 border: isDark ? Border.all(color: dividerColor) : null,
-                                boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 15, offset: const Offset(0, 8))]
+                                boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 15, offset: const Offset(0, 8))]
                               ),
                               child: Column(
                                 children: [
@@ -284,7 +284,7 @@ class _UserCaloriePageState extends State<UserCaloriePage> {
                               decoration: BoxDecoration(
                                 color: surfaceColor, borderRadius: BorderRadius.circular(30), 
                                 border: isDark ? Border.all(color: dividerColor) : null,
-                                boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 15, offset: const Offset(0, 8))]
+                                boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 15, offset: const Offset(0, 8))]
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -340,8 +340,8 @@ class _UserCaloriePageState extends State<UserCaloriePage> {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(15),
-        splashColor: themeBlue.withOpacity(0.1),
-        highlightColor: themeBlue.withOpacity(0.05),
+        splashColor: themeBlue.withValues(alpha: 0.1),
+        highlightColor: themeBlue.withValues(alpha: 0.05),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
           child: Column(
@@ -351,7 +351,7 @@ class _UserCaloriePageState extends State<UserCaloriePage> {
                 children: [
                   Text(label, style: TextStyle(fontWeight: FontWeight.bold, color: textSecondary, fontSize: 13)),
                   const SizedBox(width: 4),
-                  Icon(Icons.info_outline_rounded, size: 14, color: textSecondary.withOpacity(0.5)),
+                  Icon(Icons.info_outline_rounded, size: 14, color: textSecondary.withValues(alpha: 0.5)),
                 ],
               ),
               const SizedBox(height: 5),
@@ -504,7 +504,7 @@ class _UserCaloriePageState extends State<UserCaloriePage> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(width: 14, height: 14, decoration: BoxDecoration(color: color, shape: BoxShape.circle, border: Border.all(color: textPrimary.withOpacity(0.2), width: 1))),
+          Container(width: 14, height: 14, decoration: BoxDecoration(color: color, shape: BoxShape.circle, border: Border.all(color: textPrimary.withValues(alpha: 0.2), width: 1))),
           const SizedBox(width: 10),
           Text(label, style: TextStyle(fontSize: 12, color: textPrimary, fontWeight: FontWeight.w600)),
         ],
