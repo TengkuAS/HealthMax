@@ -603,8 +603,13 @@ class _UserCaloriePageState extends State<UserCaloriePage> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ...data.calorieHistory.map(
-              (item) => Padding(
+            ...data.calorieHistory.map((item) {
+              var foodLabel = "${item.quantity}× ${item.foodName}";
+              if (foodLabel.length > 15) {
+                foodLabel = foodLabel.substring(0, 15).trimRight();
+                foodLabel = "$foodLabel...";
+              }
+              return Padding(
                 padding: const EdgeInsets.only(bottom: 15),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -618,7 +623,7 @@ class _UserCaloriePageState extends State<UserCaloriePage> {
                         ),
                         const SizedBox(width: 10),
                         Text(
-                          "${item.quantity}x ${item.foodName}",
+                          foodLabel,
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -637,8 +642,8 @@ class _UserCaloriePageState extends State<UserCaloriePage> {
                     ),
                   ],
                 ),
-              ),
-            ),
+              );
+            }),
             Divider(thickness: 1, color: dividerColor),
             const SizedBox(height: 5),
             Row(
