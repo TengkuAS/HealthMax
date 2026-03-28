@@ -18,7 +18,9 @@ class UserLogFoodPage extends StatefulWidget {
 
 class _UserLogFoodPageState extends State<UserLogFoodPage> {
   final Color themeBlue = const Color(0xFF5A84F1);
-  final Color actionGreen = const Color(0xFF55FF55); // The bright green from the mockup
+  final Color actionGreen = const Color(
+    0xFF55FF55,
+  ); // The bright green from the mockup
 
   // --- STATE ---
   bool _isAiMode = true;
@@ -56,11 +58,15 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
   // ==========================================
   Future<void> _analyzeText() async {
     if (_textController.text.trim().isEmpty) return;
-    
+
     // Hide keyboard
     FocusScope.of(context).unfocus();
 
-    setState(() { _loading = true; _error = null; _result = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+      _result = null;
+    });
     try {
       final result = await _service.estimateFromText(_textController.text);
       setState(() => _result = result);
@@ -81,23 +87,71 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
-        decoration: BoxDecoration(color: surfaceColor, borderRadius: const BorderRadius.vertical(top: Radius.circular(25))),
+        decoration: BoxDecoration(
+          color: surfaceColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
+        ),
         padding: const EdgeInsets.fromLTRB(25, 10, 25, 40),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(width: 40, height: 4, margin: const EdgeInsets.only(bottom: 30), decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(10))),
-            Text('Select Image Source', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: textPrimary, fontFamily: "LexendExaNormal")),
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 30),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            Text(
+              'Select Image Source',
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 18,
+                color: textPrimary,
+                fontFamily: "LexendExaNormal",
+              ),
+            ),
             const SizedBox(height: 20),
             ListTile(
-              leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: themeBlue.withValues(alpha:0.1), borderRadius: BorderRadius.circular(12)), child: Icon(Icons.camera_alt_rounded, color: themeBlue)),
-              title: Text('Camera', style: TextStyle(fontWeight: FontWeight.w800, color: textPrimary)),
+              leading: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: themeBlue.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(Icons.camera_alt_rounded, color: themeBlue),
+              ),
+              title: Text(
+                'Camera',
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  color: textPrimary,
+                ),
+              ),
               onTap: () => Navigator.pop(context, ImageSource.camera),
             ),
             const SizedBox(height: 10),
             ListTile(
-              leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: const Color(0xFFFF9F43).withValues(alpha:0.1), borderRadius: BorderRadius.circular(12)), child: const Icon(Icons.photo_library_rounded, color: Color(0xFFFF9F43))),
-              title: Text('Gallery', style: TextStyle(fontWeight: FontWeight.w800, color: textPrimary)),
+              leading: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFF9F43).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.photo_library_rounded,
+                  color: Color(0xFFFF9F43),
+                ),
+              ),
+              title: Text(
+                'Gallery',
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  color: textPrimary,
+                ),
+              ),
               onTap: () => Navigator.pop(context, ImageSource.gallery),
             ),
           ],
@@ -136,10 +190,14 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
   @override
   Widget build(BuildContext context) {
     final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
-    
+
     // Background matches the dark mockup, card is light/surface
-    final scaffoldBg = isDark ? const Color(0xFF12121A) : const Color(0xFF1A1F2C); 
-    final cardColor = isDark ? const Color(0xFF2C2C2E) : const Color(0xFFE8ECEF);
+    final scaffoldBg = isDark
+        ? const Color(0xFF12121A)
+        : const Color(0xFF1A1F2C);
+    final cardColor = isDark
+        ? const Color(0xFF2C2C2E)
+        : const Color(0xFFE8ECEF);
     final textPrimary = isDark ? Colors.white : Colors.black87;
     final textSecondary = isDark ? Colors.white54 : Colors.black54;
 
@@ -173,22 +231,38 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
                                 child: Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    color: isDark ? Colors.white10 : Colors.white,
+                                    color: isDark
+                                        ? Colors.white10
+                                        : Colors.white,
                                     borderRadius: BorderRadius.circular(12),
-                                    border: isDark ? Border.all(color: Colors.white24) : Border.all(color: Colors.grey.shade300),
+                                    border: isDark
+                                        ? Border.all(color: Colors.white24)
+                                        : Border.all(
+                                            color: Colors.grey.shade300,
+                                          ),
                                   ),
-                                  child: Icon(Icons.undo_rounded, color: textPrimary, size: 24),
+                                  child: Icon(
+                                    Icons.undo_rounded,
+                                    color: textPrimary,
+                                    size: 24,
+                                  ),
                                 ),
                               ),
                             ),
                             Text(
                               "Log Food.",
-                              style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: textPrimary, fontFamily: "LexendExaNormal", letterSpacing: -1.0),
+                              style: TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.w900,
+                                color: textPrimary,
+                                fontFamily: "LexendExaNormal",
+                                letterSpacing: -1.0,
+                              ),
                             ),
                           ],
                         ),
                       ),
-                      
+
                       const SizedBox(height: 10),
 
                       // Segmented Toggle
@@ -198,12 +272,26 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
                         decoration: BoxDecoration(
                           color: isDark ? Colors.black26 : Colors.white,
                           borderRadius: BorderRadius.circular(25),
-                          border: isDark ? Border.all(color: Colors.white10) : Border.all(color: Colors.grey.shade300),
+                          border: isDark
+                              ? Border.all(color: Colors.white10)
+                              : Border.all(color: Colors.grey.shade300),
                         ),
                         child: Row(
                           children: [
-                            _buildTab("AI Assist", _isAiMode, () => setState(() => _isAiMode = true), textPrimary, isDark),
-                            _buildTab("Manual Write", !_isAiMode, () => setState(() => _isAiMode = false), textPrimary, isDark),
+                            _buildTab(
+                              "AI Assist",
+                              _isAiMode,
+                              () => setState(() => _isAiMode = true),
+                              textPrimary,
+                              isDark,
+                            ),
+                            _buildTab(
+                              "Manual Write",
+                              !_isAiMode,
+                              () => setState(() => _isAiMode = false),
+                              textPrimary,
+                              isDark,
+                            ),
                           ],
                         ),
                       ),
@@ -215,9 +303,13 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
                         child: SingleChildScrollView(
                           physics: const BouncingScrollPhysics(),
                           padding: const EdgeInsets.symmetric(horizontal: 25),
-                          child: _isAiMode 
-                              ? _buildAiTab(textPrimary, textSecondary, isDark) 
-                              : _buildManualTab(textPrimary, textSecondary, isDark),
+                          child: _isAiMode
+                              ? _buildAiTab(textPrimary, textSecondary, isDark)
+                              : _buildManualTab(
+                                  textPrimary,
+                                  textSecondary,
+                                  isDark,
+                                ),
                         ),
                       ),
 
@@ -230,62 +322,86 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
                             // ==========================================
                             if (_result == null) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text("Please analyze food first!"), backgroundColor: Colors.redAccent),
+                                const SnackBar(
+                                  content: Text("Please analyze food first!"),
+                                  backgroundColor: Colors.redAccent,
+                                ),
                               );
                               return;
                             }
-                            
+
                             // Smart quantity parsing! Finds the first number in the AI "amount" string
-                            int parsedQty = 1;
-                            if (_result!.foods.isNotEmpty) {
-                              final match = RegExp(r'\d+').firstMatch(_result!.foods.first.amount);
-                              if (match != null) parsedQty = int.parse(match.group(0)!);
-                            }
+                            // int parsedQty = 1;
+                            // if (_result!.foods.isNotEmpty) {
+                            //   final match = RegExp(
+                            //     r'\d+',
+                            //   ).firstMatch(_result!.foods.first.amount);
+                            //   if (match != null)
+                            //     parsedQty = int.parse(match.group(0)!);
+                            // }
 
                             final newRecord = CalorieRecord(
-                              _result!.foods.isNotEmpty ? _result!.foods.first.name : "AI Meal", 
-                              parsedQty, // No longer hardcoded!
-                              "${_result!.totalProtein.toStringAsFixed(0)}g", 
-                              "${_result!.totalCarbs.toStringAsFixed(0)}g", 
-                              "${_result!.totalFat.toStringAsFixed(0)}g", 
-                              _result!.totalCalories, 
-                              Icons.auto_awesome, 
+                              _result!.label,
+                              _result!.servings,
+                              // _result!.foods.isNotEmpty ? _result!.foods.first.name : "AI Meal",
+                              // parsedQty, // No longer hardcoded!
+                              "${_result!.totalProtein.toStringAsFixed(0)}g",
+                              "${_result!.totalCarbs.toStringAsFixed(0)}g",
+                              "${_result!.totalFat.toStringAsFixed(0)}g",
+                              _result!.totalCalories,
+                              Icons.auto_awesome,
                               themeBlue,
-                              DateTime.now() // Added Timestamp for sorting!
+                              DateTime.now(), // Added Timestamp for sorting!
                             );
-                            
-                            Provider.of<CalorieProvider>(context, listen: false).addFoodRecord(newRecord);
-                            Navigator.pop(context);
 
+                            Provider.of<CalorieProvider>(
+                              context,
+                              listen: false,
+                            ).addFoodRecord(newRecord);
+                            Navigator.pop(context);
                           } else {
                             // ==========================================
                             // 2. MANUAL MODE SAVE LOGIC
                             // ==========================================
                             if (_manualNameCtrl.text.trim().isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text("Please enter a meal name!"), backgroundColor: Colors.redAccent),
+                                const SnackBar(
+                                  content: Text("Please enter a meal name!"),
+                                  backgroundColor: Colors.redAccent,
+                                ),
                               );
                               return;
                             }
 
-                            int calories = int.tryParse(_manualCalCtrl.text.trim()) ?? 0;
-                            String protein = _manualProteinCtrl.text.trim().isEmpty ? "0g" : "${_manualProteinCtrl.text.trim()}g";
-                            String carbs = _manualCarbCtrl.text.trim().isEmpty ? "0g" : "${_manualCarbCtrl.text.trim()}g";
-                            String fats = _manualFatCtrl.text.trim().isEmpty ? "0g" : "${_manualFatCtrl.text.trim()}g";
+                            int calories =
+                                int.tryParse(_manualCalCtrl.text.trim()) ?? 0;
+                            String protein =
+                                _manualProteinCtrl.text.trim().isEmpty
+                                ? "0g"
+                                : "${_manualProteinCtrl.text.trim()}g";
+                            String carbs = _manualCarbCtrl.text.trim().isEmpty
+                                ? "0g"
+                                : "${_manualCarbCtrl.text.trim()}g";
+                            String fats = _manualFatCtrl.text.trim().isEmpty
+                                ? "0g"
+                                : "${_manualFatCtrl.text.trim()}g";
 
                             final newRecord = CalorieRecord(
-                              _manualNameCtrl.text.trim(), 
-                              1, 
-                              protein, 
-                              carbs, 
-                              fats, 
-                              calories, 
-                              Icons.restaurant, 
+                              _manualNameCtrl.text.trim(),
+                              1,
+                              protein,
+                              carbs,
+                              fats,
+                              calories,
+                              Icons.restaurant,
                               const Color(0xFF2ED573),
-                              DateTime.now() // Added Timestamp for sorting!
+                              DateTime.now(), // Added Timestamp for sorting!
                             );
 
-                            Provider.of<CalorieProvider>(context, listen: false).addFoodRecord(newRecord);
+                            Provider.of<CalorieProvider>(
+                              context,
+                              listen: false,
+                            ).addFoodRecord(newRecord);
                             Navigator.pop(context);
                           }
                         },
@@ -294,14 +410,29 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
                           height: 65,
                           decoration: BoxDecoration(
                             color: actionGreen,
-                            borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(35), bottomRight: Radius.circular(35)),
+                            borderRadius: const BorderRadius.only(
+                              bottomLeft: Radius.circular(35),
+                              bottomRight: Radius.circular(35),
+                            ),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.check_rounded, color: Colors.black87, size: 24),
+                              const Icon(
+                                Icons.check_rounded,
+                                color: Colors.black87,
+                                size: 24,
+                              ),
                               const SizedBox(width: 8),
-                              const Text("Add to My Intake", style: TextStyle(color: Colors.black87, fontSize: 16, fontWeight: FontWeight.w800, fontFamily: "LexendExaNormal")),
+                              const Text(
+                                "Add to My Intake",
+                                style: TextStyle(
+                                  color: Colors.black87,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
+                                  fontFamily: "LexendExaNormal",
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -315,7 +446,9 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
           ),
         ),
       ),
-      bottomNavigationBar: const UserBottomNavBar(currentIndex: 2), // Calorie tab active
+      bottomNavigationBar: const UserBottomNavBar(
+        currentIndex: 2,
+      ), // Calorie tab active
     );
   }
 
@@ -323,20 +456,48 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
   // WIDGET HELPERS
   // ==========================================
 
-  Widget _buildTab(String title, bool isActive, VoidCallback onTap, Color textPrimary, bool isDark) {
+  Widget _buildTab(
+    String title,
+    bool isActive,
+    VoidCallback onTap,
+    Color textPrimary,
+    bool isDark,
+  ) {
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
         child: Container(
           margin: const EdgeInsets.all(4),
           decoration: BoxDecoration(
-            color: isActive ? (isDark ? Colors.white12 : Colors.white) : Colors.transparent,
+            color: isActive
+                ? (isDark ? Colors.white12 : Colors.white)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(20),
-            border: isActive && !isDark ? Border.all(color: Colors.grey.shade300) : null,
-            boxShadow: isActive && !isDark ? [BoxShadow(color: Colors.black.withValues(alpha:0.05), blurRadius: 4, offset: const Offset(0, 2))] : [],
+            border: isActive && !isDark
+                ? Border.all(color: Colors.grey.shade300)
+                : null,
+            boxShadow: isActive && !isDark
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : [],
           ),
           alignment: Alignment.center,
-          child: Text(title, style: TextStyle(fontWeight: isActive ? FontWeight.bold : FontWeight.w600, color: isActive ? textPrimary : textPrimary.withValues(alpha:0.5), fontSize: 12, fontFamily: "LexendExaNormal")),
+          child: Text(
+            title,
+            style: TextStyle(
+              fontWeight: isActive ? FontWeight.bold : FontWeight.w600,
+              color: isActive
+                  ? textPrimary
+                  : textPrimary.withValues(alpha: 0.5),
+              fontSize: 12,
+              fontFamily: "LexendExaNormal",
+            ),
+          ),
         ),
       ),
     );
@@ -357,29 +518,72 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
             decoration: BoxDecoration(
               color: isDark ? Colors.white10 : Colors.white,
               borderRadius: BorderRadius.circular(20),
-              image: _selectedImage != null ? DecorationImage(image: FileImage(_selectedImage!), fit: BoxFit.cover) : null,
-              border: _selectedImage == null ? Border.all(color: isDark ? Colors.white24 : Colors.grey.shade300) : null,
+              image: _selectedImage != null
+                  ? DecorationImage(
+                      image: FileImage(_selectedImage!),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
+              border: _selectedImage == null
+                  ? Border.all(
+                      color: isDark ? Colors.white24 : Colors.grey.shade300,
+                    )
+                  : null,
             ),
-            child: _selectedImage == null 
-              ? Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.fastfood_rounded, size: 40, color: textPrimary.withValues(alpha:0.2)),
-                    const SizedBox(height: 10),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                      decoration: BoxDecoration(color: isDark ? Colors.black54 : Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: textPrimary.withValues(alpha:0.2))),
-                      child: Text("upload or take a picture", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: textPrimary)),
+            child: _selectedImage == null
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.fastfood_rounded,
+                        size: 40,
+                        color: textPrimary.withValues(alpha: 0.2),
+                      ),
+                      const SizedBox(height: 10),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isDark ? Colors.black54 : Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: textPrimary.withValues(alpha: 0.2),
+                          ),
+                        ),
+                        child: Text(
+                          "upload or take a picture",
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: textPrimary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black54,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.white54),
+                      ),
+                      child: const Text(
+                        "Retake picture",
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
-                  ],
-                )
-              : Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                    decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.white54)),
-                    child: const Text("Retake picture", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
                   ),
-                ),
           ),
         ),
 
@@ -392,11 +596,21 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
           textAlign: TextAlign.center,
           decoration: InputDecoration(
             hintText: 'or describe your meal here',
-            hintStyle: TextStyle(color: textSecondary, fontSize: 13, fontWeight: FontWeight.w500),
+            hintStyle: TextStyle(
+              color: textSecondary,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
             filled: true,
             fillColor: isDark ? Colors.white10 : Colors.white,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide.none),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(30),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 15,
+            ),
             // The send icon triggers the AI text search
             suffixIcon: IconButton(
               icon: Icon(Icons.send_rounded, color: themeBlue),
@@ -413,12 +627,30 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
         // --- Divider ---
         Row(
           children: [
-            Expanded(child: Divider(color: textPrimary.withValues(alpha:0.2), thickness: 1.5)),
+            Expanded(
+              child: Divider(
+                color: textPrimary.withValues(alpha: 0.2),
+                thickness: 1.5,
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Text("AI Estimation", style: TextStyle(fontWeight: FontWeight.w900, color: textPrimary, fontSize: 12, fontFamily: "LexendExaNormal")),
+              child: Text(
+                "AI Estimation",
+                style: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  color: textPrimary,
+                  fontSize: 12,
+                  fontFamily: "LexendExaNormal",
+                ),
+              ),
             ),
-            Expanded(child: Divider(color: textPrimary.withValues(alpha:0.2), thickness: 1.5)),
+            Expanded(
+              child: Divider(
+                color: textPrimary.withValues(alpha: 0.2),
+                thickness: 1.5,
+              ),
+            ),
           ],
         ),
 
@@ -433,7 +665,13 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
                 children: [
                   CircularProgressIndicator(color: themeBlue),
                   const SizedBox(height: 15),
-                  Text("Analyzing food data...", style: TextStyle(color: textSecondary, fontWeight: FontWeight.bold)),
+                  Text(
+                    "Analyzing food data...",
+                    style: TextStyle(
+                      color: textSecondary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -441,31 +679,82 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
         else if (_error != null)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 20),
-            child: Center(child: Text(_error!, style: const TextStyle(color: Color(0xFFFF4757), fontWeight: FontWeight.bold), textAlign: TextAlign.center)),
+            child: Center(
+              child: Text(
+                _error!,
+                style: const TextStyle(
+                  color: Color(0xFFFF4757),
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
           )
         else
           Column(
             children: [
-              _buildResultRow("Calories :", _result != null ? "${_result!.totalCalories} kcal" : "--- kcal", textPrimary, isBold: true),
-              _buildResultRow("Carbohydrates :", _result != null ? "${_result!.totalCarbs.toStringAsFixed(0)} g" : "--- g", textPrimary),
-              _buildResultRow("Protein :", _result != null ? "${_result!.totalProtein.toStringAsFixed(0)} g" : "--- g", textPrimary),
-              _buildResultRow("Fats :", _result != null ? "${_result!.totalFat.toStringAsFixed(0)} g" : "--- g", textPrimary),
+              _buildResultRow(
+                "Calories :",
+                _result != null ? "${_result!.totalCalories} kcal" : "--- kcal",
+                textPrimary,
+                isBold: true,
+              ),
+              _buildResultRow(
+                "Carbohydrates :",
+                _result != null
+                    ? "${_result!.totalCarbs.toStringAsFixed(0)} g"
+                    : "--- g",
+                textPrimary,
+              ),
+              _buildResultRow(
+                "Protein :",
+                _result != null
+                    ? "${_result!.totalProtein.toStringAsFixed(0)} g"
+                    : "--- g",
+                textPrimary,
+              ),
+              _buildResultRow(
+                "Fats :",
+                _result != null
+                    ? "${_result!.totalFat.toStringAsFixed(0)} g"
+                    : "--- g",
+                textPrimary,
+              ),
             ],
           ),
-          
-          const SizedBox(height: 20),
+
+        const SizedBox(height: 20),
       ],
     );
   }
 
-  Widget _buildResultRow(String label, String value, Color textPrimary, {bool isBold = false}) {
+  Widget _buildResultRow(
+    String label,
+    String value,
+    Color textPrimary, {
+    bool isBold = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(fontSize: 15, fontWeight: isBold ? FontWeight.w800 : FontWeight.w500, color: textPrimary)),
-          Text(value, style: TextStyle(fontSize: 15, fontWeight: isBold ? FontWeight.w800 : FontWeight.w500, color: textPrimary)),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: isBold ? FontWeight.w800 : FontWeight.w500,
+              color: textPrimary,
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: isBold ? FontWeight.w800 : FontWeight.w500,
+              color: textPrimary,
+            ),
+          ),
         ],
       ),
     );
@@ -479,18 +768,57 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Meal Name
-        _buildManualInput(label: null, hint: "Meal Name", controller: _manualNameCtrl, textPrimary: textPrimary, textSecondary: textSecondary, isDark: isDark),
+        _buildManualInput(
+          label: null,
+          hint: "Meal Name",
+          controller: _manualNameCtrl,
+          textPrimary: textPrimary,
+          textSecondary: textSecondary,
+          isDark: isDark,
+        ),
         const SizedBox(height: 25),
-        
+
         // Macros
-        _buildManualInput(label: "Calories :", hint: "Enter in gram", controller: _manualCalCtrl, textPrimary: textPrimary, textSecondary: textSecondary, isDark: isDark, isNumber: true),
+        _buildManualInput(
+          label: "Calories :",
+          hint: "Enter in gram",
+          controller: _manualCalCtrl,
+          textPrimary: textPrimary,
+          textSecondary: textSecondary,
+          isDark: isDark,
+          isNumber: true,
+        ),
         const SizedBox(height: 15),
-        _buildManualInput(label: "Carbohydrates :", hint: "Enter in gram", controller: _manualCarbCtrl, textPrimary: textPrimary, textSecondary: textSecondary, isDark: isDark, isNumber: true),
+        _buildManualInput(
+          label: "Carbohydrates :",
+          hint: "Enter in gram",
+          controller: _manualCarbCtrl,
+          textPrimary: textPrimary,
+          textSecondary: textSecondary,
+          isDark: isDark,
+          isNumber: true,
+        ),
         const SizedBox(height: 15),
-        _buildManualInput(label: "Protein :", hint: "Enter in gram", controller: _manualProteinCtrl, textPrimary: textPrimary, textSecondary: textSecondary, isDark: isDark, isNumber: true),
+        _buildManualInput(
+          label: "Protein :",
+          hint: "Enter in gram",
+          controller: _manualProteinCtrl,
+          textPrimary: textPrimary,
+          textSecondary: textSecondary,
+          isDark: isDark,
+          isNumber: true,
+        ),
         const SizedBox(height: 15),
-        _buildManualInput(label: "Fats :", hint: "Enter in gram", controller: _manualFatCtrl, textPrimary: textPrimary, textSecondary: textSecondary, isDark: isDark, isNumber: true),
-        
+        _buildManualInput(
+          label: "Fats :",
+          hint: "Enter in gram",
+          controller: _manualFatCtrl,
+          textPrimary: textPrimary,
+          textSecondary: textSecondary,
+          isDark: isDark,
+          isNumber: true,
+        ),
+
         const SizedBox(height: 25),
 
         // Comments Area
@@ -500,10 +828,19 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
           maxLines: 4,
           decoration: InputDecoration(
             hintText: 'add a comment..',
-            hintStyle: TextStyle(color: textSecondary, fontSize: 13, fontWeight: FontWeight.w500),
+            hintStyle: TextStyle(
+              color: textSecondary,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
             filled: true,
-            fillColor: isDark ? Colors.white10 : const Color(0xFFD9D9D9), // Matches mockup grey box
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none),
+            fillColor: isDark
+                ? Colors.white10
+                : const Color(0xFFD9D9D9), // Matches mockup grey box
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: BorderSide.none,
+            ),
             contentPadding: const EdgeInsets.all(20),
           ),
         ),
@@ -512,13 +849,28 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
     );
   }
 
-  Widget _buildManualInput({String? label, required String hint, required TextEditingController controller, required Color textPrimary, required Color textSecondary, required bool isDark, bool isNumber = false}) {
+  Widget _buildManualInput({
+    String? label,
+    required String hint,
+    required TextEditingController controller,
+    required Color textPrimary,
+    required Color textSecondary,
+    required bool isDark,
+    bool isNumber = false,
+  }) {
     return Row(
       children: [
-        if (label != null) 
+        if (label != null)
           Expanded(
             flex: 4,
-            child: Text(label, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: textPrimary)),
+            child: Text(
+              label,
+              style: TextStyle(
+                fontWeight: FontWeight.w800,
+                fontSize: 13,
+                color: textPrimary,
+              ),
+            ),
           ),
         Expanded(
           flex: 5,
@@ -526,16 +878,34 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
             height: 40,
             child: TextField(
               controller: controller,
-              keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-              style: TextStyle(fontWeight: FontWeight.w600, color: textPrimary, fontSize: 13),
+              keyboardType: isNumber
+                  ? TextInputType.number
+                  : TextInputType.text,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: textPrimary,
+                fontSize: 13,
+              ),
               textAlign: TextAlign.center,
               decoration: InputDecoration(
                 hintText: hint,
-                hintStyle: TextStyle(color: textSecondary, fontSize: 11, fontWeight: FontWeight.w500),
+                hintStyle: TextStyle(
+                  color: textSecondary,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                ),
                 filled: true,
-                fillColor: isDark ? Colors.white10 : const Color(0xFFD9D9D9), // Matches mockup input pills
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                fillColor: isDark
+                    ? Colors.white10
+                    : const Color(0xFFD9D9D9), // Matches mockup input pills
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 0,
+                ),
               ),
             ),
           ),

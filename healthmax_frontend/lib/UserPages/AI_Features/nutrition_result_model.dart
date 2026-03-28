@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 class NutritionResult {
+  final String label;
+  final int servings;
   final List<FoodItem> foods;
   final int totalCalories;
   final double totalProtein;
@@ -10,6 +12,8 @@ class NutritionResult {
   final String notes;
 
   NutritionResult({
+    required this.label,
+    required this.servings,
     required this.foods,
     required this.totalCalories,
     required this.totalProtein,
@@ -23,6 +27,8 @@ class NutritionResult {
     final map = jsonDecode(jsonStr);
 
     return NutritionResult(
+      label: map["label"],
+      servings: map["servings"],
       foods: (map["foods"] as List)
           .map((food) => FoodItem.fromMap(food))
           .toList(),

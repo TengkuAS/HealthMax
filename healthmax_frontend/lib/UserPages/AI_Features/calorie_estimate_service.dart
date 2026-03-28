@@ -34,6 +34,8 @@ If there is missing information then assume and specify assumption in "notes" in
 
 Respond ONLY with this exact JSON structure:
 {
+  "label": "Concise label for this food",
+  "servings": 1,
   "foods": [
     {
       "name": "food name",
@@ -71,6 +73,8 @@ Identify all visible foods and estimate their nutritional content.
 
 Respond ONLY with this exact JSON structure:
 {
+  "label": "Concise label for this food",
+  "servings": 1,
   "foods": [
     {
       "name": "food name",
@@ -97,6 +101,7 @@ Be realistic with portion sizes. If image is unclear, set confidence to "low".
       Content.multi([TextPart(prompt), DataPart("image/jpeg", imageBytes)]),
     ]);
 
+    print("DEBUG\n${jsonResponse.text!}");
     return NutritionResult.fromJson(jsonResponse.text!);
   }
 }
