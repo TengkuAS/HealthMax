@@ -5,10 +5,12 @@ from typing import Optional
 # User 相关
 class UserBase(BaseModel):
     username: str
-    gender: Optional[str] = None
-    age: Optional[int] = None
-    height_cm: Optional[float] = None
-    weight_kg: Optional[float] = None
+    gender: str
+    dob: datetime.date
+    height: float
+    height_unit: str
+    weight: float
+    weight_unit: str
 
 class UserCreate(UserBase):
     password: str   # 原始密码，将在后端哈希
