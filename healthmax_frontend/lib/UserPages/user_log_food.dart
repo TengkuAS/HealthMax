@@ -18,9 +18,7 @@ class UserLogFoodPage extends StatefulWidget {
 
 class _UserLogFoodPageState extends State<UserLogFoodPage> {
   final Color themeBlue = const Color(0xFF5A84F1);
-  final Color actionGreen = const Color(
-    0xFF55FF55,
-  ); // The bright green from the mockup
+  final Color actionGreen = const Color(0xFF55FF55); // The bright green from the mockup
 
   // --- STATE ---
   bool _isAiMode = true;
@@ -117,7 +115,7 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
               leading: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: themeBlue.withValues(alpha: 0.1),
+                  color: themeBlue.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(Icons.camera_alt_rounded, color: themeBlue),
@@ -136,7 +134,7 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
               leading: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFF9F43).withValues(alpha: 0.1),
+                  color: const Color(0xFFFF9F43).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
@@ -191,12 +189,8 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
     final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
 
     // Background matches the dark mockup, card is light/surface
-    final scaffoldBg = isDark
-        ? const Color(0xFF12121A)
-        : const Color(0xFF1A1F2C);
-    final cardColor = isDark
-        ? const Color(0xFF2C2C2E)
-        : const Color(0xFFE8ECEF);
+    final scaffoldBg = isDark ? const Color(0xFF12121A) : const Color(0xFF1A1F2C);
+    final cardColor = isDark ? const Color(0xFF2C2C2E) : const Color(0xFFE8ECEF);
     final textPrimary = isDark ? Colors.white : Colors.black87;
     final textSecondary = isDark ? Colors.white54 : Colors.black54;
 
@@ -238,52 +232,20 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
                   ),
                   child: Column(
                     children: [
-                      // Header Section (Title)
+                      // Header Section (Clean Title)
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: GestureDetector(
-                                onTap: () => Navigator.pop(context),
-                                child: Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: isDark
-                                        ? Colors.white10
-                                        : Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: isDark
-                                        ? Border.all(color: Colors.white24)
-                                        : Border.all(
-                                            color: Colors.grey.shade300,
-                                          ),
-                                  ),
-                                  child: Icon(
-                                    Icons.undo_rounded,
-                                    color: textPrimary,
-                                    size: 24,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Text(
-                              "Log Food.",
-                              style: TextStyle(
-                                fontSize: 32,
-                                fontWeight: FontWeight.w900,
-                                color: textPrimary,
-                                fontFamily: "LexendExaNormal",
-                                letterSpacing: -1.0,
-                              ),
-                            ),
-                          ],
+                        padding: const EdgeInsets.fromLTRB(20, 25, 20, 15),
+                        child: Text(
+                          "Log Food.",
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w900,
+                            color: textPrimary,
+                            fontFamily: "LexendExaNormal",
+                            letterSpacing: -1.0,
+                          ),
                         ),
                       ),
-
-                      const SizedBox(height: 10),
 
                       // Segmented Toggle
                       Container(
@@ -350,28 +312,16 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
                               return;
                             }
 
-                            // Smart quantity parsing! Finds the first number in the AI "amount" string
-                            // int parsedQty = 1;
-                            // if (_result!.foods.isNotEmpty) {
-                            //   final match = RegExp(
-                            //     r'\d+',
-                            //   ).firstMatch(_result!.foods.first.amount);
-                            //   if (match != null)
-                            //     parsedQty = int.parse(match.group(0)!);
-                            // }
-
                             final newRecord = CalorieRecord(
                               _result!.label,
                               _result!.servings,
-                              // _result!.foods.isNotEmpty ? _result!.foods.first.name : "AI Meal",
-                              // parsedQty, // No longer hardcoded!
                               "${_result!.totalProtein.toStringAsFixed(0)}g",
                               "${_result!.totalCarbs.toStringAsFixed(0)}g",
                               "${_result!.totalFat.toStringAsFixed(0)}g",
                               _result!.totalCalories,
                               Icons.auto_awesome,
                               themeBlue,
-                              DateTime.now(), // Added Timestamp for sorting!
+                              DateTime.now(), // Timestamp for sorting!
                             );
 
                             Provider.of<CalorieProvider>(
@@ -415,7 +365,7 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
                               calories,
                               Icons.restaurant,
                               const Color(0xFF2ED573),
-                              DateTime.now(), // Added Timestamp for sorting!
+                              DateTime.now(), // Timestamp for sorting!
                             );
 
                             Provider.of<CalorieProvider>(
@@ -499,7 +449,7 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
             boxShadow: isActive && !isDark
                 ? [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: Colors.black.withOpacity(0.05),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
@@ -513,7 +463,7 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
               fontWeight: isActive ? FontWeight.bold : FontWeight.w600,
               color: isActive
                   ? textPrimary
-                  : textPrimary.withValues(alpha: 0.5),
+                  : textPrimary.withOpacity(0.5),
               fontSize: 12,
               fontFamily: "LexendExaNormal",
             ),
@@ -557,7 +507,7 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
                       Icon(
                         Icons.fastfood_rounded,
                         size: 40,
-                        color: textPrimary.withValues(alpha: 0.2),
+                        color: textPrimary.withOpacity(0.2),
                       ),
                       const SizedBox(height: 10),
                       Container(
@@ -569,7 +519,7 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
                           color: isDark ? Colors.black54 : Colors.white,
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: textPrimary.withValues(alpha: 0.2),
+                            color: textPrimary.withOpacity(0.2),
                           ),
                         ),
                         child: Text(
@@ -649,7 +599,7 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
           children: [
             Expanded(
               child: Divider(
-                color: textPrimary.withValues(alpha: 0.2),
+                color: textPrimary.withOpacity(0.2),
                 thickness: 1.5,
               ),
             ),
@@ -667,7 +617,7 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
             ),
             Expanded(
               child: Divider(
-                color: textPrimary.withValues(alpha: 0.2),
+                color: textPrimary.withOpacity(0.2),
                 thickness: 1.5,
               ),
             ),
