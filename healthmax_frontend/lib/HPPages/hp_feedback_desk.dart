@@ -107,7 +107,7 @@ class _HPFeedbackDeskPageState extends State<HPFeedbackDeskPage> {
                           child: Center(
                             child: Column(
                               children: [
-                                Icon(Icons.check_circle_outline_rounded, size: 60, color: hpPurple.withOpacity(0.5)),
+                                Icon(Icons.check_circle_outline_rounded, size: 60, color: hpPurple.withValues(alpha: 0.5)),
                                 const SizedBox(height: 15),
                                 Text("All caught up!", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: textPrimary)),
                                 const SizedBox(height: 5),
@@ -143,7 +143,7 @@ class _HPFeedbackDeskPageState extends State<HPFeedbackDeskPage> {
         color: surfaceColor,
         borderRadius: BorderRadius.circular(25),
         border: Border.all(color: dividerColor),
-        boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 15, offset: const Offset(0, 8))],
+        boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 15, offset: const Offset(0, 8))],
       ),
       child: Material(
         color: Colors.transparent,
@@ -171,7 +171,7 @@ class _HPFeedbackDeskPageState extends State<HPFeedbackDeskPage> {
                 const SizedBox(height: 15),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(color: request.color.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                  decoration: BoxDecoration(color: request.color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -215,7 +215,7 @@ class _HPFeedbackDeskPageState extends State<HPFeedbackDeskPage> {
                       Text(request.user.fullName, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, fontFamily: "LexendExaNormal", color: textPrimary)),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                        decoration: BoxDecoration(color: request.color.withOpacity(0.15), borderRadius: BorderRadius.circular(10)),
+                        decoration: BoxDecoration(color: request.color.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(10)),
                         child: Text(request.metric, style: TextStyle(color: request.color, fontWeight: FontWeight.bold, fontSize: 11)),
                       ),
                     ],
@@ -235,7 +235,7 @@ class _HPFeedbackDeskPageState extends State<HPFeedbackDeskPage> {
                           LineChartBarData(
                             spots: const [FlSpot(0, 1), FlSpot(1, 1.5), FlSpot(2, 1.2), FlSpot(3, 2.5), FlSpot(4, 2.0)],
                             isCurved: true, color: request.color, barWidth: 3, isStrokeCapRound: true,
-                            belowBarData: BarAreaData(show: true, color: request.color.withOpacity(0.1)),
+                            belowBarData: BarAreaData(show: true, color: request.color.withValues(alpha: 0.1)),
                           ),
                         ],
                       ),
@@ -251,7 +251,7 @@ class _HPFeedbackDeskPageState extends State<HPFeedbackDeskPage> {
                     style: TextStyle(color: textPrimary, fontSize: 14, fontWeight: FontWeight.w600),
                     decoration: InputDecoration(
                       hintText: "Type your medical advice here...",
-                      hintStyle: TextStyle(color: textSecondary.withOpacity(0.7), fontSize: 14),
+                      hintStyle: TextStyle(color: textSecondary.withValues(alpha: 0.7), fontSize: 14),
                       filled: true, fillColor: isDark ? const Color(0xFF2C2C2E) : Colors.grey.shade100,
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
                       contentPadding: const EdgeInsets.all(20),
