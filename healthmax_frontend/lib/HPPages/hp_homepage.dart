@@ -5,8 +5,8 @@ import '../theme_provider.dart';
 import '../GeneralPages/auth_provider.dart'; 
 import 'hp_bottomnavbar.dart';
 import 'hp_glassy_profile.dart';
-import 'usermodel.dart'; // Implemented MockData
-import 'hp_feedback_desk.dart'; // For Feedback Requests
+import 'usermodel.dart'; 
+import 'hp_feedback_desk.dart'; 
 
 class HPHomePage extends StatefulWidget {
   const HPHomePage({super.key});
@@ -150,7 +150,7 @@ class _HPHomePageState extends State<HPHomePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text("Hi,", style: TextStyle(fontSize: 45, fontWeight: FontWeight.w900, color: Colors.white, height: 1.1, fontFamily: "LexendExaNormal")),
-                          Text("Dr. $liveUsername.", style: const TextStyle(fontSize: 35, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: "LexendExaNormal")), 
+                          Text("$liveUsername.", style: const TextStyle(fontSize: 35, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: "LexendExaNormal")), 
                         ],
                       ),
                     ),
@@ -177,7 +177,6 @@ class _HPHomePageState extends State<HPHomePage> {
                       Text("ANALYTICS OVERVIEW", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 11, color: textSecondary, letterSpacing: 1.2)),
                       Text("$selectedMetric Trends", style: TextStyle(fontSize: 24, color: currentColor, fontWeight: FontWeight.w900, fontFamily: "LexendExaNormal", letterSpacing: -0.5)),
                       
-                      // --- FIX 2: DYNAMIC GRAPH SUBTITLE ---
                       const SizedBox(height: 4),
                       Text("Based on live data from $_dbConnectedUsers connected patients.", style: TextStyle(fontSize: 12, color: textSecondary, fontWeight: FontWeight.w600)),
                       const SizedBox(height: 20),
@@ -188,9 +187,9 @@ class _HPHomePageState extends State<HPHomePage> {
                       
                       Text("RECENT PATIENT ALERTS", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 11, color: textSecondary, letterSpacing: 1.2)),
                       const SizedBox(height: 15),
-                      _buildAlertTile("Tengku Adam", "Critical Heart Rate", "142 BPM", Colors.redAccent.withValues(alpha: 0.15), textPrimary, textSecondary, surfaceColor, dividerColor, isDark),
-                      _buildAlertTile("Sarah Jenkins", "Low Glucose Level", "3.2 mmol/L", Colors.orangeAccent.withValues(alpha: 0.15), textPrimary, textSecondary, surfaceColor, dividerColor, isDark),
-                      _buildAlertTile("Mike Ross", "Data Sync Interrupted", "2 hrs ago", Colors.grey.withValues(alpha: 0.15), textPrimary, textSecondary, surfaceColor, dividerColor, isDark),
+                      _buildAlertTile("Tengku Adam", "Critical Heart Rate", "142 BPM", Colors.redAccent.withOpacity(0.15), textPrimary, textSecondary, surfaceColor, dividerColor, isDark),
+                      _buildAlertTile("Sarah Jenkins", "Low Glucose Level", "3.2 mmol/L", Colors.orangeAccent.withOpacity(0.15), textPrimary, textSecondary, surfaceColor, dividerColor, isDark),
+                      _buildAlertTile("Mike Ross", "Data Sync Interrupted", "2 hrs ago", Colors.grey.withOpacity(0.15), textPrimary, textSecondary, surfaceColor, dividerColor, isDark),
                       const SizedBox(height: 35),
                       
                       _buildSystemHealthCard(),
@@ -211,16 +210,16 @@ class _HPHomePageState extends State<HPHomePage> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.bottomCenter, end: Alignment.topCenter,
-                  colors: [bgColor, bgColor.withValues(alpha: 0.95), bgColor.withValues(alpha: 0.0)],
+                  colors: [bgColor, bgColor.withOpacity(0.95), bgColor.withOpacity(0.0)],
                   stops: const [0.0, 0.6, 1.0],
                 ),
               ),
               alignment: Alignment.bottomCenter,
               child: Row(
                 children: [
-                  Expanded(child: _actionBtn("Compare Data", isDark ? const Color(0xFF1E3A8A) : const Color(0xFFDBEAFE), Icons.compare_arrows, isDark ? const Color(0xFF60A5FA) : const Color(0xFF1E3A8A))),
+                  Expanded(child: _actionBtn("Compare Data", isDark ? const Color(0xFF1E3A8A) : const Color(0xFFDBEAFE), Icons.insights_rounded, isDark ? const Color(0xFF60A5FA) : const Color(0xFF1E3A8A), onTap: () => _showCompareDataSheet(isDark, surfaceColor, textPrimary, textSecondary, dividerColor))),
                   const SizedBox(width: 15),
-                  Expanded(child: _actionBtn("Export PDF", isDark ? const Color(0xFF064E3B) : const Color(0xFFD1FAE5), Icons.download, isDark ? const Color(0xFF34D399) : const Color(0xFF064E3B))),
+                  Expanded(child: _actionBtn("Export Data", isDark ? const Color(0xFF064E3B) : const Color(0xFFD1FAE5), Icons.download, isDark ? const Color(0xFF34D399) : const Color(0xFF064E3B))),
                 ],
               ),
             ),
@@ -250,25 +249,23 @@ class _HPHomePageState extends State<HPHomePage> {
         const SizedBox(width: 15),
         _statBtn(
           Icons.warning_amber_rounded, 
-          "${MockData.feedbackRequests.length} NEED\nATTENTION", // DYNAMIC NUMBER!
+          "${MockData.feedbackRequests.length} NEED\nATTENTION",
           const Color(0xFFFF4757), 
           Colors.white, 
           isLarge: true,
-          // ROUTES TO THE FEEDBACK DESK!
           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const HPFeedbackDeskPage())),
         ),
       ],
     );
   }
 
-  // --- FIX 1: DYNAMIC BUTTON HEIGHT & PADDING ---
   Widget _statBtn(IconData icon, String text, Color bgColor, Color textColor, {bool isLarge = false, VoidCallback? onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         constraints: BoxConstraints(minHeight: isLarge ? 120 : 60), 
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-        decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(20), border: Border.all(color: textColor.withValues(alpha: 0.2))),
+        decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(20), border: Border.all(color: textColor.withOpacity(0.2))),
         child: isLarge
             ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -296,7 +293,7 @@ class _HPHomePageState extends State<HPHomePage> {
         color: surfaceColor, 
         borderRadius: BorderRadius.circular(30), 
         border: Border.all(color: dividerColor),
-        boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 15, offset: const Offset(0, 8))]
+        boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 15, offset: const Offset(0, 8))]
       ),
       child: Column(
         children: [
@@ -365,7 +362,7 @@ class _HPHomePageState extends State<HPHomePage> {
                     isCurved: true, curveSmoothness: 0.35,
                     color: currentColor, barWidth: 3.5, isStrokeCapRound: true,
                     dotData: const FlDotData(show: false),
-                    belowBarData: BarAreaData(show: true, color: currentColor.withValues(alpha: 0.1)), 
+                    belowBarData: BarAreaData(show: true, color: currentColor.withOpacity(0.1)), 
                   ),
                 ],
               ),
@@ -378,17 +375,20 @@ class _HPHomePageState extends State<HPHomePage> {
     );
   }
 
-  Widget _actionBtn(String label, Color col, IconData icon, Color textColor) {
-    return Container(
-      height: 55,
-      decoration: BoxDecoration(color: col, borderRadius: BorderRadius.circular(20), border: Border.all(color: textColor.withValues(alpha: 0.2))),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 20, color: textColor),
-          const SizedBox(width: 8),
-          Text(label, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: textColor, fontFamily: "LexendExaNormal")),
-        ],
+  Widget _actionBtn(String label, Color col, IconData icon, Color textColor, {VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap, 
+      child: Container(
+        height: 55,
+        decoration: BoxDecoration(color: col, borderRadius: BorderRadius.circular(20), border: Border.all(color: textColor.withOpacity(0.2))),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 20, color: textColor),
+            const SizedBox(width: 8),
+            Text(label, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: textColor, fontFamily: "LexendExaNormal")),
+          ],
+        ),
       ),
     );
   }
@@ -397,7 +397,7 @@ class _HPHomePageState extends State<HPHomePage> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(20), border: Border.all(color: dividerColor), boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4))]),
+      decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(20), border: Border.all(color: dividerColor), boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))]),
       child: Row(
         children: [
           Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle), child: Icon(Icons.warning_rounded, size: 18, color: textPrimary)),
@@ -421,10 +421,10 @@ class _HPHomePageState extends State<HPHomePage> {
   Widget _buildSystemHealthCard() {
     return Container(
       padding: const EdgeInsets.all(25),
-      decoration: BoxDecoration(color: const Color(0xFF8E33FF).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(25), border: Border.all(color: const Color(0xFF8E33FF).withValues(alpha: 0.3))),
+      decoration: BoxDecoration(color: const Color(0xFF8E33FF).withOpacity(0.1), borderRadius: BorderRadius.circular(25), border: Border.all(color: const Color(0xFF8E33FF).withOpacity(0.3))),
       child: Row(
         children: [
-          Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: const Color(0xFF8E33FF).withValues(alpha: 0.2), borderRadius: BorderRadius.circular(15)), child: const Icon(Icons.cloud_done, color: Color(0xFF8E33FF))),
+          Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: const Color(0xFF8E33FF).withOpacity(0.2), borderRadius: BorderRadius.circular(15)), child: const Icon(Icons.cloud_done, color: Color(0xFF8E33FF))),
           const SizedBox(width: 15),
           const Expanded(child: Text("All hospital systems are operational. Device sync is at 98% efficiency.", style: TextStyle(color: Color(0xFF8E33FF), fontSize: 12, height: 1.4, fontWeight: FontWeight.bold))),
         ],
@@ -461,5 +461,241 @@ class _HPHomePageState extends State<HPHomePage> {
         ),
       ),
     );
+  }
+
+  // ==========================================
+  // THE NEW "COMPARE DATA" BOTTOM SHEET ENGINE
+  // ==========================================
+
+  void _showCompareDataSheet(bool isDark, Color surfaceColor, Color textPrimary, Color textSecondary, Color dividerColor) {
+    String compareMetric = 'Heart Rate';
+    String comparePeriod = 'This Week vs Last Week';
+    bool showChart = false;
+    
+    final List<String> availableMetrics = ['Heart Rate', 'Steps', 'Glucose Level', 'Calories'];
+    final List<String> availablePeriods = ['This Week vs Last Week', 'This Month vs Last Month'];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Container(
+              decoration: BoxDecoration(
+                color: surfaceColor,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(35)),
+              ),
+              padding: const EdgeInsets.fromLTRB(30, 10, 30, 40),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(width: 40, height: 4, margin: const EdgeInsets.only(bottom: 25), decoration: BoxDecoration(color: dividerColor, borderRadius: BorderRadius.circular(10))),
+                    
+                    Text("Period-over-Period Analysis", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: "LexendExaNormal", color: textPrimary), textAlign: TextAlign.center),
+                    const SizedBox(height: 5),
+                    Text(showChart ? "Mapping growth and progression." : "Select a metric and timeframe to view growth.", style: TextStyle(color: textSecondary, fontSize: 13)),
+                    const SizedBox(height: 30),
+
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 400),
+                      child: !showChart 
+                        // --- VIEW 1: THE SELECTION FORM ---
+                        ? Column(
+                            key: const ValueKey('form'),
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("Metric", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: textSecondary)),
+                              const SizedBox(height: 8),
+                              _compareDropdown(compareMetric, availableMetrics, (val) => setModalState(() => compareMetric = val!), isDark, surfaceColor, textPrimary, hpPurple),
+                              
+                              const SizedBox(height: 20),
+                              
+                              Text("Timeframe", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: textSecondary)),
+                              const SizedBox(height: 8),
+                              _compareDropdown(comparePeriod, availablePeriods, (val) => setModalState(() => comparePeriod = val!), isDark, surfaceColor, textPrimary, Colors.orangeAccent),
+                              
+                              const SizedBox(height: 35),
+                              SizedBox(
+                                width: double.infinity, height: 55,
+                                child: ElevatedButton(
+                                  onPressed: () => setModalState(() => showChart = true),
+                                  style: ElevatedButton.styleFrom(backgroundColor: hpPurple, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), elevation: 0),
+                                  child: const Text("Generate Comparison", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14, fontFamily: "LexendExaNormal")),
+                                ),
+                              ),
+                            ],
+                          )
+
+                        // --- VIEW 2: THE DUAL-LINE CHART WITH REAL NUMBERS ---
+                        : Column(
+                            key: const ValueKey('chart'),
+                            children: [
+                              Container(
+                                height: 200,
+                                padding: const EdgeInsets.fromLTRB(10, 20, 20, 10),
+                                decoration: BoxDecoration(
+                                  color: isDark ? const Color(0xFF2C2C2E) : Colors.grey.shade50,
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: dividerColor),
+                                ),
+                                child: LineChart(
+                                  LineChartData(
+                                    gridData: FlGridData(show: true, drawVerticalLine: false, getDrawingHorizontalLine: (v) => FlLine(color: dividerColor, strokeWidth: 1)),
+                                    titlesData: FlTitlesData(
+                                      rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                                      topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                                      bottomTitles: AxisTitles(
+                                        sideTitles: SideTitles(
+                                          showTitles: true, reservedSize: 30, interval: 1,
+                                          getTitlesWidget: (v, m) {
+                                            if (comparePeriod == 'This Week vs Last Week') {
+                                              const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                                              if (v.toInt() >= 0 && v.toInt() < days.length) return Padding(padding: const EdgeInsets.only(top: 8.0), child: Text(days[v.toInt()], style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: textSecondary)));
+                                            } else {
+                                              if (v.toInt() >= 0 && v.toInt() < 4) return Padding(padding: const EdgeInsets.only(top: 8.0), child: Text('Wk ${v.toInt() + 1}', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: textSecondary)));
+                                            }
+                                            return const SizedBox.shrink();
+                                          }
+                                        )
+                                      ),
+                                      leftTitles: AxisTitles(
+                                        sideTitles: SideTitles(
+                                          showTitles: true, reservedSize: 40, interval: _getIntervalYCompare(compareMetric),
+                                          getTitlesWidget: (v, m) {
+                                            if (v == _getMinYCompare(compareMetric) || v == _getMaxYCompare(compareMetric)) return const SizedBox.shrink();
+                                            String text = compareMetric == 'Steps' ? '${(v / 1000).toInt()}k' : (compareMetric == 'Glucose Level' ? v.toStringAsFixed(1) : v.toInt().toString());
+                                            return Text(text, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: textSecondary));
+                                          },
+                                        )
+                                      )
+                                    ),
+                                    borderData: FlBorderData(show: true, border: Border(left: BorderSide(color: dividerColor), bottom: BorderSide(color: dividerColor), top: BorderSide.none, right: BorderSide.none)),
+                                    minX: 0, maxX: comparePeriod == 'This Week vs Last Week' ? 6 : 3, 
+                                    minY: _getMinYCompare(compareMetric), maxY: _getMaxYCompare(compareMetric),
+                                    lineBarsData: [
+                                      // Line 1: Current Period (Purple)
+                                      LineChartBarData(
+                                        spots: _getCompareData(compareMetric, comparePeriod, true),
+                                        isCurved: true, color: hpPurple, barWidth: 3.5, isStrokeCapRound: true, dotData: const FlDotData(show: false),
+                                      ),
+                                      // Line 2: Previous Period (Orange)
+                                      LineChartBarData(
+                                        spots: _getCompareData(compareMetric, comparePeriod, false),
+                                        isCurved: true, color: Colors.orangeAccent, barWidth: 3.5, isStrokeCapRound: true, dotData: const FlDotData(show: false),
+                                      ),
+                                    ],
+                                  ),
+                                  duration: const Duration(milliseconds: 600),
+                                  curve: Curves.easeOutCubic,
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              
+                              // Elegant Legend
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  _buildLegendItem("Current Period", hpPurple, textPrimary),
+                                  const SizedBox(width: 25),
+                                  _buildLegendItem("Previous Period", Colors.orangeAccent, textPrimary),
+                                ],
+                              ),
+                              const SizedBox(height: 30),
+
+                              SizedBox(
+                                width: double.infinity, height: 55,
+                                child: TextButton(
+                                  onPressed: () => setModalState(() => showChart = false),
+                                  style: TextButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: BorderSide(color: dividerColor))),
+                                  child: Text("Change Parameters", style: TextStyle(color: textPrimary, fontWeight: FontWeight.bold, fontSize: 13)),
+                                ),
+                              ),
+                            ],
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // --- COMPARE DATA HELPERS ---
+  
+  Widget _compareDropdown(String val, List<String> items, ValueChanged<String?> onChanged, bool isDark, Color surfaceColor, Color textPrimary, Color accentColor) {
+    final dropBg = isDark ? const Color(0xFF2C2C2E) : Colors.grey.shade100;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+      decoration: BoxDecoration(
+        color: dropBg, 
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: accentColor.withOpacity(0.3), width: 2)
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: val,
+          isExpanded: true,
+          dropdownColor: surfaceColor,
+          icon: Icon(Icons.keyboard_arrow_down_rounded, color: textPrimary, size: 16),
+          selectedItemBuilder: (BuildContext context) {
+            return items.map<Widget>((String item) {
+              return Text(item, style: TextStyle(fontWeight: FontWeight.bold, color: accentColor, fontSize: 14), overflow: TextOverflow.ellipsis);
+            }).toList();
+          },
+          onChanged: onChanged,
+          items: items.map((i) => DropdownMenuItem(value: i, child: Text(i, style: TextStyle(color: textPrimary, fontWeight: FontWeight.bold, fontSize: 13)))).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLegendItem(String label, Color color, Color textPrimary) {
+    return Row(
+      children: [
+        Container(width: 12, height: 12, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        const SizedBox(width: 8),
+        Text(label, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: textPrimary)),
+      ],
+    );
+  }
+
+  // Y-Axis limits specifically for the Compare Chart
+  double _getMinYCompare(String metric) => metric == 'Heart Rate' ? 60 : 0;
+  double _getMaxYCompare(String metric) {
+    if (metric == 'Heart Rate') return 160;
+    if (metric == 'Steps') return 15000;
+    if (metric == 'Calories') return 3500;
+    return 15; // Glucose
+  }
+  double _getIntervalYCompare(String metric) {
+    if (metric == 'Heart Rate') return 20;
+    if (metric == 'Steps') return 5000;
+    if (metric == 'Calories') return 1000;
+    return 5; // Glucose
+  }
+
+  // Generates real numbers for the graph!
+  List<FlSpot> _getCompareData(String metric, String period, bool isCurrent) {
+    List<double> values;
+    
+    if (period == 'This Week vs Last Week') {
+      if (metric == 'Heart Rate') values = isCurrent ? [75, 85, 80, 110, 95, 125, 90] : [70, 80, 85, 100, 90, 115, 85];
+      else if (metric == 'Steps') values = isCurrent ? [5000, 7000, 6500, 10000, 8000, 12000, 9000] : [4500, 6000, 7000, 9500, 7500, 11000, 8500];
+      else if (metric == 'Calories') values = isCurrent ? [1800, 2100, 1900, 2500, 2200, 2800, 2000] : [1700, 2000, 1850, 2400, 2100, 2600, 1900];
+      else values = isCurrent ? [4.5, 5.2, 4.8, 6.5, 5.5, 7.2, 5.0] : [4.2, 5.0, 4.6, 6.0, 5.2, 6.8, 4.8]; // Glucose
+    } else { // Month over Month
+      if (metric == 'Heart Rate') values = isCurrent ? [90, 85, 110, 95] : [85, 80, 100, 90];
+      else if (metric == 'Steps') values = isCurrent ? [8000, 9500, 7500, 11000] : [7500, 9000, 7000, 10500];
+      else if (metric == 'Calories') values = isCurrent ? [2200, 2400, 2100, 2600] : [2100, 2300, 2000, 2500];
+      else values = isCurrent ? [5.0, 5.5, 4.8, 6.0] : [4.8, 5.2, 4.5, 5.8]; // Glucose
+    }
+
+    return List.generate(values.length, (i) => FlSpot(i.toDouble(), values[i]));
   }
 }
