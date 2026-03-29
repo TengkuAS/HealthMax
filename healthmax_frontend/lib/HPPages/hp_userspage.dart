@@ -130,7 +130,7 @@ class _HPUsersPageState extends State<HPUsersPage> {
                           color: surfaceColor,
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(color: dividerColor),
-                          boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))],
+                          boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
                         ),
                         child: TextField(
                           controller: _searchController,
@@ -153,7 +153,7 @@ class _HPUsersPageState extends State<HPUsersPage> {
                           Text("ACTIVE PATIENTS", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: textSecondary, letterSpacing: 1.2, fontFamily: "LexendExaNormal")),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(color: themePurple.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+                            decoration: BoxDecoration(color: themePurple.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
                             child: Text("Total: ${_displayedUsers.length}", style: TextStyle(color: themePurple, fontWeight: FontWeight.bold, fontSize: 11)),
                           ),
                         ],
@@ -167,7 +167,7 @@ class _HPUsersPageState extends State<HPUsersPage> {
                           color: surfaceColor,
                           borderRadius: BorderRadius.circular(30),
                           border: Border.all(color: dividerColor),
-                          boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 15, offset: const Offset(0, 8))],
+                          boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 15, offset: const Offset(0, 8))],
                         ),
                         child: _displayedUsers.isEmpty 
                           ? Padding(
