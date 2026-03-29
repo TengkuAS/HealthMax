@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart' hide BackButton;
+import 'package:healthmax_frontend/GeneralPages/auth/auth_service.dart';
+import 'package:healthmax_frontend/UserPages/registration_intro.dart';
+import 'package:healthmax_frontend/UserPages/registration_questions.dart';
 import 'package:provider/provider.dart';
 
 import 'helper_widgets.dart'; // Your custom UI widgets
@@ -12,9 +15,9 @@ class StartPage extends StatelessWidget {
   final String heading2;
   final WidgetBuilder loginPage;
   final WidgetBuilder registrationPage;
-  final BoxDecoration? decoration; 
-  final VoidCallback? onLoginSuccess; 
-  final String homeRoute; 
+  final BoxDecoration? decoration;
+  final VoidCallback? onLoginSuccess;
+  final String homeRoute;
 
   const StartPage({
     super.key,
@@ -22,15 +25,15 @@ class StartPage extends StatelessWidget {
     required this.heading2,
     required this.loginPage,
     required this.registrationPage,
-    required this.homeRoute, 
-    this.decoration, 
-    this.onLoginSuccess, 
+    required this.homeRoute,
+    this.decoration,
+    this.onLoginSuccess,
   });
 
   @override
   Widget build(BuildContext context) {
     return Screen(
-      bgDecoration: decoration, 
+      bgDecoration: decoration,
       child: ListView(
         children: [
           BackButton(),
@@ -61,25 +64,31 @@ class StartPage extends StatelessWidget {
               CustomButton(
                 label: "LOGIN",
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: loginPage));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: loginPage),
+                  );
                 },
                 buttonStyle: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey.shade200, 
+                  backgroundColor: Colors.grey.shade200,
                   padding: const EdgeInsets.all(5),
                 ),
-                textColor: Colors.black87, 
+                textColor: Colors.black87,
               ),
               const SizedBox(height: 20),
               CustomButton(
                 label: "REGISTER",
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: registrationPage));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: registrationPage),
+                  );
                 },
                 buttonStyle: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey.shade200, 
+                  backgroundColor: Colors.grey.shade200,
                   padding: const EdgeInsets.all(5),
                 ),
-                textColor: Colors.black87, 
+                textColor: Colors.black87,
               ),
             ],
           ),
@@ -98,10 +107,10 @@ class RegistrationPage extends StatefulWidget {
   final String role; // "user" or "hp"
 
   const RegistrationPage({
-    super.key, 
+    super.key,
     required this.loginPage,
     required this.postRegistration,
-    required this.role, 
+    required this.role,
   });
 
   @override
@@ -123,12 +132,55 @@ class _RegistrationPageState extends State<RegistrationPage> {
     super.dispose();
   }
 
+  void register() async {
+    final username = _usernameCtrl.text;
+    final email = _emailCtrl.text;
+    final password = _passwordCtrl.text;
+    final confirmPassword = _confirmCtrl.text;
+
+    // Presence check
+    if (username.isEmpty || email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please fill all fields!"),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
+
+    // Double entry check
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Passwords do not match!"),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
+
+    UserAnswers userAnswers = UserAnswers(
+      username: username,
+      email: email,
+      password: password,
+    );
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => RegistrationIntro(userAnswers: userAnswers),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
 
     return Screen(
-      bgDecoration: bgGradientHP, // Replace with dynamic widget.decoration if needed
+      bgDecoration:
+          bgGradientHP, // Replace with dynamic widget.decoration if needed
       child: ListView(
         children: [
           BackButton(),
@@ -137,7 +189,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
           const SizedBox(height: 3),
           const CustomHeading2(text: "Register to get started!"),
           const SizedBox(height: 30),
-          
+
           _buildTextField("Username", _usernameCtrl, false),
           const SizedBox(height: 20),
           _buildTextField("Email", _emailCtrl, false),
@@ -146,41 +198,69 @@ class _RegistrationPageState extends State<RegistrationPage> {
           const SizedBox(height: 20),
           _buildTextField("Confirm Password", _confirmCtrl, true),
           const SizedBox(height: 50),
-          
-          auth.isLoading 
-            ? const Center(child: CircularProgressIndicator(color: Colors.white))
-            : CustomShortButton(
-                label: "Register",
-                width: 200,
-                onPressed: () async {
-                  // 1. Validate fields
-                  if (_usernameCtrl.text.isEmpty || _emailCtrl.text.isEmpty || _passwordCtrl.text.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please fill all fields!"), backgroundColor: Colors.redAccent));
-                    return;
-                  }
-                  
-                  if (_passwordCtrl.text != _confirmCtrl.text) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Passwords do not match!"), backgroundColor: Colors.redAccent));
-                    return;
-                  }
 
-                  // 2. Call FastAPI Provider
-                  bool success = await auth.registerBaseAccount(
-                    _usernameCtrl.text, _emailCtrl.text, _passwordCtrl.text, widget.role
-                  );
+          auth.isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(color: Colors.white),
+                )
+              : CustomShortButton(
+                  label: "Register",
+                  width: 200,
+                  onPressed: () async {
+                    // 1. Validate fields
+                    if (_usernameCtrl.text.isEmpty ||
+                        _emailCtrl.text.isEmpty ||
+                        _passwordCtrl.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Please fill all fields!"),
+                          backgroundColor: Colors.redAccent,
+                        ),
+                      );
+                      return;
+                    }
 
-                  // 3. Route to Next Setup Step (Gender Selection for Users)
-                  if (success && mounted) {
-                    Navigator.push(context, MaterialPageRoute(builder: widget.postRegistration));
-                  } else if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Registration Failed. Try again."), backgroundColor: Colors.redAccent));
-                  }
-                },
-              ),
+                    if (_passwordCtrl.text != _confirmCtrl.text) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Passwords do not match!"),
+                          backgroundColor: Colors.redAccent,
+                        ),
+                      );
+                      return;
+                    }
+
+                    // 2. Call FastAPI Provider
+                    bool success = await auth.registerBaseAccount(
+                      _usernameCtrl.text,
+                      _emailCtrl.text,
+                      _passwordCtrl.text,
+                      widget.role,
+                    );
+
+                    // 3. Route to Next Setup Step (Gender Selection for Users)
+                    if (success && mounted) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: widget.postRegistration),
+                      );
+                    } else if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Registration Failed. Try again."),
+                          backgroundColor: Colors.redAccent,
+                        ),
+                      );
+                    }
+                  },
+                ),
           CustomQuestionLink(
             question: "Already have an account?",
             linkText: "Login now!",
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: widget.loginPage)),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: widget.loginPage),
+            ),
           ),
           const SizedBox(height: 40),
         ],
@@ -189,20 +269,33 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   // Quick helper to replace CustomInputBox so we can use dynamic controllers
-  Widget _buildTextField(String hint, TextEditingController controller, bool isPassword) {
+  Widget _buildTextField(
+    String hint,
+    TextEditingController controller,
+    bool isPassword,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40),
       child: TextField(
         controller: controller,
         obscureText: isPassword,
-        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: const TextStyle(color: Colors.white54),
           filled: true,
           fillColor: Colors.white.withValues(alpha: 0.1),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide.none),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30),
+            borderSide: BorderSide.none,
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 25,
+            vertical: 20,
+          ),
         ),
       ),
     );
@@ -214,18 +307,18 @@ class _RegistrationPageState extends State<RegistrationPage> {
 // ==========================================
 class LoginPage extends StatefulWidget {
   final WidgetBuilder registrationPage;
-  final BoxDecoration? decoration; 
-  final VoidCallback? onLoginSuccess; 
-  final String homeRoute; 
+  final BoxDecoration? decoration;
+  final VoidCallback? onLoginSuccess;
+  final String homeRoute;
   final String role; // "user" or "hp"
 
   const LoginPage({
-    super.key, 
-    required this.registrationPage, 
+    super.key,
+    required this.registrationPage,
     required this.homeRoute,
     required this.role,
-    this.decoration, 
-    this.onLoginSuccess
+    this.decoration,
+    this.onLoginSuccess,
   });
 
   @override
@@ -248,7 +341,7 @@ class _LoginPageState extends State<LoginPage> {
     final auth = Provider.of<AuthProvider>(context);
 
     return Screen(
-      bgDecoration: widget.decoration, 
+      bgDecoration: widget.decoration,
       child: ListView(
         children: [
           BackButton(),
@@ -258,43 +351,67 @@ class _LoginPageState extends State<LoginPage> {
           const SizedBox(height: 10),
           const CustomHeading2(text: "Glad to see you again!"),
           const SizedBox(height: 30),
-          
+
           _buildTextField("Username", _usernameCtrl, false),
           const SizedBox(height: 20),
           _buildTextField("Password", _passwordCtrl, true),
           const SizedBox(height: 50),
-          
-          auth.isLoading 
-            ? const Center(child: CircularProgressIndicator(color: Colors.white))
-            : CustomShortButton(
-                label: "Login", 
-                width: 200,
-                onPressed: () async {
-                  // 1. Validate fields
-                  if (_usernameCtrl.text.isEmpty || _passwordCtrl.text.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please fill all fields!"), backgroundColor: Colors.redAccent));
-                    return;
-                  }
 
-                  // 2. Call FastAPI Provider
-                  bool success = await auth.login(_usernameCtrl.text, _passwordCtrl.text, widget.role);
-
-                  // 3. Route on Success
-                  if (success && mounted) {
-                    if (widget.onLoginSuccess != null) {
-                      widget.onLoginSuccess!();
-                    } else {
-                      Navigator.pushNamedAndRemoveUntil(context, widget.homeRoute, (route) => false);
+          auth.isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(color: Colors.white),
+                )
+              : CustomShortButton(
+                  label: "Login",
+                  width: 200,
+                  onPressed: () async {
+                    // 1. Validate fields
+                    if (_usernameCtrl.text.isEmpty ||
+                        _passwordCtrl.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Please fill all fields!"),
+                          backgroundColor: Colors.redAccent,
+                        ),
+                      );
+                      return;
                     }
-                  } else if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Invalid Credentials!"), backgroundColor: Colors.redAccent));
-                  }
-                },
-              ),
+
+                    // 2. Call FastAPI Provider
+                    bool success = await auth.login(
+                      _usernameCtrl.text,
+                      _passwordCtrl.text,
+                      widget.role,
+                    );
+
+                    // 3. Route on Success
+                    if (success && mounted) {
+                      if (widget.onLoginSuccess != null) {
+                        widget.onLoginSuccess!();
+                      } else {
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          widget.homeRoute,
+                          (route) => false,
+                        );
+                      }
+                    } else if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Invalid Credentials!"),
+                          backgroundColor: Colors.redAccent,
+                        ),
+                      );
+                    }
+                  },
+                ),
           CustomQuestionLink(
             question: "Don't have an account?",
             linkText: "Register Now!",
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: widget.registrationPage)),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: widget.registrationPage),
+            ),
           ),
           const SizedBox(height: 40),
         ],
@@ -302,20 +419,33 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _buildTextField(String hint, TextEditingController controller, bool isPassword) {
+  Widget _buildTextField(
+    String hint,
+    TextEditingController controller,
+    bool isPassword,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40),
       child: TextField(
         controller: controller,
         obscureText: isPassword,
-        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: const TextStyle(color: Colors.white54),
           filled: true,
           fillColor: Colors.white.withValues(alpha: 0.1),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide.none),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30),
+            borderSide: BorderSide.none,
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 25,
+            vertical: 20,
+          ),
         ),
       ),
     );

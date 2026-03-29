@@ -94,20 +94,26 @@ class GenderCard extends StatelessWidget {
 }
 
 // The following class will keep track of the user's
-// answers to each question
+// answers to each question during the registration phase
 class UserAnswers {
+  String username;
+  String email;
+  String password;
   String? gender;
   DateTime? dob;
   double? weight;
   String? weightUnit;
   double? height;
   String? heightUnit;
-  
+
   // NEW: Goal Tracking Variables
-  String? mainGoal; 
-  String? goalTargetValue; 
+  String? mainGoal;
+  String? goalTargetValue;
 
   UserAnswers({
+    required this.username,
+    required this.email,
+    required this.password,
     this.gender,
     this.dob,
     this.weight,
@@ -125,7 +131,9 @@ class UserAnswers {
 }
 
 class RegistrationGender extends StatefulWidget {
-  const RegistrationGender({super.key});
+  final UserAnswers userAnswers;
+
+  const RegistrationGender({super.key, required this.userAnswers});
 
   @override
   State<RegistrationGender> createState() => _RegistrationGenderState();
@@ -133,8 +141,7 @@ class RegistrationGender extends StatefulWidget {
 
 class _RegistrationGenderState extends State<RegistrationGender> {
   String? selectedGender;
-  UserAnswers userAnswers = UserAnswers();
-  
+
   void setSelectedGender(String gender) {
     setState(() => selectedGender = gender);
   }
@@ -148,7 +155,12 @@ class _RegistrationGenderState extends State<RegistrationGender> {
         const SizedBox(height: 100),
         const Text(
           "Select your Gender",
-          style: TextStyle(color: Colors.black, fontSize: 25, fontWeight: FontWeight.bold, fontFamily: "LexendExaNormal"),
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+            fontFamily: "LexendExaNormal",
+          ),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 100),
@@ -157,14 +169,22 @@ class _RegistrationGenderState extends State<RegistrationGender> {
           children: [
             Expanded(
               child: GenderCard(
-                icon: Icons.male, color: Colors.lightBlueAccent, label: "Male",
-                userAnswers: userAnswers, selectedGender: selectedGender ?? "None", setSelectedGender: setSelectedGender,
+                icon: Icons.male,
+                color: Colors.lightBlueAccent,
+                label: "Male",
+                userAnswers: widget.userAnswers,
+                selectedGender: selectedGender ?? "None",
+                setSelectedGender: setSelectedGender,
               ),
             ),
             Expanded(
               child: GenderCard(
-                icon: Icons.female, label: "Female", color: Colors.purpleAccent,
-                userAnswers: userAnswers, selectedGender: selectedGender ?? "None", setSelectedGender: setSelectedGender,
+                icon: Icons.female,
+                label: "Female",
+                color: Colors.purpleAccent,
+                userAnswers: widget.userAnswers,
+                selectedGender: selectedGender ?? "None",
+                setSelectedGender: setSelectedGender,
               ),
             ),
           ],
@@ -175,10 +195,22 @@ class _RegistrationGenderState extends State<RegistrationGender> {
           onPressed: () {
             // STRICT VALIDATION
             if (selectedGender == null) {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please select a gender!"), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("Please select a gender!"),
+                  backgroundColor: Colors.redAccent,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
               return;
             }
-            Navigator.push(context, MaterialPageRoute(builder: (_) => RegistrationDOB(userAnswers: userAnswers)));
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) =>
+                    RegistrationDOB(userAnswers: widget.userAnswers),
+              ),
+            );
           },
         ),
       ],
@@ -230,8 +262,18 @@ class _EnterDOBWidgetState extends State<EnterDOBWidget> {
 
   String formatDate(DateTime date) {
     List<String> months = [
-      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
     ];
     return "${date.day} ${months[date.month - 1]} ${date.year}";
   }
@@ -250,15 +292,19 @@ class _EnterDOBWidgetState extends State<EnterDOBWidget> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
-            color: hasDate ? const Color(0xFF8E33FF).withValues(alpha: 0.5) : Colors.grey.shade300,
+            color: hasDate
+                ? const Color(0xFF8E33FF).withValues(alpha: 0.5)
+                : Colors.grey.shade300,
             width: 2,
           ),
           boxShadow: [
             BoxShadow(
-              color: hasDate ? const Color(0xFF8E33FF).withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.05),
+              color: hasDate
+                  ? const Color(0xFF8E33FF).withValues(alpha: 0.15)
+                  : Colors.black.withValues(alpha: 0.05),
               blurRadius: 20,
               offset: const Offset(0, 10),
-            )
+            ),
           ],
         ),
         child: Row(
@@ -299,7 +345,12 @@ class RegistrationDOB extends StatelessWidget {
         const SizedBox(height: 100),
         const Text(
           "Enter your date of birth",
-          style: TextStyle(color: Colors.black, fontSize: 25, fontWeight: FontWeight.bold, fontFamily: "LexendExaNormal"),
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+            fontFamily: "LexendExaNormal",
+          ),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 100),
@@ -310,10 +361,21 @@ class RegistrationDOB extends StatelessWidget {
           onPressed: () {
             // STRICT VALIDATION
             if (userAnswers.dob == null) {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please select your date of birth!"), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("Please select your date of birth!"),
+                  backgroundColor: Colors.redAccent,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
               return;
             }
-            Navigator.push(context, MaterialPageRoute(builder: (_) => RegistrationWeight(userAnswers: userAnswers)));
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => RegistrationWeight(userAnswers: userAnswers),
+              ),
+            );
           },
         ),
       ],
@@ -443,7 +505,12 @@ class _PremiumHorizontalRulerState extends State<PremiumHorizontalRuler> {
               return const LinearGradient(
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
-                colors: [Colors.transparent, Colors.black, Colors.black, Colors.transparent],
+                colors: [
+                  Colors.transparent,
+                  Colors.black,
+                  Colors.black,
+                  Colors.transparent,
+                ],
                 stops: [0.0, 0.35, 0.65, 1.0],
               ).createShader(bounds);
             },
@@ -476,7 +543,9 @@ class _PremiumHorizontalRulerState extends State<PremiumHorizontalRuler> {
                             width: isMajor ? 3 : (isMedium ? 2 : 1.5),
                             height: isMajor ? 45 : (isMedium ? 30 : 20),
                             decoration: BoxDecoration(
-                              color: isMajor ? Colors.black87 : Colors.grey.shade400,
+                              color: isMajor
+                                  ? Colors.black87
+                                  : Colors.grey.shade400,
                               borderRadius: BorderRadius.circular(2),
                             ),
                           ),
@@ -490,7 +559,7 @@ class _PremiumHorizontalRulerState extends State<PremiumHorizontalRuler> {
                                 color: Colors.black54,
                               ),
                             ),
-                          ]
+                          ],
                         ],
                       ),
                     );
@@ -499,7 +568,7 @@ class _PremiumHorizontalRulerState extends State<PremiumHorizontalRuler> {
               ),
             ),
           ),
-          
+
           // Center Indicator
           IgnorePointer(
             child: Container(
@@ -513,7 +582,7 @@ class _PremiumHorizontalRulerState extends State<PremiumHorizontalRuler> {
                     color: const Color(0xFF8E33FF).withValues(alpha: 0.5),
                     blurRadius: 10,
                     spreadRadius: 2,
-                  )
+                  ),
                 ],
               ),
             ),
@@ -555,12 +624,20 @@ class _WeightInputSectionState extends State<WeightInputSection> {
           children: [
             Text(
               "$selectedWeight",
-              style: const TextStyle(fontSize: 80, fontWeight: FontWeight.bold, color: Color(0xFF8E33FF)),
+              style: const TextStyle(
+                fontSize: 80,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF8E33FF),
+              ),
             ),
             const SizedBox(width: 8),
             Text(
-              isKg ? "kg" : "lb", 
-              style: const TextStyle(fontSize: 24, color: Colors.grey, fontWeight: FontWeight.w600)
+              isKg ? "kg" : "lb",
+              style: const TextStyle(
+                fontSize: 24,
+                color: Colors.grey,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ],
         ),
@@ -579,7 +656,9 @@ class _WeightInputSectionState extends State<WeightInputSection> {
         ),
         const SizedBox(height: 40),
         PremiumHorizontalRuler(
-          key: ValueKey(isKg), // Forces rebuild when unit swaps to refresh scroll bounds
+          key: ValueKey(
+            isKg,
+          ), // Forces rebuild when unit swaps to refresh scroll bounds
           minValue: isKg ? 30 : 66,
           maxValue: isKg ? 200 : 440,
           initialValue: selectedWeight,
@@ -606,7 +685,12 @@ class RegistrationWeight extends StatelessWidget {
         const SizedBox(height: 60),
         const Text(
           "Enter your weight",
-          style: TextStyle(color: Colors.black, fontSize: 25, fontWeight: FontWeight.bold, fontFamily: "LexendExaNormal"),
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+            fontFamily: "LexendExaNormal",
+          ),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 40),
@@ -615,7 +699,12 @@ class RegistrationWeight extends StatelessWidget {
         CustomButton(
           label: "Next",
           onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => RegistrationHeight(userAnswers: userAnswers)));
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => RegistrationHeight(userAnswers: userAnswers),
+              ),
+            );
           },
         ),
       ],
@@ -654,12 +743,20 @@ class _HeightInputSectionState extends State<HeightInputSection> {
           children: [
             Text(
               "$selectedHeight",
-              style: const TextStyle(fontSize: 80, fontWeight: FontWeight.bold, color: Color(0xFF8E33FF)),
+              style: const TextStyle(
+                fontSize: 80,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF8E33FF),
+              ),
             ),
             const SizedBox(width: 8),
             Text(
-              isCm ? "cm" : "in", 
-              style: const TextStyle(fontSize: 24, color: Colors.grey, fontWeight: FontWeight.w600)
+              isCm ? "cm" : "in",
+              style: const TextStyle(
+                fontSize: 24,
+                color: Colors.grey,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ],
         ),
@@ -678,7 +775,9 @@ class _HeightInputSectionState extends State<HeightInputSection> {
         ),
         const SizedBox(height: 40),
         PremiumHorizontalRuler(
-          key: ValueKey(isCm), // Forces rebuild when unit swaps to refresh scroll bounds
+          key: ValueKey(
+            isCm,
+          ), // Forces rebuild when unit swaps to refresh scroll bounds
           minValue: isCm ? 100 : 40,
           maxValue: isCm ? 250 : 100,
           initialValue: selectedHeight,
@@ -705,18 +804,28 @@ class RegistrationHeight extends StatelessWidget {
         const SizedBox(height: 60),
         const Text(
           "Enter your height",
-          style: TextStyle(color: Colors.black, fontSize: 25, fontWeight: FontWeight.bold, fontFamily: "LexendExaNormal"),
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+            fontFamily: "LexendExaNormal",
+          ),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 40),
         HeightInputSection(userAnswers: userAnswers),
         const SizedBox(height: 60),
-        
+
         // FIXED: Replaced Complete button with standard Next button routing to Goal Page!
         CustomButton(
           label: "Next",
           onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => RegistrationGoal(userAnswers: userAnswers)));
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => RegistrationGoal(userAnswers: userAnswers),
+              ),
+            );
           },
         ),
         const SizedBox(height: 40),
@@ -738,7 +847,7 @@ class RegistrationGoal extends StatefulWidget {
 
 class _RegistrationGoalState extends State<RegistrationGoal> {
   final Color themePurple = const Color(0xFF8E33FF);
-  
+
   String? selectedGoal;
   final TextEditingController _targetCtrl = TextEditingController();
   final TextEditingController _aiChatCtrl = TextEditingController();
@@ -754,22 +863,26 @@ class _RegistrationGoalState extends State<RegistrationGoal> {
   bool _isAiThinking = false;
   void _submitAiPrompt() async {
     if (_aiChatCtrl.text.isEmpty) return;
-    
+
     FocusScope.of(context).unfocus();
     setState(() => _isAiThinking = true);
-    
+
     // Simulate AI parsing delay
     await Future.delayed(const Duration(seconds: 2));
-    
+
     setState(() {
       _isAiThinking = false;
       // In reality, your AI would parse the text. For the demo, we'll force it to "Lose Weight"
-      selectedGoal = "Lose Weight"; 
-      _targetCtrl.text = "60"; 
+      selectedGoal = "Lose Weight";
+      _targetCtrl.text = "60";
       _aiChatCtrl.clear();
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: const Text("AI detected: Weight Loss Goal!"), backgroundColor: themePurple, behavior: SnackBarBehavior.floating),
+        SnackBar(
+          content: const Text("AI detected: Weight Loss Goal!"),
+          backgroundColor: themePurple,
+          behavior: SnackBarBehavior.floating,
+        ),
       );
     });
   }
@@ -781,34 +894,42 @@ class _RegistrationGoalState extends State<RegistrationGoal> {
     if (skip) {
       widget.userAnswers.mainGoal = "N/A";
       widget.userAnswers.goalTargetValue = "N/A";
-      
+
       // 2. Update the Provider with "N/A"
-      goalData.updateMainGoal("N/A", "N/A"); 
+      goalData.updateMainGoal("N/A", "N/A");
     } else {
       if (selectedGoal == null) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please select a goal or skip."), backgroundColor: Colors.redAccent));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Please select a goal or skip."),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
         return;
       }
-      
+
       String targetVal = _targetCtrl.text.isEmpty ? "N/A" : _targetCtrl.text;
-      
+
       // Grab the correct unit (kg, steps/day, etc.) based on the selected goal
-      String unit = commonGoals.firstWhere((g) => g["title"] == selectedGoal, orElse: () => {"unit": ""})["unit"]!;
+      String unit = commonGoals.firstWhere(
+        (g) => g["title"] == selectedGoal,
+        orElse: () => {"unit": ""},
+      )["unit"]!;
       String finalTarget = targetVal == "N/A" ? "N/A" : "$targetVal $unit";
 
       widget.userAnswers.mainGoal = selectedGoal;
       widget.userAnswers.goalTargetValue = finalTarget;
-      
+
       // 3. Update the Provider with their actual goal!
-      goalData.updateMainGoal(selectedGoal!, finalTarget); 
+      goalData.updateMainGoal(selectedGoal!, finalTarget);
     }
 
     print("Registration Complete: ${widget.userAnswers.toString()}");
-    
+
     Navigator.pushNamedAndRemoveUntil(
-      context, 
-      '/user_homepage', 
-      (route) => false, 
+      context,
+      '/user_homepage',
+      (route) => false,
     );
   }
 
@@ -817,7 +938,8 @@ class _RegistrationGoalState extends State<RegistrationGoal> {
     // Dynamic prompt logic based on previous registration data!
     String dynamicPrompt = "Target Value";
     if (selectedGoal == "Lose Weight") {
-      dynamicPrompt = "Target Weight (Currently ${widget.userAnswers.weight?.toInt() ?? 0} ${widget.userAnswers.weightUnit})";
+      dynamicPrompt =
+          "Target Weight (Currently ${widget.userAnswers.weight?.toInt() ?? 0} ${widget.userAnswers.weightUnit})";
     }
 
     return RegistrationQuestions(
@@ -827,7 +949,12 @@ class _RegistrationGoalState extends State<RegistrationGoal> {
         const SizedBox(height: 40),
         const Text(
           "What is your Main Goal?",
-          style: TextStyle(color: Colors.black, fontSize: 25, fontWeight: FontWeight.bold, fontFamily: "LexendExaNormal"),
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+            fontFamily: "LexendExaNormal",
+          ),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 10),
@@ -842,15 +969,29 @@ class _RegistrationGoalState extends State<RegistrationGoal> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Wrap(
-            spacing: 10, runSpacing: 10, alignment: WrapAlignment.center,
+            spacing: 10,
+            runSpacing: 10,
+            alignment: WrapAlignment.center,
             children: commonGoals.map((goal) {
               bool isSelected = selectedGoal == goal["title"];
               return ChoiceChip(
-                label: Text("${goal["icon"]} ${goal["title"]}", style: TextStyle(fontWeight: FontWeight.bold, color: isSelected ? Colors.white : Colors.black87)),
+                label: Text(
+                  "${goal["icon"]} ${goal["title"]}",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: isSelected ? Colors.white : Colors.black87,
+                  ),
+                ),
                 selected: isSelected,
                 selectedColor: themePurple,
                 backgroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: BorderSide(color: isSelected ? themePurple : Colors.grey.shade300, width: 2)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(
+                    color: isSelected ? themePurple : Colors.grey.shade300,
+                    width: 2,
+                  ),
+                ),
                 onSelected: (selected) {
                   setState(() {
                     selectedGoal = selected ? goal["title"] : null;
@@ -874,27 +1015,63 @@ class _RegistrationGoalState extends State<RegistrationGoal> {
               textAlign: TextAlign.center,
               decoration: InputDecoration(
                 labelText: dynamicPrompt,
-                labelStyle: const TextStyle(fontSize: 14, color: Colors.black54, fontWeight: FontWeight.bold),
+                labelStyle: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.black54,
+                  fontWeight: FontWeight.bold,
+                ),
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 filled: true,
                 fillColor: Colors.white,
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide(color: Colors.grey.shade300, width: 2)),
-                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide(color: themePurple, width: 2)),
-                suffixText: commonGoals.firstWhere((g) => g["title"] == selectedGoal, orElse: () => {"unit": ""})["unit"],
-                suffixStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black54),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: BorderSide(color: Colors.grey.shade300, width: 2),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: BorderSide(color: themePurple, width: 2),
+                ),
+                suffixText: commonGoals.firstWhere(
+                  (g) => g["title"] == selectedGoal,
+                  orElse: () => {"unit": ""},
+                )["unit"],
+                suffixStyle: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black54,
+                ),
               ),
             ),
           ),
         ],
 
         const SizedBox(height: 30),
-        
+
         // --- 3. OR SEPARATOR ---
         Row(
           children: [
-            Expanded(child: Divider(color: Colors.grey.shade300, thickness: 2, indent: 40, endIndent: 10)),
-            const Text("OR", style: TextStyle(color: Colors.black54, fontWeight: FontWeight.w900)),
-            Expanded(child: Divider(color: Colors.grey.shade300, thickness: 2, indent: 10, endIndent: 40)),
+            Expanded(
+              child: Divider(
+                color: Colors.grey.shade300,
+                thickness: 2,
+                indent: 40,
+                endIndent: 10,
+              ),
+            ),
+            const Text(
+              "OR",
+              style: TextStyle(
+                color: Colors.black54,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            Expanded(
+              child: Divider(
+                color: Colors.grey.shade300,
+                thickness: 2,
+                indent: 10,
+                endIndent: 40,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 30),
@@ -904,23 +1081,46 @@ class _RegistrationGoalState extends State<RegistrationGoal> {
           padding: const EdgeInsets.symmetric(horizontal: 30),
           child: Container(
             decoration: BoxDecoration(
-              boxShadow: [BoxShadow(color: themePurple.withValues(alpha: 0.1), blurRadius: 20, offset: const Offset(0, 10))],
+              boxShadow: [
+                BoxShadow(
+                  color: themePurple.withValues(alpha: 0.1),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
             ),
             child: TextField(
               controller: _aiChatCtrl,
               style: const TextStyle(fontWeight: FontWeight.w600),
               decoration: InputDecoration(
                 hintText: 'Tell AI your goal (e.g. "I want to run a 5k")',
-                hintStyle: const TextStyle(color: Colors.black38, fontSize: 13, fontWeight: FontWeight.w500),
+                hintStyle: const TextStyle(
+                  color: Colors.black38,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
                 filled: true,
                 fillColor: Colors.white,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(25), borderSide: BorderSide.none),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 25,
+                  vertical: 20,
+                ),
                 suffixIcon: Padding(
                   padding: const EdgeInsets.only(right: 8.0),
                   child: IconButton(
-                    icon: _isAiThinking 
-                        ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: themePurple, strokeWidth: 2))
+                    icon: _isAiThinking
+                        ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: themePurple,
+                              strokeWidth: 2,
+                            ),
+                          )
                         : Icon(Icons.auto_awesome, color: themePurple),
                     onPressed: _isAiThinking ? null : _submitAiPrompt,
                   ),
@@ -941,31 +1141,48 @@ class _RegistrationGoalState extends State<RegistrationGoal> {
           child: ElevatedButton(
             onPressed: () => _finishRegistration(false),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFFB300), 
+              backgroundColor: const Color(0xFFFFB300),
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 20),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
               elevation: 8,
-              shadowColor: const Color(0xFFFFB300).withValues(alpha: 0.6), 
+              shadowColor: const Color(0xFFFFB300).withValues(alpha: 0.6),
             ),
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("Complete Registration", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, fontFamily: "LexendExaNormal", letterSpacing: 0.5)),
+                Text(
+                  "Complete Registration",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                    fontFamily: "LexendExaNormal",
+                    letterSpacing: 0.5,
+                  ),
+                ),
                 SizedBox(width: 10),
                 Icon(Icons.check_circle_rounded, size: 24),
               ],
             ),
           ),
         ),
-        
+
         const SizedBox(height: 15),
-        
+
         TextButton(
           onPressed: () => _finishRegistration(true),
-          child: const Text("I don't have a specific goal yet (Skip)", style: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold, decoration: TextDecoration.underline)),
+          child: const Text(
+            "I don't have a specific goal yet (Skip)",
+            style: TextStyle(
+              color: Colors.black54,
+              fontWeight: FontWeight.bold,
+              decoration: TextDecoration.underline,
+            ),
+          ),
         ),
-        
+
         const SizedBox(height: 40),
       ],
     );

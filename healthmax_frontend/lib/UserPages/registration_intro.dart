@@ -3,7 +3,9 @@ import 'package:healthmax_frontend/UserPages/registration_questions.dart';
 import '../GeneralPages/helper_widgets.dart';
 
 class RegistrationIntro extends StatelessWidget {
-  const RegistrationIntro({super.key});
+  final UserAnswers userAnswers;
+
+  const RegistrationIntro({super.key, required this.userAnswers});
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +90,10 @@ class RegistrationIntro extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => RegistrationGender()),
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        RegistrationGender(userAnswers: userAnswers),
+                  ),
                 );
               },
             ),

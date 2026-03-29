@@ -31,6 +31,8 @@ void main() async {
   // Ensure Flutter bindings are initialized before loading .env
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
+
+  // Initialise supabase
   await Supabase.initialize(
     url: "https://rjxzxtqaiakwofgkegwl.supabase.co",
     // Publishable key (safe to use here)
@@ -83,7 +85,7 @@ class _MyAppState extends State<MyApp> {
         '/hp_home': (context) => const HPHomePage(),
         '/hp_users': (context) => const HPUsersPage(),
         '/hp_requests': (context) => const HPRequestsPage(),
-        '/hp_settings': (context) =>  const HPSettingsPage(),
+        '/hp_settings': (context) => const HPSettingsPage(),
 
         // User routes
         '/user_homepage': (context) => const UserHomePage(),
