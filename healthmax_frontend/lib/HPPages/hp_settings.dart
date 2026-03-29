@@ -13,7 +13,7 @@ class HPSettingsPage extends StatelessWidget {
 
     // --- GET LIVE USERNAME ---
     final authData = Provider.of<AuthProvider>(context);
-    final String liveUsername = authData.currentUsername ?? "User"; // Fallback to "User" if null
+    final String liveUsername = authData.currentUsername ?? "Hp"; // Fallback to "User" if null
 
     const Color userBlue = Color(0xFF5A84F1); 
     
