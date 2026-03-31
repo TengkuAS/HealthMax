@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
 import '../theme_provider.dart';
-import 'user_bottomnavbar.dart'; 
+import 'user_bottomnavbar.dart';
+import 'user_glassy_profile.dart'; 
 
 class UserStatisticPage extends StatefulWidget {
   final String initialMetric;
@@ -158,6 +159,16 @@ class _UserStatisticPageState extends State<UserStatisticPage> {
                 elevation: 0,
                 scrolledUnderElevation: 0.0,
                 surfaceTintColor: Colors.transparent,
+                actions: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 30.0, top: 10.0),
+                    child: Center(
+                      child: UserGlassyProfile(
+                        onTap: () => Navigator.pushNamed(context, '/user_settings'),
+                      ),
+                    ),
+                  ),
+                ],
                 title: AnimatedOpacity(
                   duration: const Duration(milliseconds: 250),
                   opacity: _isScrolled ? 1.0 : 0.0, 
@@ -281,8 +292,8 @@ class _UserStatisticPageState extends State<UserStatisticPage> {
                   end: Alignment.topCenter,
                   colors: [
                     bgColor, 
-                    bgColor.withOpacity(0.95), 
-                    bgColor.withOpacity(0.0)
+                    bgColor.withValues(alpha:0.95), 
+                    bgColor.withValues(alpha:0.0)
                   ],
                   stops: const [0.0, 0.65, 1.0],
                 ),
