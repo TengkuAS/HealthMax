@@ -150,6 +150,7 @@ class _UserStatisticPageState extends State<UserStatisticPage> {
             physics: const BouncingScrollPhysics(),
             slivers: [
               SliverAppBar(
+                automaticallyImplyActions: false,
                 backgroundColor: currentColor,
                 expandedHeight: 220.0, 
                 toolbarHeight: 90.0,
@@ -157,13 +158,6 @@ class _UserStatisticPageState extends State<UserStatisticPage> {
                 elevation: 0,
                 scrolledUnderElevation: 0.0,
                 surfaceTintColor: Colors.transparent,
-                leading: Padding(
-                  padding: const EdgeInsets.only(left: 15.0, top: 10.0),
-                  child: IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 22),
-                    onPressed: () => Navigator.pushReplacementNamed(context, '/user_homepage'),
-                  ),
-                ),
                 title: AnimatedOpacity(
                   duration: const Duration(milliseconds: 250),
                   opacity: _isScrolled ? 1.0 : 0.0, 
@@ -274,47 +268,48 @@ class _UserStatisticPageState extends State<UserStatisticPage> {
           ),
 
           // ==========================================
-          // FIXED FLOATING ACTION BAR (BLUR EFFECT & SOLID BUTTONS)
+          // FIXED FLOATING ACTION BAR (SMOOTH FADE)
           // ==========================================
           Positioned(
             bottom: 0, left: 0, right: 0,
-            child: ClipRRect(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
-                child: Container(
-                  padding: const EdgeInsets.fromLTRB(25, 20, 25, 20),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.bottomCenter, end: Alignment.topCenter,
-                      colors: [bgColor, bgColor.withValues(alpha:0.9), bgColor.withValues(alpha:0.0)],
-                      stops: const [0.4, 0.8, 1.0],
+            child: Container(
+              height: 130, // Taller height to make the gradient fade extra smooth
+              padding: const EdgeInsets.fromLTRB(25, 50, 25, 20),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.bottomCenter, 
+                  end: Alignment.topCenter,
+                  colors: [
+                    bgColor, 
+                    bgColor.withOpacity(0.95), 
+                    bgColor.withOpacity(0.0)
+                  ],
+                  stops: const [0.0, 0.65, 1.0],
+                ),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: _actionBtn(
+                      "Compare Data", 
+                      isDark ? const Color(0xFF1E3A8A) : const Color(0xFFDBEAFE), 
+                      Icons.compare_arrows_rounded, 
+                      isDark ? const Color(0xFF60A5FA) : const Color(0xFF1E3A8A), 
+                      onTap: () => _showCompareDataSheet(isDark, surfaceColor, textPrimary, textSecondary, dividerColor)
                     ),
                   ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: _actionBtn(
-                          "Compare Data", 
-                          isDark ? const Color(0xFF1E3A8A) : const Color(0xFFDBEAFE), // Solid 
-                          Icons.compare_arrows_rounded, 
-                          isDark ? const Color(0xFF60A5FA) : const Color(0xFF1E3A8A), 
-                          onTap: () => _showCompareDataSheet(isDark, surfaceColor, textPrimary, textSecondary, dividerColor)
-                        ),
-                      ),
-                      const SizedBox(width: 15),
-                      Expanded(
-                        child: _actionBtn(
-                          "Request Feedback", 
-                          // --- FIX: Physically mix the color with White/Black to create a SOLID pastel color ---
-                          isDark ? Color.lerp(currentColor, Colors.black, 0.7)! : Color.lerp(currentColor, Colors.white, 0.85)!, 
-                          Icons.chat_bubble_rounded, 
-                          currentColor, 
-                          onTap: () => _showRequestFeedbackSheet(surfaceColor, textPrimary, textSecondary, dividerColor, isDark, currentColor)
-                        ),
-                      ),
-                    ],
+                  const SizedBox(width: 15),
+                  Expanded(
+                    child: _actionBtn(
+                      "Request Feedback", 
+                      isDark ? Color.lerp(currentColor, Colors.black, 0.7)! : Color.lerp(currentColor, Colors.white, 0.85)!, 
+                      Icons.chat_bubble_rounded, 
+                      currentColor, 
+                      onTap: () => _showRequestFeedbackSheet(surfaceColor, textPrimary, textSecondary, dividerColor, isDark, currentColor)
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           ),
