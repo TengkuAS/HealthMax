@@ -151,7 +151,7 @@ class _UserStatisticPageState extends State<UserStatisticPage> {
             physics: const BouncingScrollPhysics(),
             slivers: [
               SliverAppBar(
-                automaticallyImplyActions: false,
+                automaticallyImplyLeading: false, // Changed from implyActions
                 backgroundColor: currentColor,
                 expandedHeight: 220.0, 
                 toolbarHeight: 90.0,
@@ -279,12 +279,12 @@ class _UserStatisticPageState extends State<UserStatisticPage> {
           ),
 
           // ==========================================
-          // FIXED FLOATING ACTION BAR (SMOOTH FADE)
+          // FIXED FLOATING ACTION BAR
           // ==========================================
           Positioned(
             bottom: 0, left: 0, right: 0,
             child: Container(
-              height: 130, // Taller height to make the gradient fade extra smooth
+              height: 130, 
               padding: const EdgeInsets.fromLTRB(25, 50, 25, 20),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -507,14 +507,24 @@ class _UserStatisticPageState extends State<UserStatisticPage> {
   }
 
   // ==========================================
+  // NEW DYNAMIC PERIOD HELPER
+  // ==========================================
+  List<String> _getAvailablePeriodsForTimeframe() {
+    if (selectedTimeframe == 'Day') return ['Today', 'Yesterday', '2 Days Ago', '3 Days Ago'];
+    if (selectedTimeframe == 'Month') return ['This Month', 'Last Month', '2 Months Ago', '3 Months Ago'];
+    if (selectedTimeframe == 'Year') return ['This Year', 'Last Year', '2 Years Ago', '3 Years Ago'];
+    return ['This Week', 'Last Week', '2 Weeks Ago', '3 Weeks Ago']; // Default for Week
+  }
+
+  // ==========================================
   // BOTTOM SHEETS
   // ==========================================
 
   void _showCompareDataSheet(bool isDark, Color surfaceColor, Color textPrimary, Color textSecondary, Color dividerColor) {
-    String metric1 = selectedMetric;
-    String metric2 = selectedMetric == 'Heart Rate' ? 'Steps' : 'Heart Rate';
+    final List<String> availablePeriods = _getAvailablePeriodsForTimeframe();
+    String period1 = availablePeriods[0];
+    String period2 = availablePeriods[1];
     bool showChart = false;
-    final List<String> availableMetrics = ['Heart Rate', 'Steps', 'Blood Glucose', 'Calories', 'Env. Noise'];
 
     showModalBottomSheet(
       context: context,
@@ -531,9 +541,9 @@ class _UserStatisticPageState extends State<UserStatisticPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(width: 40, height: 4, margin: const EdgeInsets.only(bottom: 25), decoration: BoxDecoration(color: dividerColor, borderRadius: BorderRadius.circular(10))),
-                    Text("Compare Metrics", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, fontFamily: "LexendExaNormal", color: textPrimary)),
+                    Text("Compare $selectedMetric", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, fontFamily: "LexendExaNormal", color: textPrimary)),
                     const SizedBox(height: 5),
-                    Text(showChart ? "Correlation mapping complete." : "Select two metrics to analyze their correlation.", style: TextStyle(color: textSecondary, fontSize: 13)),
+                    Text(showChart ? "Trend analysis complete." : "Select two timeframes to analyze your trends.", style: TextStyle(color: textSecondary, fontSize: 13)),
                     const SizedBox(height: 30),
 
                     AnimatedSwitcher(
@@ -544,9 +554,9 @@ class _UserStatisticPageState extends State<UserStatisticPage> {
                             children: [
                               Row(
                                 children: [
-                                  Expanded(child: _buildDropdown(availableMetrics, metric1, (val) => setModalState(() => metric1 = val!), surfaceColor, textPrimary, isDark)),
+                                  Expanded(child: _buildDropdown(availablePeriods, period1, (val) => setModalState(() => period1 = val!), surfaceColor, textPrimary, isDark)),
                                   Padding(padding: const EdgeInsets.symmetric(horizontal: 15), child: Text("VS", style: TextStyle(fontWeight: FontWeight.w900, color: textSecondary, fontSize: 12, fontFamily: "LexendExaNormal"))),
-                                  Expanded(child: _buildDropdown(availableMetrics, metric2, (val) => setModalState(() => metric2 = val!), surfaceColor, textPrimary, isDark)),
+                                  Expanded(child: _buildDropdown(availablePeriods, period2, (val) => setModalState(() => period2 = val!), surfaceColor, textPrimary, isDark)),
                                 ],
                               ),
                               const SizedBox(height: 35),
@@ -554,8 +564,8 @@ class _UserStatisticPageState extends State<UserStatisticPage> {
                                 width: double.infinity, height: 55,
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    if (metric1 == metric2) {
-                                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please select two different metrics."), backgroundColor: Colors.redAccent));
+                                    if (period1 == period2) {
+                                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please select two different timeframes."), backgroundColor: Colors.redAccent));
                                       return;
                                     }
                                     setModalState(() => showChart = true);
@@ -572,35 +582,31 @@ class _UserStatisticPageState extends State<UserStatisticPage> {
                               Container(
                                 height: 200, padding: const EdgeInsets.fromLTRB(10, 20, 20, 10),
                                 decoration: BoxDecoration(color: isDark ? const Color(0xFF2C2C2E) : Colors.grey.shade50, borderRadius: BorderRadius.circular(20), border: Border.all(color: dividerColor)),
-                                child: LineChart(
-                                  LineChartData(
-                                    gridData: FlGridData(show: true, drawVerticalLine: false, getDrawingHorizontalLine: (v) => FlLine(color: dividerColor, strokeWidth: 1)),
-                                    titlesData: FlTitlesData(
-                                      rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)), topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                                      bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 30, interval: 1, getTitlesWidget: (v, m) {
-                                        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-                                        if (v.toInt() >= 0 && v.toInt() < days.length) return Padding(padding: const EdgeInsets.only(top: 8.0), child: Text(days[v.toInt()], style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: textSecondary)));
-                                        return const SizedBox.shrink();
-                                      })),
-                                      leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 35, interval: 25, getTitlesWidget: (v, m) => Text("${v.toInt()}%", style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: textSecondary)))),
+                                child: ClipRect(
+                                  child: LineChart(
+                                    LineChartData(
+                                      gridData: FlGridData(show: true, drawVerticalLine: false, getDrawingHorizontalLine: (v) => FlLine(color: dividerColor, strokeWidth: 1)),
+                                      // --- THE FIX: We inherit the exact titles logic from the main graph! ---
+                                      titlesData: _buildTitlesData(textSecondary),
+                                      borderData: FlBorderData(show: true, border: Border(left: BorderSide(color: dividerColor), bottom: BorderSide(color: dividerColor), top: BorderSide.none, right: BorderSide.none)),
+                                      minX: 0, maxX: _getMaxX(), 
+                                      minY: _getMinY(), maxY: _getMaxY(), 
+                                      lineBarsData: [
+                                        LineChartBarData(spots: _getPeriodMockData(selectedMetric, period1), isCurved: true, color: userBlue, barWidth: 3.5, isStrokeCapRound: true, dotData: const FlDotData(show: false)),
+                                        LineChartBarData(spots: _getPeriodMockData(selectedMetric, period2), isCurved: true, color: Colors.orangeAccent, barWidth: 3.5, isStrokeCapRound: true, dotData: const FlDotData(show: false)),
+                                      ],
                                     ),
-                                    borderData: FlBorderData(show: true, border: Border(left: BorderSide(color: dividerColor), bottom: BorderSide(color: dividerColor), top: BorderSide.none, right: BorderSide.none)),
-                                    minX: 0, maxX: 6, minY: 0, maxY: 100,
-                                    lineBarsData: [
-                                      LineChartBarData(spots: _getNormalizedMockData(metric1), isCurved: true, color: userBlue, barWidth: 3.5, isStrokeCapRound: true, dotData: const FlDotData(show: false)),
-                                      LineChartBarData(spots: _getNormalizedMockData(metric2), isCurved: true, color: Colors.orangeAccent, barWidth: 3.5, isStrokeCapRound: true, dotData: const FlDotData(show: false)),
-                                    ],
+                                    duration: const Duration(milliseconds: 600), curve: Curves.easeOutCubic,
                                   ),
-                                  duration: const Duration(milliseconds: 600), curve: Curves.easeOutCubic,
                                 ),
                               ),
                               const SizedBox(height: 20),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Row(children: [Container(width: 12, height: 12, decoration: BoxDecoration(color: userBlue, shape: BoxShape.circle)), const SizedBox(width: 8), Text(metric1, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: textPrimary))]),
+                                  Row(children: [Container(width: 12, height: 12, decoration:  BoxDecoration(color: userBlue, shape: BoxShape.circle)), const SizedBox(width: 8), Text(period1, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: textPrimary))]),
                                   const SizedBox(width: 25),
-                                  Row(children: [Container(width: 12, height: 12, decoration: const BoxDecoration(color: Colors.orangeAccent, shape: BoxShape.circle)), const SizedBox(width: 8), Text(metric2, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: textPrimary))]),
+                                  Row(children: [Container(width: 12, height: 12, decoration: const BoxDecoration(color: Colors.orangeAccent, shape: BoxShape.circle)), const SizedBox(width: 8), Text(period2, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: textPrimary))]),
                                 ],
                               ),
                               const SizedBox(height: 30),
@@ -701,15 +707,21 @@ class _UserStatisticPageState extends State<UserStatisticPage> {
     );
   }
 
-  List<FlSpot> _getNormalizedMockData(String metric) {
-    List<double> rawValues;
-    double max;
-    if (metric == 'Heart Rate') { rawValues = [72, 85, 78, 92, 88, 75, 80]; max = 150; }
-    else if (metric == 'Steps') { rawValues = [5000, 8500, 12000, 7000, 10500, 14000, 9000]; max = 15000; }
-    else if (metric == 'Calories') { rawValues = [1800, 2200, 2500, 1900, 2100, 2800, 2000]; max = 3500; }
-    else if (metric == 'Blood Glucose') { rawValues = [90, 95, 88, 105, 100, 92, 98]; max = 150; }
-    else { rawValues = [45, 60, 55, 80, 70, 50, 65]; max = 100; }
+  // --- THE FIX: Generate Data Dynamically based on the selected period length ---
+  List<FlSpot> _getPeriodMockData(String metric, String period) {
+    // 1. Get the base data perfectly cropped for the current timeframe (Day=24, Week=7, etc.)
+    List<double> rawValues = _getRawData(); 
 
-    return List.generate(rawValues.length, (i) => FlSpot(i.toDouble(), (rawValues[i] / max) * 100));
+    // 2. Apply a realistic fluctuation modifier based on the period text
+    double modifier = 1.0;
+    if (period.contains('Yesterday') || period.contains('Last')) modifier = 0.85;
+    else if (period.contains('2')) modifier = 0.70;
+    else if (period.contains('3')) modifier = 1.15;
+
+    return List.generate(rawValues.length, (i) {
+      double value = rawValues[i] * modifier;
+      value = value.clamp(_getMinY(), _getMaxY()); // Prevents UI overflow beyond chart limits
+      return FlSpot(i.toDouble(), value);
+    });
   }
 }
