@@ -119,11 +119,13 @@ class RegistrationPage extends StatefulWidget {
 }
 
 class _RegistrationPageState extends State<RegistrationPage> {
-  final auth = AuthService();
+  // Removed the global AuthService variable so it doesn't conflict with AuthProvider
   final _usernameCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   final _confirmCtrl = TextEditingController();
+
+  bool _isSupabaseLoading = false; // Local loading state for Supabase
 
   @override
   void dispose() {
@@ -134,7 +136,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     super.dispose();
   }
 
-void register() async {
+  void register() async {
     final username = _usernameCtrl.text;
     final email = _emailCtrl.text;
     final password = _passwordCtrl.text;
@@ -162,40 +164,60 @@ void register() async {
       return;
     }
 
-    try {
-      // --- THE FIX: Added a default 4th argument for the mainGoal ---
-      final response = await auth.register(username, email, password, "Lose Weight");
+    if (widget.role == "user") {
+      // ==========================================
+      // 1. USER REGISTRATION (SUPABASE)
+      // ==========================================
+      setState(() => _isSupabaseLoading = true);
       
-      if (response == null || response.user == null) {
-        throw const AuthException("Registration failed");
+      try {
+        final authService = AuthService();
+        final response = await authService.register(username, email, password, "Lose Weight");
+        
+        if (response == null || response.user == null) {
+          throw const AuthException("Registration failed");
+        }
+
+        if (mounted) {
+          context.read<UserProvider>().setUsername(username);
+
+          // THE FIX: Use widget.postRegistration instead of hardcoding the User intro page!
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: widget.postRegistration),
+            (_) => false,
+          );
+        }
+      } on AuthException catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Registration Failed: ${e.message}"), backgroundColor: Colors.redAccent));
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Registration Failed: ${e.toString()}"), backgroundColor: Colors.redAccent));
+        }
+      } finally {
+        if (mounted) setState(() => _isSupabaseLoading = false);
       }
+      
+    } else {
+      // ==========================================
+      // 2. HP REGISTRATION (FASTAPI / PROVIDER)
+      // ==========================================
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      
+      bool success = await authProvider.registerBaseAccount(username, email, password, widget.role);
 
-      if (mounted) {
-        // Store just in case. Although this is not needed currently.
-        context.read<UserProvider>().setUsername(username);
-
+      if (success && mounted) {
+        // THE FIX: Route to the HP specific post-registration page
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (_) => const RegistrationIntro()),
+          MaterialPageRoute(builder: widget.postRegistration),
           (_) => false,
         );
-      }
-    } on AuthException catch (e) {
-      if (mounted) {
+      } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Registration Failed: ${e.message}"),
-            backgroundColor: Colors.redAccent,
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Registration Failed: ${e.toString()}"),
-            backgroundColor: Colors.redAccent,
-          ),
+          const SnackBar(content: Text("HP Registration Failed!"), backgroundColor: Colors.redAccent),
         );
       }
     }
@@ -203,11 +225,10 @@ void register() async {
 
   @override
   Widget build(BuildContext context) {
-    final auth = Provider.of<AuthProvider>(context);
+    final authProvider = Provider.of<AuthProvider>(context);
 
     return Screen(
-      bgDecoration:
-          bgGradientHP, // Replace with dynamic widget.decoration if needed
+      bgDecoration: bgGradientHP, // Replace with dynamic widget.decoration if needed
       child: ListView(
         children: [
           BackButton(),
@@ -226,7 +247,8 @@ void register() async {
           _buildTextField("Confirm Password", _confirmCtrl, true),
           const SizedBox(height: 50),
 
-          auth.isLoading
+          // Check both loading states so the UI doesn't freeze!
+          (_isSupabaseLoading || authProvider.isLoading)
               ? const Center(
                   child: CircularProgressIndicator(color: Colors.white),
                 )
@@ -249,7 +271,6 @@ void register() async {
     );
   }
 
-  // Quick helper to replace CustomInputBox so we can use dynamic controllers
   Widget _buildTextField(
     String hint,
     TextEditingController controller,
