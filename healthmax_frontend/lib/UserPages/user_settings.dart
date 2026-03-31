@@ -3,6 +3,7 @@ import 'package:healthmax_frontend/GeneralPages/auth/auth_service.dart';
 import 'package:provider/provider.dart';
 import '../theme_provider.dart';
 import '../GeneralPages/auth_provider.dart';
+import 'manage_devices.dart'; // --- IMPORTED THE NEW PAGE ---
 
 class UserSettingsPage extends StatelessWidget {
   const UserSettingsPage({super.key});
@@ -183,12 +184,22 @@ class UserSettingsPage extends StatelessWidget {
                           userBlue,
                         ),
                         _buildDivider(dividerColor),
+                        
+                        // --- WIRED UP THE ROUTE HERE ---
                         _buildProfileOption(
                           Icons.watch_rounded,
                           "Connected Devices",
                           "Apple Watch",
                           textPrimary,
                           userBlue,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ManageDevicesPage(),
+                              ),
+                            );
+                          },
                         ),
                         _buildDivider(dividerColor),
                         _buildProfileOption(
