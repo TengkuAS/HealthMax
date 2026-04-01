@@ -11,7 +11,7 @@ class CalorieEstimatorService {
     String? apiKey = dotenv.env["GEMINI_API_KEY"];
 
     if (apiKey == null || apiKey.isEmpty) {
-      apiKey = String.fromEnvironment('GEMINI_API_KEY');
+      apiKey = const String.fromEnvironment('GEMINI_API_KEY');
       if (apiKey.isEmpty) {
         throw ("Gemini API key not found in .env file!");
       }
