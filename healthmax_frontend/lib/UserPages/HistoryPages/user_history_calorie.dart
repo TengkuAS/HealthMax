@@ -167,11 +167,10 @@ class _UserHistoryCaloriePageState extends State<UserHistoryCaloriePage> {
     );
   }
 
-  void _showCalorieBreakdownSheet(List<CalorieRecord> dataList, int total, bool isDark, Color surfaceColor, Color textPrimary, Color dividerColor, ThemeProvider theme) {
+void _showCalorieBreakdownSheet(List<CalorieRecord> dataList, int total, bool isDark, Color surfaceColor, Color textPrimary, Color dividerColor, ThemeProvider theme) {
     showModalBottomSheet(
       context: context, backgroundColor: Colors.transparent, isScrollControlled: true,
       builder: (context) => _buildBottomSheetLayout(
-        // STATIC DICTIONARY KEY!
         theme.translate('daily_breakdown'),
         Column(
           mainAxisSize: MainAxisSize.min, 
@@ -180,10 +179,12 @@ class _UserHistoryCaloriePageState extends State<UserHistoryCaloriePage> {
               (item) => Padding(
                 padding: const EdgeInsets.only(bottom: 15),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // AI TRANSLATION FOR DYNAMIC FOOD LIST
-                    Expanded(child: FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: AiTranslatedText("${item.quantity}x ${item.foodName}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: textPrimary)))),
+                    // FIXED: Expanded prevents right-side overflow!
+                    Expanded(
+                      child: AiTranslatedText("${item.quantity}x ${item.foodName}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: textPrimary))
+                    ),
                     const SizedBox(width: 10),
                     Text("+ ${item.calories} kcal", style: TextStyle(fontSize: 16, color: textPrimary.withValues(alpha: 0.7), fontWeight: FontWeight.bold)),
                   ],
@@ -193,10 +194,10 @@ class _UserHistoryCaloriePageState extends State<UserHistoryCaloriePage> {
             Divider(thickness: 1, color: dividerColor),
             const SizedBox(height: 5),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // STATIC DICTIONARY KEY!
-                FittedBox(fit: BoxFit.scaleDown, child: Text(theme.translate('total_intake'), style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, fontFamily: "LexendExaNormal", color: textPrimary))),
+                 // FIXED: Expanded forces the title to respect boundaries
+                Expanded(child: Text(theme.translate('total_intake'), style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, fontFamily: "LexendExaNormal", color: textPrimary))),
+                const SizedBox(width: 10),
                 Text("$total kcal", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: themeBlue)),
               ],
             ),

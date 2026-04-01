@@ -651,40 +651,24 @@ class _UserCaloriePageState extends State<UserCaloriePage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ...data.calorieHistory.map((item) {
-              var foodLabel = "${item.quantity}× ${item.foodName}";
-              if (foodLabel.length > 15)
-                foodLabel = "${foodLabel.substring(0, 15).trimRight()}...";
               return Padding(
                 padding: const EdgeInsets.only(bottom: 15),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Icon(
-                          item.placeholderIcon,
-                          color: item.iconColor,
-                          size: 18,
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          foodLabel,
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: textPrimary,
-                          ),
-                        ),
-                      ],
+                    // FIXED: Replaced standard Row with an Expanded Row
+                    Expanded(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(item.placeholderIcon, color: item.iconColor, size: 18), 
+                          const SizedBox(width: 10), 
+                          Expanded(child: Text("${item.quantity}× ${item.foodName}", maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: textPrimary)))
+                        ]
+                      )
                     ),
-                    Text(
-                      "+ ${item.calories} kcal",
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: textSecondary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    const SizedBox(width: 10),
+                    Text("+ ${item.calories} kcal", style: TextStyle(fontSize: 15, color: textSecondary, fontWeight: FontWeight.bold)),
                   ],
                 ),
               );
@@ -692,25 +676,9 @@ class _UserCaloriePageState extends State<UserCaloriePage> {
             Divider(thickness: 1, color: dividerColor),
             const SizedBox(height: 5),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  theme.translate('eaten'),
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                    fontFamily: "LexendExaNormal",
-                    color: textPrimary,
-                  ),
-                ),
-                Text(
-                  "${data.totalEaten} kcal",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                    color: themeBlue,
-                  ),
-                ),
+                Expanded(child: Text(theme.translate('eaten'), style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, fontFamily: "LexendExaNormal", color: textPrimary))),
+                Text("${data.totalEaten} kcal", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: themeBlue)),
               ],
             ),
           ],
@@ -745,93 +713,49 @@ class _UserCaloriePageState extends State<UserCaloriePage> {
             Padding(
               padding: const EdgeInsets.only(bottom: 15),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.directions_walk_rounded,
-                        color: Color(0xFFFF9F43),
-                        size: 18,
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        "Walk (${data.currentSteps})",
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: textPrimary,
-                        ),
-                      ),
-                    ],
+                  Expanded(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(Icons.directions_walk_rounded, color: Color(0xFFFF9F43), size: 18), 
+                        const SizedBox(width: 10), 
+                        Expanded(child: Text("Walk (${data.currentSteps})", maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: textPrimary)))
+                      ]
+                    )
                   ),
-                  Text(
-                    "- ${(data.currentSteps * 0.04).toInt()} kcal",
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: textSecondary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  const SizedBox(width: 10),
+                  Text("- ${(data.currentSteps * 0.04).toInt()} kcal", style: TextStyle(fontSize: 15, color: textSecondary, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
             Padding(
               padding: const EdgeInsets.only(bottom: 15),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.fitness_center_rounded,
-                        color: Color(0xFF2ED573),
-                        size: 18,
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        "Workout",
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: textPrimary,
-                        ),
-                      ),
-                    ],
+                  Expanded(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(Icons.fitness_center_rounded, color: Color(0xFF2ED573), size: 18), 
+                        const SizedBox(width: 10), 
+                        Expanded(child: Text("Workout", maxLines: 2, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: textPrimary)))
+                      ]
+                    )
                   ),
-                  Text(
-                    "- ${data.workoutCalories} kcal",
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: textSecondary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  const SizedBox(width: 10),
+                  Text("- ${data.workoutCalories} kcal", style: TextStyle(fontSize: 15, color: textSecondary, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
             Divider(thickness: 1, color: dividerColor),
             const SizedBox(height: 5),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  theme.translate('burned'),
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                    fontFamily: "LexendExaNormal",
-                    color: textPrimary,
-                  ),
-                ),
-                const Text(
-                  "320 kcal",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xFFFF7A00),
-                  ),
-                ),
+                Expanded(child: Text(theme.translate('burned'), style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, fontFamily: "LexendExaNormal", color: textPrimary))),
+                const Text("320 kcal", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Color(0xFFFF7A00))),
               ],
             ),
           ],
