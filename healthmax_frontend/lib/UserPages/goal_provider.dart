@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
-// --- DATA MODELS ---
 class MainGoal {
   String title;
   String targetValue;
@@ -27,133 +25,90 @@ class TargetItem {
   bool isCompleted;
 
   TargetItem({
-    required this.title, required this.description, required this.progress,
-    required this.currentValue, required this.targetValue, required this.unit,
-    required this.rewardPoints, required this.isCompleted,
+    required this.title,
+    required this.description,
+    required this.progress,
+    required this.currentValue,
+    required this.targetValue,
+    required this.unit,
+    required this.rewardPoints,
+    required this.isCompleted,
   });
 }
 
 class RankingUser {
-  int rank;
-  String name;
-  int score;
-  bool isCurrentUser;
+  final int rank;
+  final String name;
+  final int score;
+  final bool isCurrentUser;
 
-  RankingUser({required this.rank, required this.name, required this.score, required this.isCurrentUser});
+  RankingUser(this.rank, this.name, this.score, this.isCurrentUser);
 }
 
-// ==========================================
-// SUPABASE-READY GOAL PROVIDER
-// ==========================================
 class GoalProvider extends ChangeNotifier {
-  bool isLoading = true;
-  
-  // Default Empty State
-  MainGoal mainGoal = MainGoal(title: "N/A", targetValue: "N/A", aiProgress: 0.0, aiInsightText: "Syncing with AI...");
-  
+  bool isLoading = false;
   int userScore = 1250;
+
+  // By default, set to "N/A" so the Target Page knows it was skipped.
+  MainGoal mainGoal = MainGoal(
+    title: "N/A",
+    targetValue: "N/A",
+    aiProgress: 0.0,
+    aiInsightText: "Set a main health goal to let AI personalize your experience.",
+  );
+
   List<TargetItem> targets = [];
-  List<RankingUser> topRankings = [];
-  late RankingUser currentUserRank;
 
-  final _supabase = Supabase.instance.client;
+  List<RankingUser> topRankings = [
+    RankingUser(1, "Alex", 3400, false),
+    RankingUser(2, "Sarah", 2900, false),
+    RankingUser(3, "John", 2100, false),
+  ];
+  
+  RankingUser currentUserRank = RankingUser(42, "You", 1250, true);
 
-  GoalProvider() {
-    _initDummyRankings();
-    fetchUserGoal(); // Automatically pull from Supabase when app starts!
-  }
-
-  void _initDummyRankings() {
-    topRankings = [
-      RankingUser(rank: 1, name: "Sarah M.", score: 2400, isCurrentUser: false),
-      RankingUser(rank: 2, name: "David L.", score: 2150, isCurrentUser: false),
-      RankingUser(rank: 3, name: "Emma W.", score: 1900, isCurrentUser: false),
-    ];
-    currentUserRank = RankingUser(rank: 42, name: "You", score: 1250, isCurrentUser: true);
+  // This is called from the registration page!
+  void updateMainGoal(String title, String targetValue) {
+    mainGoal.title = title;
+    mainGoal.targetValue = targetValue;
+    mainGoal.aiProgress = 0.0;
     
-    targets = [
-      TargetItem(title: "Morning Walk", description: "Walk 5000 steps before 12 PM", progress: 0.8, currentValue: 4000, targetValue: 5000, unit: "steps", rewardPoints: 50, isCompleted: false),
-      TargetItem(title: "Hydration", description: "Drink 2L of water", progress: 1.0, currentValue: 2, targetValue: 2, unit: "L", rewardPoints: 20, isCompleted: true),
-    ];
-  }
-
-  // --- FETCH FROM SUPABASE ---
-  Future<void> fetchUserGoal() async {
-    isLoading = true;
-    notifyListeners();
-
-    try {
-      final user = _supabase.auth.currentUser;
-      if (user != null) {
-        // Query the public 'users' table to find this specific user's main goal
-        final response = await _supabase.from('users').select('main_goal').eq('id', user.id).maybeSingle();
-        
-        String fetchedGoal = "Lose Weight"; // Fallback if they haven't set one yet
-        
-        if (response != null && response['main_goal'] != null) {
-           fetchedGoal = response['main_goal'];
-        }
-
-        _setDynamicGoalData(fetchedGoal);
-      } else {
-         _setDynamicGoalData("Lose Weight"); // Fallback for guest/mock state
-      }
-    } catch (e) {
-      print("Supabase Fetch Error: $e");
-      _setDynamicGoalData("Lose Weight");
-    } finally {
-      isLoading = false;
-      notifyListeners();
+    // If the user skipped registration, handle it gracefully
+    if (title == "N/A" || title.isEmpty) {
+      mainGoal.title = "N/A";
+      mainGoal.aiInsightText = "Set a main health goal to let AI personalize your experience.";
+      targets = []; // Clear sub-targets
+    } else {
+      mainGoal.aiInsightText = "AI is gathering data to track your $title progress over time.";
+      _generateSubTargets(title); // Auto-create daily goals based on their choice!
     }
-  }
-
-  // --- UPDATE TO SUPABASE ---
-  Future<void> updateMainGoal(String title, String targetValue) async {
-    // 1. Update UI Immediately for a snappy experience
-    _setDynamicGoalData(title);
-    mainGoal.targetValue = targetValue; // Override with user's specific typed value
     notifyListeners();
-
-    // 2. Save silently to backend
-    try {
-      final user = _supabase.auth.currentUser;
-      if (user != null) {
-        await _supabase.from('users').update({'main_goal': title}).eq('id', user.id);
-      }
-    } catch (e) {
-      print("Failed to update goal in Supabase: $e");
-    }
   }
 
-  // --- DYNAMIC AI INSIGHT LOGIC ---
-  void _setDynamicGoalData(String goalTitle) {
-    String targetVal = "10,000 steps";
-    double prog = 0.5;
-    String insight = "Analyzing your habits...";
-
+  // Automatically generates fun daily goals based on what AI detected during registration
+  void _generateSubTargets(String goalTitle) {
     if (goalTitle == "Lose Weight") {
-       targetVal = "5 kg";
-       prog = 0.42;
-       insight = "Caloric deficit is consistent. AI predicts you will hit your milestone in 3 weeks if you maintain this pace.";
+      targets = [
+        TargetItem(title: "Calorie Deficit", description: "Stay under your daily calorie limit.", progress: 0.7, currentValue: 1400, targetValue: 2000, unit: "kcal", rewardPoints: 50, isCompleted: false),
+        TargetItem(title: "Cardio", description: "Complete a 30 min cardio session.", progress: 1.0, currentValue: 30, targetValue: 30, unit: "min", rewardPoints: 100, isCompleted: true),
+      ];
     } else if (goalTitle == "More Steps") {
-       targetVal = "10,000 steps/day";
-       prog = 0.85;
-       insight = "Great pacing! You are averaging 8.5k steps this week. A quick 15-minute evening walk will secure your daily goal.";
-    } else if (goalTitle == "Less Sugar") {
-       targetVal = "Under 25g/day";
-       prog = 0.90;
-       insight = "Excellent! You have cut sugar spikes by 40% this week. Keep avoiding those late-night processed snacks.";
+      targets = [
+        TargetItem(title: "Daily Steps", description: "Walk 10,000 steps today.", progress: 0.5, currentValue: 5000, targetValue: 10000, unit: "steps", rewardPoints: 100, isCompleted: false),
+        TargetItem(title: "Active Minutes", description: "Stay active for at least 45 minutes.", progress: 0.8, currentValue: 36, targetValue: 45, unit: "min", rewardPoints: 50, isCompleted: false),
+      ];
     } else if (goalTitle == "Build Muscle") {
-       targetVal = "Gain 2 kg";
-       prog = 0.30;
-       insight = "Protein intake is optimal, but sleep quality dropped. AI suggests 8 hours of sleep for better muscle recovery.";
+      targets = [
+        TargetItem(title: "Protein Intake", description: "Hit your daily protein goal.", progress: 0.8, currentValue: 120, targetValue: 150, unit: "g", rewardPoints: 75, isCompleted: false),
+        TargetItem(title: "Strength Training", description: "Complete weight lifting session.", progress: 0.0, currentValue: 0, targetValue: 1, unit: "session", rewardPoints: 150, isCompleted: false),
+      ];
+    } else if (goalTitle == "Less Sugar") {
+      targets = [
+        TargetItem(title: "Sugar Limit", description: "Keep added sugar under 30g.", progress: 0.3, currentValue: 10, targetValue: 30, unit: "g", rewardPoints: 50, isCompleted: false),
+        TargetItem(title: "Hydration", description: "Drink 8 glasses of water.", progress: 1.0, currentValue: 8, targetValue: 8, unit: "glasses", rewardPoints: 20, isCompleted: true),
+      ];
+    } else {
+      targets = [];
     }
-
-    mainGoal = MainGoal(
-      title: goalTitle,
-      targetValue: targetVal,
-      aiProgress: prog,
-      aiInsightText: insight,
-    );
   }
 }
