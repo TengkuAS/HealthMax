@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'dart:io';
-
 import '../theme_provider.dart';
 import 'user_bottomnavbar.dart';
 import 'AI_Features/calorie_estimate_service.dart';
@@ -20,18 +19,14 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
   final Color themeBlue = const Color(0xFF5A84F1);
   final Color actionGreen = const Color(0xFF55FF55);
 
-  // --- STATE ---
   bool _isAiMode = true;
   File? _selectedImage;
-
-  // --- AI STATE ---
   final _service = CalorieEstimatorService();
   final _textController = TextEditingController();
   NutritionResult? _result;
   bool _loading = false;
   String? _error;
 
-  // --- MANUAL STATE ---
   final _manualNameCtrl = TextEditingController();
   final _manualCalCtrl = TextEditingController();
   final _manualCarbCtrl = TextEditingController();
@@ -51,14 +46,9 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
     super.dispose();
   }
 
-  // ==========================================
-  // AI LOGIC
-  // ==========================================
   Future<void> _analyzeText() async {
     if (_textController.text.trim().isEmpty) return;
-
     FocusScope.of(context).unfocus();
-
     setState(() {
       _loading = true;
       _error = null;
@@ -77,7 +67,6 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
   Future<void> _pickAndAnalyzeImage() async {
     final surfaceColor = Theme.of(context).colorScheme.surface;
     final textPrimary = Theme.of(context).colorScheme.onSurface;
-
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
       backgroundColor: Colors.transparent,
@@ -153,9 +142,7 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
         ),
       ),
     );
-
     if (source == null) return;
-
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: source, imageQuality: 85);
     if (picked == null) return;
@@ -166,7 +153,6 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
       _error = null;
       _result = null;
     });
-
     try {
       final result = await _service.estimateFromImage(_selectedImage!);
       setState(() => _result = result);
@@ -177,27 +163,23 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
     }
   }
 
-  // Helper method to color-code the AI Confidence
   Color _getConfidenceColor(String confidence) {
     final lower = confidence.toLowerCase();
     if (lower.contains('%')) {
       final value = double.tryParse(lower.replaceAll('%', '').trim()) ?? 0;
-      if (value >= 75) return const Color(0xFF2ED573); // Green
-      if (value >= 50) return const Color(0xFFFFB300); // Orange
-      return const Color(0xFFFF4757); // Red
+      if (value >= 75) return const Color(0xFF2ED573);
+      if (value >= 50) return const Color(0xFFFFB300);
+      return const Color(0xFFFF4757);
     }
     if (lower.contains('high')) return const Color(0xFF2ED573);
     if (lower.contains('medium')) return const Color(0xFFFFB300);
     return const Color(0xFFFF4757);
   }
 
-  // ==========================================
-  // MAIN UI
-  // ==========================================
   @override
   Widget build(BuildContext context) {
-    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
-
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
     final scaffoldBg = isDark
         ? const Color(0xFF12121A)
         : const Color(0xFF1A1F2C);
@@ -212,7 +194,6 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // --- DYNAMIC FLOATING BACK BUTTON ---
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
               child: Align(
@@ -238,8 +219,6 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
                 ),
               ),
             ),
-
-            // --- THE MAIN CARD ---
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -253,18 +232,20 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.fromLTRB(20, 25, 20, 15),
-                        child: Text(
-                          "Log Food.",
-                          style: TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.w900,
-                            color: textPrimary,
-                            fontFamily: "LexendExaNormal",
-                            letterSpacing: -1.0,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            themeProvider.translate('log_food'),
+                            style: TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w900,
+                              color: textPrimary,
+                              fontFamily: "LexendExaNormal",
+                              letterSpacing: -1.0,
+                            ),
                           ),
                         ),
                       ),
-
                       Container(
                         margin: const EdgeInsets.symmetric(horizontal: 40),
                         height: 45,
@@ -278,14 +259,14 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
                         child: Row(
                           children: [
                             _buildTab(
-                              "AI Assist",
+                              themeProvider.translate('ai_assist'),
                               _isAiMode,
                               () => setState(() => _isAiMode = true),
                               textPrimary,
                               isDark,
                             ),
                             _buildTab(
-                              "Manual Write",
+                              themeProvider.translate('manual_write'),
                               !_isAiMode,
                               () => setState(() => _isAiMode = false),
                               textPrimary,
@@ -294,25 +275,28 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
                           ],
                         ),
                       ),
-
                       const SizedBox(height: 25),
-
                       Expanded(
                         child: SingleChildScrollView(
                           physics: const BouncingScrollPhysics(),
                           padding: const EdgeInsets.symmetric(horizontal: 25),
                           child: _isAiMode
-                              ? _buildAiTab(textPrimary, textSecondary, isDark)
+                              ? _buildAiTab(
+                                  textPrimary,
+                                  textSecondary,
+                                  isDark,
+                                  themeProvider,
+                                )
                               : _buildManualTab(
                                   textPrimary,
                                   textSecondary,
                                   isDark,
+                                  themeProvider,
                                 ),
                         ),
                       ),
-
                       GestureDetector(
-                        onTap: () {
+                        onTap: () async {
                           if (_isAiMode) {
                             if (_result == null) {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -335,10 +319,11 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
                               themeBlue,
                               DateTime.now(),
                               confidence: _result!.confidence,
+                              notes: _result!.notes,
                             );
 
                             try {
-                              Provider.of<CalorieProvider>(
+                              await Provider.of<CalorieProvider>(
                                 context,
                                 listen: false,
                               ).addFoodRecord(newRecord);
@@ -389,10 +374,13 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
                               Icons.restaurant,
                               const Color(0xFF2ED573),
                               DateTime.now(),
+                              notes: _manualCommentCtrl.text.trim().isEmpty
+                                  ? null
+                                  : _manualCommentCtrl.text.trim(),
                             );
 
                             try {
-                              Provider.of<CalorieProvider>(
+                              await Provider.of<CalorieProvider>(
                                 context,
                                 listen: false,
                               ).addFoodRecord(newRecord);
@@ -429,13 +417,16 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
                                 size: 24,
                               ),
                               const SizedBox(width: 8),
-                              const Text(
-                                "Add to My Intake",
-                                style: TextStyle(
-                                  color: Colors.black87,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w800,
-                                  fontFamily: "LexendExaNormal",
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  themeProvider.translate('add_to_intake'),
+                                  style: const TextStyle(
+                                    color: Colors.black87,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w800,
+                                    fontFamily: "LexendExaNormal",
+                                  ),
                                 ),
                               ),
                             ],
@@ -454,10 +445,6 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
       bottomNavigationBar: const UserBottomNavBar(currentIndex: 2),
     );
   }
-
-  // ==========================================
-  // WIDGET HELPERS
-  // ==========================================
 
   Widget _buildTab(
     String title,
@@ -490,15 +477,18 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
                 : [],
           ),
           alignment: Alignment.center,
-          child: Text(
-            title,
-            style: TextStyle(
-              fontWeight: isActive ? FontWeight.bold : FontWeight.w600,
-              color: isActive
-                  ? textPrimary
-                  : textPrimary.withValues(alpha: 0.5),
-              fontSize: 12,
-              fontFamily: "LexendExaNormal",
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              title,
+              style: TextStyle(
+                fontWeight: isActive ? FontWeight.bold : FontWeight.w600,
+                color: isActive
+                    ? textPrimary
+                    : textPrimary.withValues(alpha: 0.5),
+                fontSize: 12,
+                fontFamily: "LexendExaNormal",
+              ),
             ),
           ),
         ),
@@ -506,10 +496,12 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
     );
   }
 
-  // ==========================================
-  // AI TAB UI
-  // ==========================================
-  Widget _buildAiTab(Color textPrimary, Color textSecondary, bool isDark) {
+  Widget _buildAiTab(
+    Color textPrimary,
+    Color textSecondary,
+    bool isDark,
+    ThemeProvider theme,
+  ) {
     return Column(
       children: [
         GestureDetector(
@@ -555,7 +547,7 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
                           ),
                         ),
                         child: Text(
-                          "upload or take a picture",
+                          theme.translate('upload_or_take'),
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
@@ -576,9 +568,9 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(color: Colors.white54),
                       ),
-                      child: const Text(
-                        "Retake picture",
-                        style: TextStyle(
+                      child: Text(
+                        theme.translate('retake_picture'),
+                        style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -588,15 +580,13 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
                   ),
           ),
         ),
-
         const SizedBox(height: 15),
-
         TextField(
           controller: _textController,
           style: TextStyle(fontWeight: FontWeight.w600, color: textPrimary),
           textAlign: TextAlign.center,
           decoration: InputDecoration(
-            hintText: 'or describe your meal here',
+            hintText: theme.translate('describe_meal'),
             hintStyle: TextStyle(
               color: textSecondary,
               fontSize: 13,
@@ -621,9 +611,7 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
             if (!_loading) _analyzeText();
           },
         ),
-
         const SizedBox(height: 25),
-
         Row(
           children: [
             Expanded(
@@ -634,13 +622,16 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Text(
-                "AI Estimation",
-                style: TextStyle(
-                  fontWeight: FontWeight.w900,
-                  color: textPrimary,
-                  fontSize: 12,
-                  fontFamily: "LexendExaNormal",
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  theme.translate('ai_estimation'),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    color: textPrimary,
+                    fontSize: 12,
+                    fontFamily: "LexendExaNormal",
+                  ),
                 ),
               ),
             ),
@@ -652,9 +643,7 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
             ),
           ],
         ),
-
         const SizedBox(height: 25),
-
         if (_loading)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 20),
@@ -692,7 +681,6 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
           Column(
             children: [
               if (_result != null) ...[
-                // --- NEW: THE DYNAMIC CONFIDENCE BADGE ---
                 Container(
                   margin: const EdgeInsets.only(bottom: 15),
                   padding: const EdgeInsets.symmetric(
@@ -736,50 +724,47 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
                   ),
                 ),
               ],
-
               _buildResultRow(
-                "Calories :",
+                theme.translate('calories'),
                 _result != null ? "${_result!.totalCalories} kcal" : "--- kcal",
                 textPrimary,
                 isBold: true,
               ),
               _buildResultRow(
-                "Carbohydrates :",
+                theme.translate('carbohydrates'),
                 _result != null
                     ? "${_result!.totalCarbs.toStringAsFixed(0)} g"
                     : "--- g",
                 textPrimary,
               ),
               _buildResultRow(
-                "Protein :",
+                theme.translate('protein'),
                 _result != null
                     ? "${_result!.totalProtein.toStringAsFixed(0)} g"
                     : "--- g",
                 textPrimary,
               ),
               _buildResultRow(
-                "Fats :",
+                theme.translate('fats'),
                 _result != null
                     ? "${_result!.totalFat.toStringAsFixed(0)} g"
                     : "--- g",
                 textPrimary,
               ),
-
-              // --- NEW: EXPANDABLE AI NOTES SECTION ---
               if (_result != null &&
                   _result!.notes.isNotEmpty &&
                   _result!.notes.toLowerCase() != "none") ...[
                 const SizedBox(height: 10),
                 Theme(
-                  data: Theme.of(context).copyWith(
-                    dividerColor: Colors.transparent,
-                  ), // Hides the ugly default expansion lines
+                  data: Theme.of(
+                    context,
+                  ).copyWith(dividerColor: Colors.transparent),
                   child: ExpansionTile(
                     tilePadding: EdgeInsets.zero,
                     iconColor: themeBlue,
                     collapsedIconColor: textSecondary,
                     title: Text(
-                      "AI Analysis Notes",
+                      theme.translate('ai_analysis_notes'),
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
@@ -825,7 +810,6 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
               ],
             ],
           ),
-
         const SizedBox(height: 20),
       ],
     );
@@ -863,16 +847,18 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
     );
   }
 
-  // ==========================================
-  // MANUAL TAB UI
-  // ==========================================
-  Widget _buildManualTab(Color textPrimary, Color textSecondary, bool isDark) {
+  Widget _buildManualTab(
+    Color textPrimary,
+    Color textSecondary,
+    bool isDark,
+    ThemeProvider theme,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildManualInput(
           label: null,
-          hint: "Meal Name",
+          hint: theme.translate('meal_name'),
           controller: _manualNameCtrl,
           textPrimary: textPrimary,
           textSecondary: textSecondary,
@@ -880,8 +866,8 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
         ),
         const SizedBox(height: 25),
         _buildManualInput(
-          label: "Calories :",
-          hint: "Enter in gram",
+          label: theme.translate('calories'),
+          hint: theme.translate('enter_in_gram'),
           controller: _manualCalCtrl,
           textPrimary: textPrimary,
           textSecondary: textSecondary,
@@ -890,8 +876,8 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
         ),
         const SizedBox(height: 15),
         _buildManualInput(
-          label: "Carbohydrates :",
-          hint: "Enter in gram",
+          label: theme.translate('carbohydrates'),
+          hint: theme.translate('enter_in_gram'),
           controller: _manualCarbCtrl,
           textPrimary: textPrimary,
           textSecondary: textSecondary,
@@ -900,8 +886,8 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
         ),
         const SizedBox(height: 15),
         _buildManualInput(
-          label: "Protein :",
-          hint: "Enter in gram",
+          label: theme.translate('protein'),
+          hint: theme.translate('enter_in_gram'),
           controller: _manualProteinCtrl,
           textPrimary: textPrimary,
           textSecondary: textSecondary,
@@ -910,8 +896,8 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
         ),
         const SizedBox(height: 15),
         _buildManualInput(
-          label: "Fats :",
-          hint: "Enter in gram",
+          label: theme.translate('fats'),
+          hint: theme.translate('enter_in_gram'),
           controller: _manualFatCtrl,
           textPrimary: textPrimary,
           textSecondary: textSecondary,
@@ -919,13 +905,12 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
           isNumber: true,
         ),
         const SizedBox(height: 25),
-
         TextField(
           controller: _manualCommentCtrl,
           style: TextStyle(fontWeight: FontWeight.w600, color: textPrimary),
           maxLines: 4,
           decoration: InputDecoration(
-            hintText: 'add a comment..',
+            hintText: theme.translate('add_a_comment'),
             hintStyle: TextStyle(
               color: textSecondary,
               fontSize: 13,
@@ -959,12 +944,16 @@ class _UserLogFoodPageState extends State<UserLogFoodPage> {
         if (label != null)
           Expanded(
             flex: 4,
-            child: Text(
-              label,
-              style: TextStyle(
-                fontWeight: FontWeight.w800,
-                fontSize: 13,
-                color: textPrimary,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 13,
+                  color: textPrimary,
+                ),
               ),
             ),
           ),

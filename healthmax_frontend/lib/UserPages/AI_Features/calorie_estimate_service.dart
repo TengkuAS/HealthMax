@@ -104,3 +104,4 @@ Be realistic with portion sizes. If image is unclear, set confidence to "low".
     return NutritionResult.fromJson(jsonResponse.text!);
   }
 }
+

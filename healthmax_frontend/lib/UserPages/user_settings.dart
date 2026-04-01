@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:healthmax_frontend/GeneralPages/auth/auth_service.dart';
 import 'package:healthmax_frontend/UserPages/calorie_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:supabase_flutter/supabase_flutter.dart'; // --- NEW IMPORT ---
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme_provider.dart';
 import 'manage_devices.dart';
+import 'manage_hp.dart';
+import '../UserPages/hp_providers.dart';
 
 class UserSettingsPage extends StatelessWidget {
   const UserSettingsPage({super.key});
@@ -12,17 +14,14 @@ class UserSettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final hpProvider = Provider.of<HPProvider>(context);
     final bool isDark = themeProvider.isDarkMode;
 
-    // ==========================================
-    // THE FIX: Pulling Live Username from Supabase
-    // ==========================================
     final supabase = Supabase.instance.client;
     final String liveUsername =
         supabase.auth.currentUser?.userMetadata?['username'] ?? "User";
 
     const Color userBlue = Color(0xFF5A84F1);
-
     final Color bgColor = Theme.of(context).scaffoldBackgroundColor;
     final Color surfaceColor = Theme.of(context).colorScheme.surface;
     final Color textPrimary = Theme.of(context).colorScheme.onSurface;
@@ -89,8 +88,6 @@ class UserSettingsPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 15),
-
-                    // --- DYNAMIC USERNAME DISPLAYED HERE ---
                     Text(
                       liveUsername,
                       style: TextStyle(
@@ -101,7 +98,6 @@ class UserSettingsPage extends StatelessWidget {
                         letterSpacing: -0.5,
                       ),
                     ),
-
                     const SizedBox(height: 4),
                     Text(
                       "HealthMax Premium Member",
@@ -141,7 +137,7 @@ class UserSettingsPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "PREFERENCES",
+                    themeProvider.translate('preferences'),
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w900,
@@ -160,9 +156,114 @@ class UserSettingsPage extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
+                        ListTile(
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 4,
+                          ),
+                          leading: Icon(
+                            Icons.language_rounded,
+                            color: textPrimary.withValues(alpha: 0.8),
+                            size: 22,
+                          ),
+                          title: Text(
+                            themeProvider.translate('language'),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              color: textPrimary,
+                            ),
+                          ),
+                          trailing: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: themeProvider.currentLanguage,
+                              dropdownColor: surfaceColor,
+                              icon: Icon(
+                                Icons.keyboard_arrow_down_rounded,
+                                color: textSecondary,
+                                size: 18,
+                              ),
+                              style: TextStyle(
+                                color: userBlue,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                                fontFamily: "LexendExaNormal",
+                              ),
+                              items: const [
+                                DropdownMenuItem(
+                                  value: 'en',
+                                  child: Text("English"),
+                                ),
+                                DropdownMenuItem(
+                                  value: 'ms',
+                                  child: Text("Bahasa Melayu"),
+                                ),
+                                DropdownMenuItem(
+                                  value: 'zh',
+                                  child: Text("中文"),
+                                ),
+                                DropdownMenuItem(
+                                  value: 'ta',
+                                  child: Text("தமிழ்"),
+                                ),
+                              ],
+                              onChanged: (String? newValue) {
+                                if (newValue != null)
+                                  themeProvider.changeLanguage(newValue);
+                              },
+                            ),
+                          ),
+                        ),
+                        _buildDivider(dividerColor),
+
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8, bottom: 4),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.format_size_rounded,
+                                      color: textPrimary.withValues(alpha: 0.8),
+                                      size: 22,
+                                    ),
+                                    const SizedBox(width: 15),
+                                    Text(
+                                      themeProvider.translate('font_size'),
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
+                                        color: textPrimary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Slider(
+                                value: themeProvider.fontScale,
+                                min: 0.8,
+                                max: 1.5,
+                                divisions: 7,
+                                activeColor: userBlue,
+                                inactiveColor: userBlue.withValues(alpha: 0.2),
+                                label:
+                                    "${(themeProvider.fontScale * 100).toInt()}%",
+                                onChanged: (value) =>
+                                    themeProvider.updateFontScale(value),
+                              ),
+                            ],
+                          ),
+                        ),
+                        _buildDivider(dividerColor),
+
                         _buildProfileOption(
                           Icons.account_circle_outlined,
-                          "Account Information",
+                          themeProvider.translate('account_info'),
                           "",
                           textPrimary,
                           textSecondary,
@@ -170,25 +271,30 @@ class UserSettingsPage extends StatelessWidget {
                         _buildDivider(dividerColor),
                         _buildProfileOption(
                           Icons.notifications_none_rounded,
-                          "Notifications",
-                          "On",
+                          themeProvider.translate('notifications'),
+                          themeProvider.translate('on'),
                           textPrimary,
                           textSecondary,
                         ),
                         _buildDivider(dividerColor),
                         _buildProfileOption(
                           Icons.medical_services_outlined,
-                          "Manage Healthcare Providers",
-                          "1 Connected",
+                          themeProvider.translate('manage_hp'),
+                          "${hpProvider.connectedCount} ${themeProvider.translate('connected')}",
                           textPrimary,
                           userBlue,
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ManageHPPage(),
+                            ),
+                          ),
                         ),
                         _buildDivider(dividerColor),
-
                         _buildProfileOption(
                           Icons.watch_rounded,
-                          "Connected Devices",
-                          "Manage",
+                          themeProvider.translate('connected_devices'),
+                          themeProvider.translate('manage'),
                           textPrimary,
                           userBlue,
                           onTap: () => Navigator.push(
@@ -198,23 +304,13 @@ class UserSettingsPage extends StatelessWidget {
                             ),
                           ),
                         ),
-
                         _buildDivider(dividerColor),
                         _buildProfileOption(
                           Icons.track_changes_rounded,
-                          "Health Goals",
-                          "Weight Loss",
+                          themeProvider.translate('health_goals'),
+                          "",
                           textPrimary,
                           textSecondary,
-                          onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("Redirecting to Goal Editor..."),
-                                backgroundColor: Color(0xFF8E33FF),
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
-                          },
                         ),
                         _buildDivider(dividerColor),
 
@@ -231,7 +327,7 @@ class UserSettingsPage extends StatelessWidget {
                             size: 22,
                           ),
                           title: Text(
-                            "Dark Mode",
+                            themeProvider.translate('dark_mode'),
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 14,
@@ -241,16 +337,13 @@ class UserSettingsPage extends StatelessWidget {
                           value: isDark,
                           activeColor: userBlue,
                           inactiveTrackColor: Colors.grey.shade300,
-                          onChanged: (value) => Provider.of<ThemeProvider>(
-                            context,
-                            listen: false,
-                          ).toggleTheme(value),
+                          onChanged: (value) =>
+                              themeProvider.toggleTheme(value),
                         ),
-
                         _buildDivider(dividerColor),
                         _buildProfileOption(
                           Icons.security_outlined,
-                          "Privacy & Security",
+                          themeProvider.translate('privacy'),
                           "",
                           textPrimary,
                           textSecondary,
@@ -261,7 +354,7 @@ class UserSettingsPage extends StatelessWidget {
 
                   const SizedBox(height: 35),
                   Text(
-                    "ACTIONS",
+                    themeProvider.translate('actions'),
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w900,
@@ -273,7 +366,7 @@ class UserSettingsPage extends StatelessWidget {
                   const SizedBox(height: 15),
 
                   _buildActionButton(
-                    label: "VERIFY EMAIL",
+                    label: themeProvider.translate('verify_email'),
                     icon: Icons.mark_email_read_rounded,
                     bgColor: const Color(0xFFF59E0B).withValues(alpha: 0.1),
                     textColor: const Color(0xFFF59E0B),
@@ -281,7 +374,7 @@ class UserSettingsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   _buildActionButton(
-                    label: "EXPORT HEALTH DATA",
+                    label: themeProvider.translate('export_data'),
                     icon: Icons.ios_share_rounded,
                     bgColor: userBlue.withValues(alpha: 0.1),
                     textColor: userBlue,
@@ -289,7 +382,7 @@ class UserSettingsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   _buildActionButton(
-                    label: "LOG OUT",
+                    label: themeProvider.translate('log_out'),
                     icon: Icons.logout_rounded,
                     bgColor: const Color(0xFFFF4B4B).withValues(alpha: 0.1),
                     textColor: const Color(0xFFFF4B4B),
@@ -299,6 +392,7 @@ class UserSettingsPage extends StatelessWidget {
                       textPrimary,
                       textSecondary,
                       dividerColor,
+                      themeProvider,
                     ),
                   ),
                 ],
@@ -310,7 +404,6 @@ class UserSettingsPage extends StatelessWidget {
     );
   }
 
-  // --- HELPERS ---
   Widget _buildDivider(Color dividerColor) => Divider(
     height: 1,
     thickness: 1,
@@ -338,18 +431,21 @@ class UserSettingsPage extends StatelessWidget {
           fontSize: 14,
           color: textPrimary,
         ),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
       ),
       trailing: Wrap(
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          Text(
-            value,
-            style: TextStyle(
-              color: valueColor,
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
+          if (value.isNotEmpty)
+            Text(
+              value,
+              style: TextStyle(
+                color: valueColor,
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
           const SizedBox(width: 8),
           Icon(
             Icons.arrow_forward_ios,
@@ -380,15 +476,22 @@ class UserSettingsPage extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              label,
-              style: TextStyle(
-                color: textColor,
-                fontWeight: FontWeight.w900,
-                fontSize: 13,
-                fontFamily: "LexendExaNormal",
+            Expanded(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: textColor,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 13,
+                    fontFamily: "LexendExaNormal",
+                  ),
+                ),
               ),
             ),
+            const SizedBox(width: 10),
             Icon(icon, color: textColor, size: 20),
           ],
         ),
@@ -416,6 +519,7 @@ class UserSettingsPage extends StatelessWidget {
     Color textPrimary,
     Color textSecondary,
     Color dividerColor,
+    ThemeProvider theme,
   ) {
     showDialog(
       context: context,
@@ -426,7 +530,7 @@ class UserSettingsPage extends StatelessWidget {
           side: BorderSide(color: dividerColor),
         ),
         title: Text(
-          "Confirm Logout",
+          theme.translate('log_out'),
           style: TextStyle(
             fontWeight: FontWeight.w900,
             color: textPrimary,
@@ -464,9 +568,9 @@ class UserSettingsPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(15),
               ),
             ),
-            child: const Text(
-              "LOGOUT",
-              style: TextStyle(
+            child: Text(
+              theme.translate('log_out'),
+              style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),

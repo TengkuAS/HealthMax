@@ -12,25 +12,25 @@ import 'user_glassy_profile.dart';
 // --- DATA MODEL ---
 class UserHealthData {
   final int heartRate;
-  final String heartRateStatus;
+  final String heartRateStatusKey; 
   final int bloodGlucose;
-  final String bloodGlucoseStatus;
+  final String bloodGlucoseStatusKey;
   final int envNoise;
-  final String envNoiseStatus;
+  final String envNoiseStatusKey;
   final int currentSteps;
   final int targetSteps;
-  final String lastUpdated;
+  final String lastUpdatedKey;
 
   UserHealthData({
     required this.heartRate,
-    required this.heartRateStatus,
+    required this.heartRateStatusKey,
     required this.bloodGlucose,
-    required this.bloodGlucoseStatus,
+    required this.bloodGlucoseStatusKey,
     required this.envNoise,
-    required this.envNoiseStatus,
+    required this.envNoiseStatusKey,
     required this.currentSteps,
     required this.targetSteps,
-    required this.lastUpdated,
+    required this.lastUpdatedKey,
   });
 }
 
@@ -48,9 +48,10 @@ class _UserHomePageState extends State<UserHomePage> {
 
   late UserHealthData myData;
 
-  // --- PHASE 2: LIVE DATA ENGINE ---
   Timer? _liveDataTimer;
+  Timer? _stepsTimer; // Separate timer for steps to control its update frequency
   final Random _random = Random();
+  int _tickCount = 0; // Added a tick counter to control the steps separately
 
   @override
   void initState() {
@@ -64,43 +65,58 @@ class _UserHomePageState extends State<UserHomePage> {
       }
     });
 
-    // 1. Set Initial Baseline
+    // 1. Set Initial Baseline using Dictionary Keys
     myData = UserHealthData(
       heartRate: 82,
-      heartRateStatus: "Normal",
+      heartRateStatusKey: "status_normal",
       bloodGlucose: 90,
-      bloodGlucoseStatus: "Normal",
+      bloodGlucoseStatusKey: "status_normal",
       envNoise: 45,
-      envNoiseStatus: "Quiet",
+      envNoiseStatusKey: "status_quiet",
       currentSteps: 6789,
       targetSteps: 10000,
-      lastUpdated: "Just now",
+      lastUpdatedKey: "live_syncing",
     );
 
-    // 2. Start the Live Simulation
     _startLiveDataEngine();
   }
 
-  void _startLiveDataEngine() {
-    // Simulates a wearable sending data every 3 seconds
+void _startLiveDataEngine() {
+    // FAST TIMER: Updates Heart Rate & Noise every 3 seconds
     _liveDataTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
       if (!mounted) return;
-
       setState(() {
         myData = UserHealthData(
-          // Vitals fluctuate naturally up and down
           heartRate: 75 + _random.nextInt(15),
-          heartRateStatus: "Normal",
-          bloodGlucose: myData
-              .bloodGlucose, // Glucose changes slowly, keeping static for now
-          bloodGlucoseStatus: "Normal",
+          heartRateStatusKey: "status_normal",
+          bloodGlucose: myData.bloodGlucose, 
+          bloodGlucoseStatusKey: "status_normal",
           envNoise: 40 + _random.nextInt(25),
-          envNoiseStatus: "Normal",
-
-          // STEPS ONLY GO UP! (Cumulative Logic)
-          currentSteps: myData.currentSteps + _random.nextInt(8),
+          envNoiseStatusKey: "status_normal",
+          currentSteps: myData.currentSteps, // Keep current steps constant here
           targetSteps: myData.targetSteps,
-          lastUpdated: "Live Syncing...",
+          lastUpdatedKey: "live_syncing",
+        );
+      });
+    });
+
+    // SLOW TIMER: Increases steps every 8 seconds
+    _stepsTimer = Timer.periodic(const Duration(seconds: 8), (timer) {
+      if (!mounted) return;
+      setState(() {
+        // Increase steps by a very small amount (0-2) every 8 seconds
+        int incrementalSteps = _random.nextInt(3);
+        
+        myData = UserHealthData(
+          heartRate: myData.heartRate, 
+          heartRateStatusKey: myData.heartRateStatusKey,
+          bloodGlucose: myData.bloodGlucose, 
+          bloodGlucoseStatusKey: myData.bloodGlucoseStatusKey,
+          envNoise: myData.envNoise,
+          envNoiseStatusKey: myData.envNoiseStatusKey,
+          currentSteps: myData.currentSteps + incrementalSteps,
+          targetSteps: myData.targetSteps,
+          lastUpdatedKey: myData.lastUpdatedKey,
         );
       });
     });
@@ -108,7 +124,8 @@ class _UserHomePageState extends State<UserHomePage> {
 
   @override
   void dispose() {
-    _liveDataTimer?.cancel(); // ALWAYS cancel timers to prevent memory leaks!
+    _liveDataTimer?.cancel(); 
+    _stepsTimer?.cancel(); // Clean up the steps timer
     _scrollController.dispose();
     super.dispose();
   }
@@ -117,8 +134,7 @@ class _UserHomePageState extends State<UserHomePage> {
     Navigator.pushReplacement(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, a1, a2) =>
-            UserStatisticPage(initialMetric: metric),
+        pageBuilder: (context, a1, a2) => UserStatisticPage(initialMetric: metric),
         transitionDuration: Duration.zero,
       ),
     );
@@ -126,13 +142,11 @@ class _UserHomePageState extends State<UserHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
     final calorieData = Provider.of<CalorieProvider>(context);
 
-    // Safety check for Supabase initialization during UI building
-    final String liveUsername =
-        Supabase.instance.client.auth.currentUser?.userMetadata?['username'] ??
-        "User";
+    final String liveUsername = Supabase.instance.client.auth.currentUser?.userMetadata?['username'] ?? "User";
 
     final bgColor = Theme.of(context).scaffoldBackgroundColor;
     final surfaceColor = Theme.of(context).colorScheme.surface;
@@ -162,23 +176,15 @@ class _UserHomePageState extends State<UserHomePage> {
                 padding: const EdgeInsets.only(left: 15.0, top: 10.0),
                 child: ShaderMask(
                   shaderCallback: (Rect bounds) => const LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
+                    begin: Alignment.centerLeft, end: Alignment.centerRight,
                     colors: [Colors.white, Colors.white, Colors.transparent],
                     stops: [0.0, 0.85, 1.0],
                   ).createShader(bounds),
                   blendMode: BlendMode.dstIn,
                   child: Text(
-                    "Hi, $liveUsername!",
-                    maxLines: 1,
-                    softWrap: false,
-                    overflow: TextOverflow.clip,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                      fontFamily: "LexendExaNormal",
-                    ),
+                    "${themeProvider.translate('hi')} $liveUsername!",
+                    maxLines: 1, softWrap: false, overflow: TextOverflow.clip,
+                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.white, fontFamily: "LexendExaNormal"),
                   ),
                 ),
               ),
@@ -186,11 +192,7 @@ class _UserHomePageState extends State<UserHomePage> {
             actions: [
               Padding(
                 padding: const EdgeInsets.only(right: 30.0, top: 10.0),
-                child: Center(
-                  child: UserGlassyProfile(
-                    onTap: () => Navigator.pushNamed(context, '/user_settings'),
-                  ),
-                ),
+                child: Center(child: UserGlassyProfile(onTap: () => Navigator.pushNamed(context, '/user_settings'))),
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
@@ -201,23 +203,18 @@ class _UserHomePageState extends State<UserHomePage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        "Hi,",
-                        style: TextStyle(
-                          fontSize: 45,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                          height: 1.1,
-                          fontFamily: "LexendExaNormal",
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          themeProvider.translate('hi'),
+                          style: const TextStyle(fontSize: 45, fontWeight: FontWeight.w900, color: Colors.white, height: 1.1, fontFamily: "LexendExaNormal"),
                         ),
                       ),
-                      Text(
-                        "$liveUsername!",
-                        style: const TextStyle(
-                          fontSize: 35,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontFamily: "LexendExaNormal",
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          "$liveUsername!",
+                          style: const TextStyle(fontSize: 35, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: "LexendExaNormal"),
                         ),
                       ),
                     ],
@@ -229,16 +226,7 @@ class _UserHomePageState extends State<UserHomePage> {
               preferredSize: const Size.fromHeight(30),
               child: Transform.translate(
                 offset: const Offset(0, 1),
-                child: Container(
-                  height: 31,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: bgColor,
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(40),
-                    ),
-                  ),
-                ),
+                child: Container(height: 31, width: double.infinity, decoration: BoxDecoration(color: bgColor, borderRadius: const BorderRadius.vertical(top: Radius.circular(40)))),
               ),
             ),
           ),
@@ -254,157 +242,98 @@ class _UserHomePageState extends State<UserHomePage> {
                     child: Container(
                       padding: const EdgeInsets.all(25),
                       decoration: BoxDecoration(
-                        color: surfaceColor,
-                        borderRadius: BorderRadius.circular(35),
+                        color: surfaceColor, borderRadius: BorderRadius.circular(35),
                         border: isDark ? Border.all(color: dividerColor) : null,
-                        boxShadow: isDark
-                            ? []
-                            : [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.06),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 8),
-                                ),
-                              ],
+                        boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 20, offset: const Offset(0, 8))],
                       ),
                       child: Column(
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _buildMetric(
-                                    icon: Icons.monitor_heart,
-                                    color: const Color(0xFFFF6B6B),
-                                    value: myData.heartRate.toString(),
-                                    unit: "bpm",
-                                    status: myData.heartRateStatus,
-                                    textPrimary: textPrimary,
-                                    textSecondary: textSecondary,
-                                    onTap: () =>
-                                        _routeToStatistic("Heart Rate"),
-                                  ),
-                                  const SizedBox(height: 15),
-                                  _buildMetric(
-                                    icon: Icons.bloodtype,
-                                    color: const Color(0xFF4ECDC4),
-                                    value: myData.bloodGlucose.toString(),
-                                    unit: "mg/dL",
-                                    status: myData.bloodGlucoseStatus,
-                                    textPrimary: textPrimary,
-                                    textSecondary: textSecondary,
-                                    onTap: () =>
-                                        _routeToStatistic("Blood Glucose"),
-                                  ),
-                                  const SizedBox(height: 15),
-                                  _buildMetric(
-                                    icon: Icons.hearing,
-                                    color: const Color(0xFF45B7D1),
-                                    value: myData.envNoise.toString(),
-                                    unit: "dB",
-                                    status: myData.envNoiseStatus,
-                                    textPrimary: textPrimary,
-                                    textSecondary: textSecondary,
-                                    onTap: () =>
-                                        _routeToStatistic("Env. Noise"),
-                                  ),
-                                ],
+                              Expanded(
+                                flex: 3, 
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    _buildMetric(
+                                      icon: Icons.monitor_heart, color: const Color(0xFFFF6B6B),
+                                      value: myData.heartRate.toString(), unit: "bpm",
+                                      status: themeProvider.translate(myData.heartRateStatusKey),
+                                      textPrimary: textPrimary, textSecondary: textSecondary,
+                                      onTap: () => _routeToStatistic("Heart Rate"),
+                                    ),
+                                    const SizedBox(height: 15),
+                                    _buildMetric(
+                                      icon: Icons.bloodtype, color: const Color(0xFF4ECDC4),
+                                      value: myData.bloodGlucose.toString(), unit: "mg/dL",
+                                      status: themeProvider.translate(myData.bloodGlucoseStatusKey),
+                                      textPrimary: textPrimary, textSecondary: textSecondary,
+                                      onTap: () => _routeToStatistic("BloodGlucose"),
+                                    ),
+                                    const SizedBox(height: 15),
+                                    _buildMetric(
+                                      icon: Icons.hearing, color: const Color(0xFF45B7D1),
+                                      value: myData.envNoise.toString(), unit: "dB",
+                                      status: themeProvider.translate(myData.envNoiseStatusKey),
+                                      textPrimary: textPrimary, textSecondary: textSecondary,
+                                      onTap: () => _routeToStatistic("Env.Noise"),
+                                    ),
+                                  ],
+                                ),
                               ),
-                              GestureDetector(
-                                onTap: () => _routeToStatistic("Steps"),
-                                child: SizedBox(
-                                  width: 140,
-                                  height: 140,
-                                  child: Stack(
-                                    fit: StackFit.expand,
-                                    children: [
-                                      CircularProgressIndicator(
-                                        value: 1.0,
-                                        strokeWidth: 10,
-                                        color: isDark
-                                            ? Colors.white10
-                                            : Colors.grey.shade100,
-                                      ),
-                                      TweenAnimationBuilder(
-                                        tween: Tween<double>(
-                                          begin: 0,
-                                          end:
-                                              (myData.currentSteps /
-                                                      myData.targetSteps)
-                                                  .clamp(0.0, 1.0),
+                              
+                              const SizedBox(width: 10), 
+
+                              Expanded(
+                                flex: 2,
+                                child: GestureDetector(
+                                  onTap: () => _routeToStatistic("Steps"),
+                                  child: AspectRatio(
+                                    aspectRatio: 1,
+                                    child: Stack(
+                                      fit: StackFit.expand,
+                                      children: [
+                                        CircularProgressIndicator(value: 1.0, strokeWidth: 10, color: isDark ? Colors.white10 : Colors.grey.shade100),
+                                        TweenAnimationBuilder(
+                                          tween: Tween<double>(begin: 0, end: (myData.currentSteps / myData.targetSteps).clamp(0.0, 1.0)),
+                                          duration: const Duration(seconds: 1), curve: Curves.easeOutCubic,
+                                          builder: (context, value, child) => CircularProgressIndicator(value: value, strokeWidth: 10, backgroundColor: Colors.transparent, valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFFF9F43)), strokeCap: StrokeCap.round),
                                         ),
-                                        duration: const Duration(seconds: 1),
-                                        curve: Curves.easeOutCubic,
-                                        builder: (context, value, child) =>
-                                            CircularProgressIndicator(
-                                              value: value,
-                                              strokeWidth: 10,
-                                              backgroundColor:
-                                                  Colors.transparent,
-                                              valueColor:
-                                                  const AlwaysStoppedAnimation<
-                                                    Color
-                                                  >(Color(0xFFFF9F43)),
-                                              strokeCap: StrokeCap.round,
+                                        Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            FittedBox(
+                                              fit: BoxFit.scaleDown,
+                                              child: Text(themeProvider.translate('steps_label'), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: textSecondary)),
                                             ),
-                                      ),
-                                      Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            "Steps:",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14,
-                                              color: textSecondary,
+                                            FittedBox(
+                                              fit: BoxFit.scaleDown,
+                                              child: Text(myData.currentSteps.toString(), style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: textPrimary, fontFamily: "LexendExaNormal", letterSpacing: -1)),
                                             ),
-                                          ),
-                                          Text(
-                                            myData.currentSteps.toString(),
-                                            style: TextStyle(
-                                              fontSize: 32,
-                                              fontWeight: FontWeight.w900,
-                                              color: textPrimary,
-                                              fontFamily: "LexendExaNormal",
-                                              letterSpacing: -1,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
                             ],
                           ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 15),
-                            child: Divider(color: dividerColor, height: 1),
-                          ),
+                          Padding(padding: const EdgeInsets.symmetric(vertical: 15), child: Divider(color: dividerColor, height: 1)),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(
-                                "Last Updated : ${myData.lastUpdated}",
-                                style: TextStyle(
-                                  color: textSecondary,
-                                  fontSize: 12,
-                                ),
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text("${themeProvider.translate('last_updated')} ${themeProvider.translate(myData.lastUpdatedKey)}", style: TextStyle(color: textSecondary, fontSize: 12)),
                               ),
                               const SizedBox(width: 8),
                               AnimatedRotation(
-                                turns: myData.currentSteps % 2 == 0
-                                    ? 0.5
-                                    : 0.0, // Creates a tiny spin effect when data updates!
+                                turns: myData.currentSteps % 2 == 0 ? 0.5 : 0.0,
                                 duration: const Duration(milliseconds: 500),
-                                child: Icon(
-                                  Icons.sync,
-                                  size: 16,
-                                  color: userBlue,
-                                ),
+                                child: Icon(Icons.sync, size: 16, color: userBlue),
                               ),
                             ],
                           ),
@@ -414,56 +343,31 @@ class _UserHomePageState extends State<UserHomePage> {
                   ),
                   const SizedBox(height: 35),
 
-                  // Quick Actions & Feedback remain unchanged below...
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 25),
-                    child: Text(
-                      "Quick Action",
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: textPrimary,
-                        fontFamily: "LexendExaNormal",
-                      ),
-                    ),
+                    child: Text(themeProvider.translate('quick_action'), style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: textPrimary, fontFamily: "LexendExaNormal")),
                   ),
                   const SizedBox(height: 15),
                   SizedBox(
                     height: 160,
                     child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      physics: const BouncingScrollPhysics(),
+                      scrollDirection: Axis.horizontal, physics: const BouncingScrollPhysics(),
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       children: [
                         _buildQuickActionCard(
-                          icon: Icons.local_fire_department_rounded,
-                          iconBgColor: const Color(0xFFFFD93D),
-                          title: "Burned Calories",
-                          subtitle:
-                              "${calorieData.burnedCalories} kcal burned today",
-                          isProgress: true,
-                          surfaceColor: surfaceColor,
-                          textPrimary: textPrimary,
-                          textSecondary: textSecondary,
-                          dividerColor: dividerColor,
-                          isDark: isDark,
-                          onTap: () => Navigator.pushReplacementNamed(
-                            context,
-                            '/user_calorie',
-                          ),
+                          icon: Icons.local_fire_department_rounded, iconBgColor: const Color(0xFFFFD93D),
+                          title: themeProvider.translate('burned_calories'),
+                          subtitle: "${calorieData.burnedCalories} ${themeProvider.translate('kcal_burned')}",
+                          isProgress: true, surfaceColor: surfaceColor, textPrimary: textPrimary,
+                          textSecondary: textSecondary, dividerColor: dividerColor, isDark: isDark, themeProvider: themeProvider,
+                          onTap: () => Navigator.pushReplacementNamed(context, '/user_calorie'),
                         ),
                         const SizedBox(width: 15),
                         _buildQuickActionCard(
-                          icon: Icons.calendar_month_rounded,
-                          iconBgColor: const Color(0xFF00D1FF),
-                          title: "17 December 2026",
-                          subtitle: "Heart Appointment\nHospital 1",
-                          isAppointment: true,
-                          surfaceColor: surfaceColor,
-                          textPrimary: textPrimary,
-                          textSecondary: textSecondary,
-                          dividerColor: dividerColor,
-                          isDark: isDark,
+                          icon: Icons.calendar_month_rounded, iconBgColor: const Color(0xFF00D1FF),
+                          title: "17 December 2026", subtitle: "Heart Appointment\nHospital 1",
+                          isAppointment: true, surfaceColor: surfaceColor, textPrimary: textPrimary,
+                          textSecondary: textSecondary, dividerColor: dividerColor, isDark: isDark, themeProvider: themeProvider,
                         ),
                       ],
                     ),
@@ -471,43 +375,15 @@ class _UserHomePageState extends State<UserHomePage> {
                   const SizedBox(height: 35),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 25),
-                    child: Text(
-                      "Feedback",
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: textPrimary,
-                        fontFamily: "LexendExaNormal",
-                      ),
-                    ),
+                    child: Text(themeProvider.translate('feedback'), style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: textPrimary, fontFamily: "LexendExaNormal")),
                   ),
                   const SizedBox(height: 15),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
                       children: [
-                        _buildFeedbackCard(
-                          "Dr. Ahmad Syafiq",
-                          "Heart Rate consistency is looking excellent this week. Keep up the light cardio.",
-                          "10:30 AM",
-                          surfaceColor,
-                          textPrimary,
-                          textSecondary,
-                          dividerColor,
-                          userBlue,
-                          isDark,
-                        ),
-                        _buildFeedbackCard(
-                          "Nutritionist Sarah",
-                          "Your glucose levels have stabilized perfectly after we adjusted your dinner macros.",
-                          "Yesterday",
-                          surfaceColor,
-                          textPrimary,
-                          textSecondary,
-                          dividerColor,
-                          userBlue,
-                          isDark,
-                        ),
+                        _buildFeedbackCard("Dr. Ahmad Syafiq", "Heart Rate consistency is looking excellent this week. Keep up the light cardio.", "10:30 AM", surfaceColor, textPrimary, textSecondary, dividerColor, userBlue, isDark),
+                        _buildFeedbackCard("Nutritionist Sarah", "Your glucose levels have stabilized perfectly after we adjusted your dinner macros.", "Yesterday", surfaceColor, textPrimary, textSecondary, dividerColor, userBlue, isDark),
                         const SizedBox(height: 100),
                       ],
                     ),
@@ -524,14 +400,8 @@ class _UserHomePageState extends State<UserHomePage> {
 
   // --- HELPER WIDGETS ---
   Widget _buildMetric({
-    required IconData icon,
-    required Color color,
-    required String value,
-    required String unit,
-    required String status,
-    required Color textPrimary,
-    required Color textSecondary,
-    VoidCallback? onTap,
+    required IconData icon, required Color color, required String value, required String unit,
+    required String status, required Color textPrimary, required Color textSecondary, VoidCallback? onTap,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -541,66 +411,37 @@ class _UserHomePageState extends State<UserHomePage> {
           children: [
             Container(
               padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: color.withValues(alpha: 0.4),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle, boxShadow: [BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 8, offset: const Offset(0, 4))]),
               child: Icon(icon, color: Colors.white, size: 28),
             ),
             const SizedBox(width: 15),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: [
-                    Text(
-                      value,
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        color: textPrimary,
-                        fontFamily: "LexendExaNormal",
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline, textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Flexible(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(value, style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: textPrimary, fontFamily: "LexendExaNormal")),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      unit,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 2,
+                      const SizedBox(width: 4),
+                      Text(unit, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: textSecondary)),
+                    ],
                   ),
-                  decoration: BoxDecoration(
-                    color: Colors.greenAccent.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    status,
-                    style: const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                    decoration: BoxDecoration(color: Colors.greenAccent.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(10)),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(status, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.green))
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
@@ -609,106 +450,37 @@ class _UserHomePageState extends State<UserHomePage> {
   }
 
   Widget _buildQuickActionCard({
-    required IconData icon,
-    required Color iconBgColor,
-    required String title,
-    required String subtitle,
-    bool isProgress = false,
-    bool isAppointment = false,
-    VoidCallback? onTap,
-    required Color surfaceColor,
-    required Color textPrimary,
-    required Color textSecondary,
-    required Color dividerColor,
-    required bool isDark,
+    required IconData icon, required Color iconBgColor, required String title, required String subtitle,
+    bool isProgress = false, bool isAppointment = false, VoidCallback? onTap, required Color surfaceColor,
+    required Color textPrimary, required Color textSecondary, required Color dividerColor, required bool isDark, required ThemeProvider themeProvider,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 260,
-        padding: const EdgeInsets.all(15),
-        decoration: BoxDecoration(
-          color: surfaceColor,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: dividerColor),
-          boxShadow: isDark
-              ? []
-              : [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.03),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-        ),
+        width: 260, padding: const EdgeInsets.all(15),
+        decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(20), border: Border.all(color: dividerColor), boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 5))]),
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(15),
-              decoration: BoxDecoration(
-                color: iconBgColor,
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Icon(icon, color: Colors.black87, size: 35),
-            ),
+            Container(padding: const EdgeInsets.all(15), decoration: BoxDecoration(color: iconBgColor, borderRadius: BorderRadius.circular(15)), child: Icon(icon, color: Colors.black87, size: 35)),
             const SizedBox(width: 15),
             Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                      color: textPrimary,
-                    ),
-                  ),
+                  FittedBox(fit: BoxFit.scaleDown, child: Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: textPrimary))),
                   const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: textSecondary,
-                      height: 1.2,
-                    ),
-                  ),
+                  FittedBox(fit: BoxFit.scaleDown, child: Text(subtitle, style: TextStyle(fontSize: 10, color: textSecondary, height: 1.2))),
                   if (isProgress) ...[
                     const SizedBox(height: 8),
-                    LinearProgressIndicator(
-                      value: 0.6,
-                      backgroundColor: isDark
-                          ? Colors.white10
-                          : Colors.grey.shade200,
-                      valueColor: const AlwaysStoppedAnimation<Color>(
-                        Color(0xFFFFD93D),
-                      ),
-                      borderRadius: BorderRadius.circular(5),
-                      minHeight: 5,
-                    ),
+                    LinearProgressIndicator(value: 0.6, backgroundColor: isDark ? Colors.white10 : Colors.grey.shade200, valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFFFD93D)), borderRadius: BorderRadius.circular(5), minHeight: 5),
                   ],
                   if (isAppointment) ...[
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        Text(
-                          "Cancel",
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.red.shade400,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        Text(themeProvider.translate('cancel'), style: TextStyle(fontSize: 11, color: Colors.red.shade400, fontWeight: FontWeight.bold)),
                         const SizedBox(width: 15),
-                        Text(
-                          "Reschedule",
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: textSecondary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        Text(themeProvider.translate('reschedule'), style: TextStyle(fontSize: 11, color: textSecondary, fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ],
@@ -721,45 +493,14 @@ class _UserHomePageState extends State<UserHomePage> {
     );
   }
 
-  Widget _buildFeedbackCard(
-    String doctor,
-    String message,
-    String time,
-    Color surfaceColor,
-    Color textPrimary,
-    Color textSecondary,
-    Color dividerColor,
-    Color userBlue,
-    bool isDark,
-  ) {
+  Widget _buildFeedbackCard(String doctor, String message, String time, Color surfaceColor, Color textPrimary, Color textSecondary, Color dividerColor, Color userBlue, bool isDark) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: surfaceColor,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: dividerColor),
-        boxShadow: isDark
-            ? []
-            : [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.02),
-                  blurRadius: 10,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-      ),
+      margin: const EdgeInsets.only(bottom: 12), padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(20), border: Border.all(color: dividerColor), boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 5))]),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(
-            backgroundColor: userBlue.withValues(alpha: 0.1),
-            child: Icon(
-              Icons.medical_services_rounded,
-              color: userBlue,
-              size: 20,
-            ),
-          ),
+          CircleAvatar(backgroundColor: userBlue.withValues(alpha: 0.1), child: Icon(Icons.medical_services_rounded, color: userBlue, size: 20)),
           const SizedBox(width: 15),
           Expanded(
             child: Column(
@@ -768,29 +509,13 @@ class _UserHomePageState extends State<UserHomePage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      doctor,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                        color: textPrimary,
-                      ),
-                    ),
-                    Text(
-                      time,
-                      style: TextStyle(color: textSecondary, fontSize: 11),
-                    ),
+                    Expanded(child: FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text(doctor, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: textPrimary)))),
+                    const SizedBox(width: 10),
+                    Text(time, style: TextStyle(color: textSecondary, fontSize: 11)),
                   ],
                 ),
                 const SizedBox(height: 5),
-                Text(
-                  message,
-                  style: TextStyle(
-                    color: textSecondary,
-                    fontSize: 12,
-                    height: 1.4,
-                  ),
-                ),
+                Text(message, style: TextStyle(color: textSecondary, fontSize: 12, height: 1.4)),
               ],
             ),
           ),

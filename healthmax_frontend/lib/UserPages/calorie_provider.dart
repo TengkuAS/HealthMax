@@ -198,7 +198,7 @@ class CalorieProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addFoodRecord(CalorieRecord newRecord) async {
+  Future<void> addFoodRecord(CalorieRecord newRecord) async {
     _calorieHistory.insert(0, newRecord);
     notifyListeners();
 
