@@ -67,6 +67,9 @@ class _UserHomePageState extends State<UserHomePage> {
     final textSecondary = isDark ? Colors.white54 : Colors.grey.shade600;
     final dividerColor = Theme.of(context).dividerColor;
 
+    final double dynamicAppBarHeight = 220.0 * themeProvider.fontScale.clamp(1.0, 1.3);
+    final double dynamicQuickActionHeight = 160.0 * themeProvider.fontScale.clamp(1.0, 1.4);
+
     return Scaffold(
       backgroundColor: bgColor,
       body: CustomScrollView(
@@ -76,7 +79,7 @@ class _UserHomePageState extends State<UserHomePage> {
           SliverAppBar(
             automaticallyImplyLeading: false,
             backgroundColor: userBlue,
-            expandedHeight: 220.0,
+            expandedHeight: dynamicAppBarHeight,
             toolbarHeight: 90.0,
             pinned: true,
             elevation: 0,
@@ -115,20 +118,16 @@ class _UserHomePageState extends State<UserHomePage> {
                   padding: const EdgeInsets.fromLTRB(30, 25, 30, 0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          themeProvider.translate('hi'),
-                          style: const TextStyle(fontSize: 45, fontWeight: FontWeight.w900, color: Colors.white, height: 1.1, fontFamily: "LexendExaNormal"),
-                        ),
+                      Text(
+                        themeProvider.translate('hi'),
+                        style: TextStyle(fontSize: 45 * themeProvider.fontScale, fontWeight: FontWeight.w900, color: Colors.white, height: 1.1, fontFamily: "LexendExaNormal"),
                       ),
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          "$liveUsername!",
-                          style: const TextStyle(fontSize: 35, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: "LexendExaNormal"),
-                        ),
+                      Text(
+                        "$liveUsername!",
+                        maxLines: 2, overflow: TextOverflow.ellipsis, // Allows wrapping
+                        style: TextStyle(fontSize: 35 * themeProvider.fontScale, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: "LexendExaNormal"),
                       ),
                     ],
                   ),
@@ -259,9 +258,10 @@ class _UserHomePageState extends State<UserHomePage> {
                   ),
                   const SizedBox(height: 15),
                   SizedBox(
-                    height: 160,
+                    height: dynamicQuickActionHeight, // DYNAMIC HEIGHT
                     child: ListView(
-                      scrollDirection: Axis.horizontal, physics: const BouncingScrollPhysics(),
+                      scrollDirection: Axis.horizontal, 
+                      physics: const BouncingScrollPhysics(),
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       children: [
                         _buildQuickActionCard(
@@ -275,7 +275,8 @@ class _UserHomePageState extends State<UserHomePage> {
                         const SizedBox(width: 15),
                         _buildQuickActionCard(
                           icon: Icons.calendar_month_rounded, iconBgColor: const Color(0xFF00D1FF),
-                          title: "17 December 2026", subtitle: "Heart Appointment\nHospital 1",
+                          title: "17 December 2026", 
+                          subtitle: "Heart Appointment\nHospital 1", // Will now wrap nicely!
                           isAppointment: true, surfaceColor: surfaceColor, textPrimary: textPrimary,
                           textSecondary: textSecondary, dividerColor: dividerColor, isDark: isDark, themeProvider: themeProvider,
                         ),
@@ -351,7 +352,8 @@ class _UserHomePageState extends State<UserHomePage> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 260, padding: const EdgeInsets.all(15),
+        width: 260 * themeProvider.fontScale.clamp(1.0, 1.2), // Let the width scale slightly
+        padding: const EdgeInsets.all(15),
         decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(20), border: Border.all(color: dividerColor), boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 5))]),
         child: Row(
           children: [
@@ -361,9 +363,10 @@ class _UserHomePageState extends State<UserHomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  FittedBox(fit: BoxFit.scaleDown, child: Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: textPrimary))),
+                  // Removed FittedBox, added maxLines
+                  Text(title, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15 * themeProvider.fontScale, color: textPrimary)),
                   const SizedBox(height: 4),
-                  FittedBox(fit: BoxFit.scaleDown, child: Text(subtitle, style: TextStyle(fontSize: 10, color: textSecondary, height: 1.2))),
+                  Text(subtitle, maxLines: 3, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 10 * themeProvider.fontScale, color: textSecondary, height: 1.2)),
                   if (isProgress) ...[const SizedBox(height: 8), LinearProgressIndicator(value: 0.6, backgroundColor: isDark ? Colors.white10 : Colors.grey.shade200, valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFFFD93D)), borderRadius: BorderRadius.circular(5), minHeight: 5)],
                 ],
               ),
@@ -377,6 +380,8 @@ class _UserHomePageState extends State<UserHomePage> {
   Widget _buildFeedbackCard(String doctor, String message, String time, Color surfaceColor, Color textPrimary, Color textSecondary, Color dividerColor, Color userBlue, bool isDark) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12), padding: const EdgeInsets.all(15),
+      // Use BoxConstraints instead of fixed height
+      constraints: const BoxConstraints(minHeight: 80), 
       decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(20), border: Border.all(color: dividerColor), boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 5))]),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -386,17 +391,19 @@ class _UserHomePageState extends State<UserHomePage> {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min, // Lets it grow vertically
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(child: FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text(doctor, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: textPrimary)))),
+                    Expanded(child: Text(doctor, maxLines: 2, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: textPrimary))),
                     const SizedBox(width: 10),
                     Text(time, style: TextStyle(color: textSecondary, fontSize: 11)),
                   ],
                 ),
                 const SizedBox(height: 5),
-                AiTranslatedText(message, style: TextStyle(color: textSecondary, fontSize: 12, height: 1.4)),
+                AiTranslatedText(message, style: TextStyle(color: textSecondary, fontSize: 12, height: 1.4)), // Assuming this widget handles text wrapping
               ],
             ),
           ),

@@ -4,7 +4,7 @@ import '../../theme_provider.dart';
 import '../user_bottomnavbar.dart';
 import '../user_glassy_profile.dart';
 import 'user_history_calorie.dart'; 
-import '../AI_Features/ai_translator_service.dart'; // <-- IMPORT AI SERVICE
+import '../AI_Features/ai_translator_service.dart';
 
 class FeedbackRecord {
   final String hospitalName; final String date; final String time;
@@ -42,6 +42,7 @@ class _UserHistoryFeedbackPageState extends State<UserHistoryFeedbackPage> {
         physics: const BouncingScrollPhysics(),
         slivers: [
           SliverAppBar(
+            // ... (AppBar setup remains the same)
             automaticallyImplyLeading: false, backgroundColor: themeBlue, expandedHeight: 200.0, toolbarHeight: 90.0, pinned: true, elevation: 0, scrolledUnderElevation: 0.0, surfaceTintColor: Colors.transparent,
             actions: const [Padding(padding: EdgeInsets.only(right: 30.0, top: 10.0), child: Center(child: UserGlassyProfile()))],
             title: Padding(padding: const EdgeInsets.only(left: 15.0), child: FittedBox(fit: BoxFit.scaleDown, child: Text(themeProvider.translate('history'), style: const TextStyle(fontSize: 42, fontWeight: FontWeight.w900, color: Colors.white, fontFamily: "LexendExaNormal", letterSpacing: -1.0, height: 1.1)))),
@@ -74,46 +75,50 @@ class _UserHistoryFeedbackPageState extends State<UserHistoryFeedbackPage> {
                   final feedback = feedbackHistory[index];
                   return Column(
                     children: [
-                      InkWell(
-                        onTap: () {}, // Detail sheet omitted for brevity
-                        child: Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(25), border: isDark ? Border.all(color: dividerColor) : null, boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha:0.03), blurRadius: 8, offset: const Offset(0, 4))]),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              CircleAvatar(backgroundColor: isDark ? Colors.white10 : Colors.black87, radius: 22, child: const Icon(Icons.local_hospital, color: Colors.white, size: 20)),
-                              const SizedBox(width: 15),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(child: FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text(feedback.hospitalName, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: textPrimary)))),
-                                        const SizedBox(width: 10),
-                                        Text("${feedback.date}   ${feedback.time}", style: TextStyle(fontSize: 9, color: textSecondary)),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 8),
-                                    
-                                    // --- AI TRANSLATION FOR DYNAMIC FEEDBACK MESSAGE ---
-                                    AiTranslatedText('"${feedback.message}"', style: TextStyle(fontSize: 12, color: textSecondary, height: 1.4)),
-                                    
-                                    const SizedBox(height: 15),
-                                    Row(
-                                      children: [
-                                        Text("Feedback on ", style: TextStyle(fontSize: 10, color: Colors.grey)),
-                                        // Static Metric Dictionary Translation
-                                        Text(themeProvider.translate(feedback.feedbackType), style: TextStyle(fontSize: 10, color: feedback.typeColor, fontWeight: FontWeight.bold)),
-                                      ],
-                                    ),
-                                  ],
-                                ),
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(25), border: isDark ? Border.all(color: dividerColor) : null, boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha:0.03), blurRadius: 8, offset: const Offset(0, 4))]),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start, // Align to top incase text wraps
+                          children: [
+                            CircleAvatar(backgroundColor: isDark ? Colors.white10 : Colors.black87, radius: 22, child: const Icon(Icons.local_hospital, color: Colors.white, size: 20)),
+                            const SizedBox(width: 15),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      // FIXED: Removed FittedBox, allowed multi-line wrap
+                                      Expanded(child: Text(feedback.hospitalName, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: textPrimary))),
+                                      const SizedBox(width: 10),
+                                      // FIXED: Stacked date and time so it doesn't steal width from the hospital name
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                        children: [
+                                          Text(feedback.date, style: TextStyle(fontSize: 10, color: textSecondary)),
+                                          const SizedBox(height: 2),
+                                          Text(feedback.time, style: TextStyle(fontSize: 10, color: textSecondary)),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  
+                                  AiTranslatedText('"${feedback.message}"', style: TextStyle(fontSize: 12, color: textSecondary, height: 1.4)),
+                                  
+                                  const SizedBox(height: 15),
+                                  Row(
+                                    children: [
+                                      Text("Feedback on ", style: TextStyle(fontSize: 10, color: Colors.grey)),
+                                      Text(themeProvider.translate(feedback.feedbackType), style: TextStyle(fontSize: 10, color: feedback.typeColor, fontWeight: FontWeight.bold)),
+                                    ],
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                       if (index < feedbackHistory.length - 1) const SizedBox(height: 15), 

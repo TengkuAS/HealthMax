@@ -26,16 +26,17 @@ class UserBottomNavBar extends StatelessWidget {
         boxShadow: [BoxShadow(color: shadowColor, blurRadius: 20, offset: const Offset(0, -5))],
       ),
       child: SafeArea(
-        child: SizedBox(
-          height: 75, 
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12.0), 
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(context, Icons.home_filled, themeProvider.translate('home'), 0, isDark),
-              _buildNavItem(context, Icons.book, themeProvider.translate('history'), 1, isDark),
-              _buildNavItem(context, Icons.restaurant, themeProvider.translate('calorie'), 2, isDark),
-              _buildNavItem(context, Icons.bar_chart, themeProvider.translate('statistics'), 3, isDark),
-              _buildNavItem(context, Icons.track_changes_rounded, themeProvider.translate('target'), 4, isDark),
+              _buildNavItem(context, Icons.home_filled, themeProvider.translate('home'), 0, isDark, themeProvider),
+              _buildNavItem(context, Icons.book, themeProvider.translate('history'), 1, isDark, themeProvider),
+              _buildNavItem(context, Icons.restaurant, themeProvider.translate('calorie'), 2, isDark, themeProvider),
+              _buildNavItem(context, Icons.bar_chart, themeProvider.translate('statistics'), 3, isDark, themeProvider),
+              _buildNavItem(context, Icons.track_changes_rounded, themeProvider.translate('target'), 4, isDark, themeProvider),
             ],
           ),
         ),
@@ -43,7 +44,7 @@ class UserBottomNavBar extends StatelessWidget {
     );
   }
 
-  Widget _buildNavItem(BuildContext context, IconData icon, String label, int index, bool isDark) {
+  Widget _buildNavItem(BuildContext context, IconData icon, String label, int index, bool isDark, ThemeProvider theme) {
     bool isActive = currentIndex == index;
     final defaultColor = isDark ? Colors.white54 : Colors.black87;
 
@@ -51,39 +52,39 @@ class UserBottomNavBar extends StatelessWidget {
       child: GestureDetector(
         onTap: () => _handleNavigation(context, index),
         behavior: HitTestBehavior.opaque, 
-        child: Stack(
-          alignment: Alignment.center,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (isActive)
-              Positioned(
-                top: 0, 
-                child: Container(
-                  height: 5, width: 40,
-                  decoration: BoxDecoration(
-                    color: activeColor,
-                    borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(6), bottomRight: Radius.circular(6)),
-                    boxShadow: [BoxShadow(color: activeColor.withValues(alpha: 0.3), blurRadius: 4, offset: const Offset(0, 2))],
+              Container(
+                height: 5, width: 40,
+                margin: const EdgeInsets.only(bottom: 5),
+                decoration: BoxDecoration(
+                  color: activeColor,
+                  borderRadius: BorderRadius.circular(6),
+                  boxShadow: [BoxShadow(color: activeColor.withValues(alpha: 0.3), blurRadius: 4, offset: const Offset(0, 2))],
+                ),
+              )
+            else
+              const SizedBox(height: 10),
+              
+            Icon(icon, size: 28, color: isActive ? activeColor : defaultColor),
+            const SizedBox(height: 4),
+            // FIXED: Using Flexible + FittedBox prevents the awkward "Hom-e" word wrap
+            Flexible(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: isActive ? activeColor : defaultColor, 
+                    fontSize: 11 * theme.fontScale, 
+                    fontWeight: isActive ? FontWeight.w900 : FontWeight.w700, 
+                    fontFamily: "LexendExaNormal",
                   ),
                 ),
               ),
-            
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 5), 
-                Icon(icon, size: 28, color: isActive ? activeColor : defaultColor),
-                const SizedBox(height: 4),
-                // NEW: FITTED BOX PROTECTS THE TEXT SCALING
-                Flexible(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      label,
-                      style: TextStyle(color: isActive ? activeColor : defaultColor, fontSize: 11, fontWeight: isActive ? FontWeight.w900 : FontWeight.w700, fontFamily: "LexendExaNormal"),
-                    ),
-                  ),
-                ),
-              ],
             ),
           ],
         ),

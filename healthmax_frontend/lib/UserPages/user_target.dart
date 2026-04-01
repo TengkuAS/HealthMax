@@ -77,20 +77,37 @@ class _UserTargetPageState extends State<UserTargetPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(children: [Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: themePurple.withValues(alpha:0.2), shape: BoxShape.circle), child: Icon(Icons.flag_circle_rounded, color: themePurple, size: 20)), const SizedBox(width: 10), Text(themeProvider.translate('main_goal'), style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: themePurple, letterSpacing: 1.5, fontFamily: "LexendExaNormal"))]),
-                            
-                            GestureDetector(
-                              onTap: () => _showMainGoalEditorSheet(goalData, isDark, surfaceColor, textPrimary, textSecondary, dividerColor, themeProvider), 
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), 
-                                decoration: BoxDecoration(color: isDark ? Colors.white10 : Colors.black.withValues(alpha:0.05), borderRadius: BorderRadius.circular(12)), 
-                                child: Text(hasNoMainGoal ? "Add Main Goal" : themeProvider.translate('edit'), style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textPrimary))
-                              )
-                            ),
-                          ],
-                        ),
+  crossAxisAlignment: CrossAxisAlignment.start, // Align top so button stays neat if text wraps
+  children: [
+    // FIXED: Wrapped the left section in Expanded
+    Expanded(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8), 
+            decoration: BoxDecoration(color: themePurple.withValues(alpha:0.2), shape: BoxShape.circle), 
+            child: Icon(Icons.flag_circle_rounded, color: themePurple, size: 20)
+          ), 
+          const SizedBox(width: 10), 
+          // Removed FittedBox, allowed wrapping
+          Expanded(
+            child: Text(themeProvider.translate('main_goal'), maxLines: 2, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: themePurple, letterSpacing: 1.5, fontFamily: "LexendExaNormal"))
+          )
+        ]
+      )
+    ),
+    const SizedBox(width: 10),
+    GestureDetector(
+      onTap: () => _showMainGoalEditorSheet(goalData, isDark, surfaceColor, textPrimary, textSecondary, dividerColor, themeProvider), 
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), 
+        decoration: BoxDecoration(color: isDark ? Colors.white10 : Colors.black.withValues(alpha:0.05), borderRadius: BorderRadius.circular(12)), 
+        child: Text(hasNoMainGoal ? "Add Main Goal" : themeProvider.translate('edit'), style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textPrimary))
+      )
+    ),
+  ],
+),
                         const SizedBox(height: 20),
                         
                         if (hasNoMainGoal) ...[
