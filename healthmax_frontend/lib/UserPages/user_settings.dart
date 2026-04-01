@@ -4,14 +4,16 @@ import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme_provider.dart';
 import 'manage_devices.dart'; 
+import 'manage_hp.dart';
+import '../UserPages/hp_providers.dart';
 
 class UserSettingsPage extends StatelessWidget {
   const UserSettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Access the provider to get languages, font scales, and theme modes
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final hpProvider = Provider.of<HPProvider>(context); 
     final bool isDark = themeProvider.isDarkMode;
 
     final supabase = Supabase.instance.client;
@@ -86,7 +88,6 @@ class UserSettingsPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // --- LOCALIZATION HEADER ---
                   Text(themeProvider.translate('preferences'), style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: textSecondary, letterSpacing: 1.5, fontFamily: "LexendExaNormal")),
                   const SizedBox(height: 15),
 
@@ -94,14 +95,10 @@ class UserSettingsPage extends StatelessWidget {
                     decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(25), border: Border.all(color: dividerColor)),
                     child: Column(
                       children: [
-                        // --- 1. LANGUAGE SELECTOR ---
                         ListTile(
                           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
                           leading: Icon(Icons.language_rounded, color: textPrimary.withValues(alpha:0.8), size: 22),
-                          title: FittedBox(
-                            fit: BoxFit.scaleDown, alignment: Alignment.centerLeft,
-                            child: Text(themeProvider.translate('language'), style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: textPrimary)),
-                          ),
+                          title: Text(themeProvider.translate('language'), style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: textPrimary)),
                           trailing: DropdownButtonHideUnderline(
                             child: DropdownButton<String>(
                               value: themeProvider.currentLanguage,
@@ -122,7 +119,6 @@ class UserSettingsPage extends StatelessWidget {
                         ),
                         _buildDivider(dividerColor),
                         
-                        // --- 2. FONT SIZE SCALER ---
                         Padding(
                           padding: const EdgeInsets.only(top: 8, bottom: 4),
                           child: Column(
@@ -134,17 +130,14 @@ class UserSettingsPage extends StatelessWidget {
                                   children: [
                                     Icon(Icons.format_size_rounded, color: textPrimary.withValues(alpha:0.8), size: 22),
                                     const SizedBox(width: 15),
-                                    FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      child: Text(themeProvider.translate('font_size'), style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: textPrimary)),
-                                    ),
+                                    Text(themeProvider.translate('font_size'), style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: textPrimary)),
                                   ],
                                 ),
                               ),
                               Slider(
                                 value: themeProvider.fontScale,
-                                min: 0.8,  // 80% size
-                                max: 1.5,  // 150% size
+                                min: 0.8, 
+                                max: 1.5, 
                                 divisions: 7,
                                 activeColor: userBlue,
                                 inactiveColor: userBlue.withValues(alpha: 0.2),
@@ -156,12 +149,18 @@ class UserSettingsPage extends StatelessWidget {
                         ),
                         _buildDivider(dividerColor),
                         
-                        // --- GENERAL SETTINGS ---
                         _buildProfileOption(Icons.account_circle_outlined, themeProvider.translate('account_info'), "", textPrimary, textSecondary),
                         _buildDivider(dividerColor),
                         _buildProfileOption(Icons.notifications_none_rounded, themeProvider.translate('notifications'), themeProvider.translate('on'), textPrimary, textSecondary),
                         _buildDivider(dividerColor),
-                        _buildProfileOption(Icons.medical_services_outlined, themeProvider.translate('manage_hp'), themeProvider.translate('connected'), textPrimary, userBlue),
+                        _buildProfileOption(
+                          Icons.medical_services_outlined, 
+                          themeProvider.translate('manage_hp'), 
+                          "${hpProvider.connectedCount} ${themeProvider.translate('connected')}", 
+                          textPrimary, 
+                          userBlue, 
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ManageHPPage()))
+                        ),
                         _buildDivider(dividerColor),
                         _buildProfileOption(Icons.watch_rounded, themeProvider.translate('connected_devices'), themeProvider.translate('manage'), textPrimary, userBlue, 
                           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ManageDevicesPage()))
@@ -173,10 +172,7 @@ class UserSettingsPage extends StatelessWidget {
                         SwitchListTile(
                           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
                           secondary: Icon(isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded, color: textPrimary.withValues(alpha:0.8), size: 22),
-                          title: FittedBox(
-                            fit: BoxFit.scaleDown, alignment: Alignment.centerLeft,
-                            child: Text(themeProvider.translate('dark_mode'), style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: textPrimary))
-                          ),
+                          title: Text(themeProvider.translate('dark_mode'), style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: textPrimary)),
                           value: isDark,
                           activeColor: userBlue,
                           inactiveTrackColor: Colors.grey.shade300,
@@ -206,7 +202,6 @@ class UserSettingsPage extends StatelessWidget {
     );
   }
 
-  // --- HELPERS WITH FITTEDBOX APLIED ---
   Widget _buildDivider(Color dividerColor) => Divider(height: 1, thickness: 1, color: dividerColor, indent: 20, endIndent: 20);
 
   Widget _buildProfileOption(IconData icon, String title, String value, Color textPrimary, Color valueColor, {VoidCallback? onTap}) {
@@ -214,9 +209,11 @@ class UserSettingsPage extends StatelessWidget {
       onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
       leading: Icon(icon, color: textPrimary.withValues(alpha:0.8), size: 22),
-      title: FittedBox(
-        fit: BoxFit.scaleDown, alignment: Alignment.centerLeft,
-        child: Text(title, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: textPrimary)),
+      title: Text(
+        title, 
+        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: textPrimary),
+        maxLines: 2, 
+        overflow: TextOverflow.ellipsis,
       ),
       trailing: Wrap(
         crossAxisAlignment: WrapCrossAlignment.center,
@@ -238,7 +235,6 @@ class UserSettingsPage extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // FittedBox ensures if "EKSPORT DATA KESIHATAN" is too long at 150% scale, it just shrinks slightly to fit safely!
             Expanded(
               child: FittedBox(
                 fit: BoxFit.scaleDown,

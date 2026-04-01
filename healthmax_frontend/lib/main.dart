@@ -11,6 +11,7 @@ import 'theme_provider.dart';
 import '../GeneralPages/auth_provider.dart';
 import 'UserPages/calorie_provider.dart';
 import 'UserPages/goal_provider.dart';
+import 'UserPages/hp_providers.dart';
 
 // --- General & User Pages ---
 import 'GeneralPages/welcome_page.dart';
@@ -45,6 +46,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => GoalProvider()),
         ChangeNotifierProvider(create: (context) => AuthProvider()),
         ChangeNotifierProvider(create: (context) => UserProvider()),
+        ChangeNotifierProvider(create: (context) => HPProvider()), 
       ],
       child: const MyApp(),
     ),
