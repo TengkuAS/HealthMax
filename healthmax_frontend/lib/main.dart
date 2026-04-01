@@ -29,19 +29,15 @@ import 'HPPages/hp_userspage.dart';
 import 'HPPages/hp_requestspage.dart';
 
 void main() async {
-  // Ensure Flutter bindings are initialized before loading .env
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
 
-  // Initialise supabase
   await Supabase.initialize(
     url: "https://rjxzxtqaiakwofgkegwl.supabase.co",
-    // Publishable key (safe to use here)
     anonKey: "sb_publishable_503KzCdmIJFjM8rswosVPQ_qBxwvS51",
   );
 
   runApp(
-    // The Provider sits at the very top of the app
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => ThemeProvider()),
@@ -67,29 +63,35 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    // 2. The app listens to the ThemeProvider
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'HealthMax',
-
-      // 3. Magic happens here: The app switches based on the provider's state
       themeMode: themeProvider.themeMode,
       theme: ThemeProvider.lightTheme,
       darkTheme: ThemeProvider.darkTheme,
 
-      // Added const for performance optimization
-      home: isSignedIn ? const UserHomePage() : const WelcomePage(),
+      // ==========================================
+      // PHASE 3: GLOBAL ACCESSIBILITY SCALER
+      // ==========================================
+      builder: (context, child) {
+        final MediaQueryData data = MediaQuery.of(context);
+        return MediaQuery(
+          data: data.copyWith(
+            // textScaleFactor is deprecated. TextScaler is the modern standard!
+            textScaler: TextScaler.linear(themeProvider.fontScale), 
+          ),
+          child: child!,
+        );
+      },
 
+      home: isSignedIn ? const UserHomePage() : const WelcomePage(),
       routes: {
-        // Healthcare Provider routes
         '/hp_home': (context) => const HPHomePage(),
         '/hp_users': (context) => const HPUsersPage(),
         '/hp_requests': (context) => const HPRequestsPage(),
         '/hp_settings': (context) => const HPSettingsPage(),
-
-        // User routes
         '/user_homepage': (context) => const UserHomePage(),
         '/user_history': (context) => const UserHistoryCaloriePage(),
         '/user_calorie': (context) => const UserCaloriePage(),
