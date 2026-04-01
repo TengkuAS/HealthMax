@@ -8,18 +8,35 @@ import 'calorie_provider.dart';
 import 'user_statistic.dart';
 import 'user_bottomnavbar.dart';
 import 'user_glassy_profile.dart';
-import 'AI_Features/ai_translator_service.dart'; // <-- IMPORT THE AI SERVICE
 
+// --- DATA MODEL ---
 class UserHealthData {
-  final int heartRate; final String heartRateStatusKey; 
-  final int bloodGlucose; final String bloodGlucoseStatusKey;
-  final int envNoise; final String envNoiseStatusKey;
-  final int currentSteps; final int targetSteps; final String lastUpdatedKey;
-  UserHealthData({required this.heartRate, required this.heartRateStatusKey, required this.bloodGlucose, required this.bloodGlucoseStatusKey, required this.envNoise, required this.envNoiseStatusKey, required this.currentSteps, required this.targetSteps, required this.lastUpdatedKey});
+  final int heartRate;
+  final String heartRateStatusKey; 
+  final int bloodGlucose;
+  final String bloodGlucoseStatusKey;
+  final int envNoise;
+  final String envNoiseStatusKey;
+  final int currentSteps;
+  final int targetSteps;
+  final String lastUpdatedKey;
+
+  UserHealthData({
+    required this.heartRate,
+    required this.heartRateStatusKey,
+    required this.bloodGlucose,
+    required this.bloodGlucoseStatusKey,
+    required this.envNoise,
+    required this.envNoiseStatusKey,
+    required this.currentSteps,
+    required this.targetSteps,
+    required this.lastUpdatedKey,
+  });
 }
 
 class UserHomePage extends StatefulWidget {
   const UserHomePage({super.key});
+
   @override
   State<UserHomePage> createState() => _UserHomePageState();
 }
@@ -28,42 +45,109 @@ class _UserHomePageState extends State<UserHomePage> {
   final Color userBlue = const Color(0xFF5A84F1);
   late ScrollController _scrollController;
   bool _isScrolled = false;
+
   late UserHealthData myData;
+
   Timer? _liveDataTimer;
+  Timer? _stepsTimer; // Separate timer for steps to control its update frequency
   final Random _random = Random();
+  int _tickCount = 0; // Added a tick counter to control the steps separately
 
   @override
   void initState() {
     super.initState();
     _scrollController = ScrollController();
     _scrollController.addListener(() {
-      if (_scrollController.offset > 90 && !_isScrolled) setState(() => _isScrolled = true);
-      else if (_scrollController.offset <= 90 && _isScrolled) setState(() => _isScrolled = false);
+      if (_scrollController.offset > 90 && !_isScrolled) {
+        setState(() => _isScrolled = true);
+      } else if (_scrollController.offset <= 90 && _isScrolled) {
+        setState(() => _isScrolled = false);
+      }
     });
-    myData = UserHealthData(heartRate: 82, heartRateStatusKey: "status_normal", bloodGlucose: 90, bloodGlucoseStatusKey: "status_normal", envNoise: 45, envNoiseStatusKey: "status_quiet", currentSteps: 6789, targetSteps: 10000, lastUpdatedKey: "live_syncing");
+
+    // 1. Set Initial Baseline using Dictionary Keys
+    myData = UserHealthData(
+      heartRate: 82,
+      heartRateStatusKey: "status_normal",
+      bloodGlucose: 90,
+      bloodGlucoseStatusKey: "status_normal",
+      envNoise: 45,
+      envNoiseStatusKey: "status_quiet",
+      currentSteps: 6789,
+      targetSteps: 10000,
+      lastUpdatedKey: "live_syncing",
+    );
+
     _startLiveDataEngine();
   }
 
-  void _startLiveDataEngine() {
+void _startLiveDataEngine() {
+    // FAST TIMER: Updates Heart Rate & Noise every 3 seconds
     _liveDataTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
       if (!mounted) return;
       setState(() {
-        myData = UserHealthData(heartRate: 75 + _random.nextInt(15), heartRateStatusKey: "status_normal", bloodGlucose: myData.bloodGlucose, bloodGlucoseStatusKey: "status_normal", envNoise: 40 + _random.nextInt(25), envNoiseStatusKey: "status_normal", currentSteps: myData.currentSteps + _random.nextInt(8), targetSteps: myData.targetSteps, lastUpdatedKey: "live_syncing");
+        myData = UserHealthData(
+          heartRate: 75 + _random.nextInt(15),
+          heartRateStatusKey: "status_normal",
+          bloodGlucose: myData.bloodGlucose, 
+          bloodGlucoseStatusKey: "status_normal",
+          envNoise: 40 + _random.nextInt(25),
+          envNoiseStatusKey: "status_normal",
+          currentSteps: myData.currentSteps, // Keep current steps constant here
+          targetSteps: myData.targetSteps,
+          lastUpdatedKey: "live_syncing",
+        );
+      });
+    });
+
+    // SLOW TIMER: Increases steps every 8 seconds
+    _stepsTimer = Timer.periodic(const Duration(seconds: 8), (timer) {
+      if (!mounted) return;
+      setState(() {
+        // Increase steps by a very small amount (0-2) every 8 seconds
+        int incrementalSteps = _random.nextInt(3);
+        
+        myData = UserHealthData(
+          heartRate: myData.heartRate, 
+          heartRateStatusKey: myData.heartRateStatusKey,
+          bloodGlucose: myData.bloodGlucose, 
+          bloodGlucoseStatusKey: myData.bloodGlucoseStatusKey,
+          envNoise: myData.envNoise,
+          envNoiseStatusKey: myData.envNoiseStatusKey,
+          currentSteps: myData.currentSteps + incrementalSteps,
+          targetSteps: myData.targetSteps,
+          lastUpdatedKey: myData.lastUpdatedKey,
+        );
       });
     });
   }
 
   @override
-  void dispose() { _liveDataTimer?.cancel(); _scrollController.dispose(); super.dispose(); }
+  void dispose() {
+    _liveDataTimer?.cancel(); 
+    _stepsTimer?.cancel(); // Clean up the steps timer
+    _scrollController.dispose();
+    super.dispose();
+  }
 
-  void _routeToStatistic(String metric) { Navigator.pushReplacement(context, PageRouteBuilder(pageBuilder: (context, a1, a2) => UserStatisticPage(initialMetric: metric), transitionDuration: Duration.zero)); }
+  void _routeToStatistic(String metric) {
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, a1, a2) => UserStatisticPage(initialMetric: metric),
+        transitionDuration: Duration.zero,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isDark = themeProvider.isDarkMode;
     final calorieData = Provider.of<CalorieProvider>(context);
+
     final String liveUsername = Supabase.instance.client.auth.currentUser?.userMetadata?['username'] ?? "User";
+
     final bgColor = Theme.of(context).scaffoldBackgroundColor;
     final surfaceColor = Theme.of(context).colorScheme.surface;
     final textPrimary = Theme.of(context).colorScheme.onSurface;
@@ -73,14 +157,78 @@ class _UserHomePageState extends State<UserHomePage> {
     return Scaffold(
       backgroundColor: bgColor,
       body: CustomScrollView(
-        controller: _scrollController, physics: const BouncingScrollPhysics(),
+        controller: _scrollController,
+        physics: const BouncingScrollPhysics(),
         slivers: [
           SliverAppBar(
-            automaticallyImplyLeading: false, backgroundColor: userBlue, expandedHeight: 220.0, toolbarHeight: 90.0, pinned: true, elevation: 0, scrolledUnderElevation: 0.0, surfaceTintColor: Colors.transparent,
-            title: AnimatedOpacity(duration: const Duration(milliseconds: 250), opacity: _isScrolled ? 1.0 : 0.0, child: Padding(padding: const EdgeInsets.only(left: 15.0, top: 10.0), child: ShaderMask(shaderCallback: (Rect bounds) => const LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Colors.white, Colors.white, Colors.transparent], stops: [0.0, 0.85, 1.0]).createShader(bounds), blendMode: BlendMode.dstIn, child: Text("${themeProvider.translate('hi')} $liveUsername!", maxLines: 1, softWrap: false, overflow: TextOverflow.clip, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.white, fontFamily: "LexendExaNormal"))))),
-            actions: [Padding(padding: const EdgeInsets.only(right: 30.0, top: 10.0), child: Center(child: UserGlassyProfile(onTap: () => Navigator.pushNamed(context, '/user_settings'))))],
-            flexibleSpace: FlexibleSpaceBar(collapseMode: CollapseMode.parallax, background: SafeArea(child: Padding(padding: const EdgeInsets.fromLTRB(30, 25, 30, 0), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [FittedBox(fit: BoxFit.scaleDown, child: Text(themeProvider.translate('hi'), style: const TextStyle(fontSize: 45, fontWeight: FontWeight.w900, color: Colors.white, height: 1.1, fontFamily: "LexendExaNormal"))), FittedBox(fit: BoxFit.scaleDown, child: Text("$liveUsername!", style: const TextStyle(fontSize: 35, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: "LexendExaNormal")))])))),
-            bottom: PreferredSize(preferredSize: const Size.fromHeight(30), child: Transform.translate(offset: const Offset(0, 1), child: Container(height: 31, width: double.infinity, decoration: BoxDecoration(color: bgColor, borderRadius: const BorderRadius.vertical(top: Radius.circular(40)))))),
+            automaticallyImplyLeading: false,
+            backgroundColor: userBlue,
+            expandedHeight: 220.0,
+            toolbarHeight: 90.0,
+            pinned: true,
+            elevation: 0,
+            scrolledUnderElevation: 0.0,
+            surfaceTintColor: Colors.transparent,
+            title: AnimatedOpacity(
+              duration: const Duration(milliseconds: 250),
+              opacity: _isScrolled ? 1.0 : 0.0,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 15.0, top: 10.0),
+                child: ShaderMask(
+                  shaderCallback: (Rect bounds) => const LinearGradient(
+                    begin: Alignment.centerLeft, end: Alignment.centerRight,
+                    colors: [Colors.white, Colors.white, Colors.transparent],
+                    stops: [0.0, 0.85, 1.0],
+                  ).createShader(bounds),
+                  blendMode: BlendMode.dstIn,
+                  child: Text(
+                    "${themeProvider.translate('hi')} $liveUsername!",
+                    maxLines: 1, softWrap: false, overflow: TextOverflow.clip,
+                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.white, fontFamily: "LexendExaNormal"),
+                  ),
+                ),
+              ),
+            ),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 30.0, top: 10.0),
+                child: Center(child: UserGlassyProfile(onTap: () => Navigator.pushNamed(context, '/user_settings'))),
+              ),
+            ],
+            flexibleSpace: FlexibleSpaceBar(
+              collapseMode: CollapseMode.parallax,
+              background: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(30, 25, 30, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          themeProvider.translate('hi'),
+                          style: const TextStyle(fontSize: 45, fontWeight: FontWeight.w900, color: Colors.white, height: 1.1, fontFamily: "LexendExaNormal"),
+                        ),
+                      ),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          "$liveUsername!",
+                          style: const TextStyle(fontSize: 35, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: "LexendExaNormal"),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(30),
+              child: Transform.translate(
+                offset: const Offset(0, 1),
+                child: Container(height: 31, width: double.infinity, decoration: BoxDecoration(color: bgColor, borderRadius: const BorderRadius.vertical(top: Radius.circular(40)))),
+              ),
+            ),
           ),
 
           SliverToBoxAdapter(
@@ -92,26 +240,52 @@ class _UserHomePageState extends State<UserHomePage> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Container(
-                      padding: const EdgeInsets.all(25), decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(35), border: isDark ? Border.all(color: dividerColor) : null, boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 20, offset: const Offset(0, 8))]),
+                      padding: const EdgeInsets.all(25),
+                      decoration: BoxDecoration(
+                        color: surfaceColor, borderRadius: BorderRadius.circular(35),
+                        border: isDark ? Border.all(color: dividerColor) : null,
+                        boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 20, offset: const Offset(0, 8))],
+                      ),
                       child: Column(
                         children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween, crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Expanded(
                                 flex: 3, 
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildMetric(Icons.monitor_heart, const Color(0xFFFF6B6B), myData.heartRate.toString(), "bpm", themeProvider.translate(myData.heartRateStatusKey), textPrimary, textSecondary, () => _routeToStatistic("Heart Rate")),
+                                    _buildMetric(
+                                      icon: Icons.monitor_heart, color: const Color(0xFFFF6B6B),
+                                      value: myData.heartRate.toString(), unit: "bpm",
+                                      status: themeProvider.translate(myData.heartRateStatusKey),
+                                      textPrimary: textPrimary, textSecondary: textSecondary,
+                                      onTap: () => _routeToStatistic("Heart Rate"),
+                                    ),
                                     const SizedBox(height: 15),
-                                    _buildMetric(Icons.bloodtype, const Color(0xFF4ECDC4), myData.bloodGlucose.toString(), "mg/dL", themeProvider.translate(myData.bloodGlucoseStatusKey), textPrimary, textSecondary, () => _routeToStatistic("BloodGlucose")),
+                                    _buildMetric(
+                                      icon: Icons.bloodtype, color: const Color(0xFF4ECDC4),
+                                      value: myData.bloodGlucose.toString(), unit: "mg/dL",
+                                      status: themeProvider.translate(myData.bloodGlucoseStatusKey),
+                                      textPrimary: textPrimary, textSecondary: textSecondary,
+                                      onTap: () => _routeToStatistic("BloodGlucose"),
+                                    ),
                                     const SizedBox(height: 15),
-                                    _buildMetric(Icons.hearing, const Color(0xFF45B7D1), myData.envNoise.toString(), "dB", themeProvider.translate(myData.envNoiseStatusKey), textPrimary, textSecondary, () => _routeToStatistic("Env.Noise")),
+                                    _buildMetric(
+                                      icon: Icons.hearing, color: const Color(0xFF45B7D1),
+                                      value: myData.envNoise.toString(), unit: "dB",
+                                      status: themeProvider.translate(myData.envNoiseStatusKey),
+                                      textPrimary: textPrimary, textSecondary: textSecondary,
+                                      onTap: () => _routeToStatistic("Env.Noise"),
+                                    ),
                                   ],
                                 ),
                               ),
-                              const SizedBox(width: 10),
+                              
+                              const SizedBox(width: 10), 
+
                               Expanded(
                                 flex: 2,
                                 child: GestureDetector(
@@ -122,8 +296,24 @@ class _UserHomePageState extends State<UserHomePage> {
                                       fit: StackFit.expand,
                                       children: [
                                         CircularProgressIndicator(value: 1.0, strokeWidth: 10, color: isDark ? Colors.white10 : Colors.grey.shade100),
-                                        TweenAnimationBuilder(tween: Tween<double>(begin: 0, end: (myData.currentSteps / myData.targetSteps).clamp(0.0, 1.0)), duration: const Duration(seconds: 1), curve: Curves.easeOutCubic, builder: (context, value, child) => CircularProgressIndicator(value: value, strokeWidth: 10, backgroundColor: Colors.transparent, valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFFF9F43)), strokeCap: StrokeCap.round)),
-                                        Column(mainAxisAlignment: MainAxisAlignment.center, children: [FittedBox(fit: BoxFit.scaleDown, child: Text(themeProvider.translate('steps_label'), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: textSecondary))), FittedBox(fit: BoxFit.scaleDown, child: Text(myData.currentSteps.toString(), style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: textPrimary, fontFamily: "LexendExaNormal", letterSpacing: -1)))]),
+                                        TweenAnimationBuilder(
+                                          tween: Tween<double>(begin: 0, end: (myData.currentSteps / myData.targetSteps).clamp(0.0, 1.0)),
+                                          duration: const Duration(seconds: 1), curve: Curves.easeOutCubic,
+                                          builder: (context, value, child) => CircularProgressIndicator(value: value, strokeWidth: 10, backgroundColor: Colors.transparent, valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFFF9F43)), strokeCap: StrokeCap.round),
+                                        ),
+                                        Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            FittedBox(
+                                              fit: BoxFit.scaleDown,
+                                              child: Text(themeProvider.translate('steps_label'), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: textSecondary)),
+                                            ),
+                                            FittedBox(
+                                              fit: BoxFit.scaleDown,
+                                              child: Text(myData.currentSteps.toString(), style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: textPrimary, fontFamily: "LexendExaNormal", letterSpacing: -1)),
+                                            ),
+                                          ],
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -135,9 +325,16 @@ class _UserHomePageState extends State<UserHomePage> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Flexible(child: FittedBox(fit: BoxFit.scaleDown, child: Text("${themeProvider.translate('last_updated')} ${themeProvider.translate(myData.lastUpdatedKey)}", style: TextStyle(color: textSecondary, fontSize: 12)))),
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text("${themeProvider.translate('last_updated')} ${themeProvider.translate(myData.lastUpdatedKey)}", style: TextStyle(color: textSecondary, fontSize: 12)),
+                              ),
                               const SizedBox(width: 8),
-                              AnimatedRotation(turns: myData.currentSteps % 2 == 0 ? 0.5 : 0.0, duration: const Duration(milliseconds: 500), child: Icon(Icons.sync, size: 16, color: userBlue)),
+                              AnimatedRotation(
+                                turns: myData.currentSteps % 2 == 0 ? 0.5 : 0.0,
+                                duration: const Duration(milliseconds: 500),
+                                child: Icon(Icons.sync, size: 16, color: userBlue),
+                              ),
                             ],
                           ),
                         ],
@@ -146,27 +343,45 @@ class _UserHomePageState extends State<UserHomePage> {
                   ),
                   const SizedBox(height: 35),
 
-                  Padding(padding: const EdgeInsets.symmetric(horizontal: 25), child: Text(themeProvider.translate('quick_action'), style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: textPrimary, fontFamily: "LexendExaNormal"))),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25),
+                    child: Text(themeProvider.translate('quick_action'), style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: textPrimary, fontFamily: "LexendExaNormal")),
+                  ),
                   const SizedBox(height: 15),
                   SizedBox(
                     height: 160,
                     child: ListView(
-                      scrollDirection: Axis.horizontal, physics: const BouncingScrollPhysics(), padding: const EdgeInsets.symmetric(horizontal: 20),
+                      scrollDirection: Axis.horizontal, physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
                       children: [
-                        _buildQuickActionCard(Icons.local_fire_department_rounded, const Color(0xFFFFD93D), themeProvider.translate('burned_calories'), "${calorieData.burnedCalories} ${themeProvider.translate('kcal_burned')}", true, false, surfaceColor, textPrimary, textSecondary, dividerColor, isDark, themeProvider, () => Navigator.pushReplacementNamed(context, '/user_calorie')),
+                        _buildQuickActionCard(
+                          icon: Icons.local_fire_department_rounded, iconBgColor: const Color(0xFFFFD93D),
+                          title: themeProvider.translate('burned_calories'),
+                          subtitle: "${calorieData.burnedCalories} ${themeProvider.translate('kcal_burned')}",
+                          isProgress: true, surfaceColor: surfaceColor, textPrimary: textPrimary,
+                          textSecondary: textSecondary, dividerColor: dividerColor, isDark: isDark, themeProvider: themeProvider,
+                          onTap: () => Navigator.pushReplacementNamed(context, '/user_calorie'),
+                        ),
                         const SizedBox(width: 15),
-                        _buildQuickActionCard(Icons.calendar_month_rounded, const Color(0xFF00D1FF), "17 December 2026", "Heart Appointment\nHospital 1", false, true, surfaceColor, textPrimary, textSecondary, dividerColor, isDark, themeProvider, null),
+                        _buildQuickActionCard(
+                          icon: Icons.calendar_month_rounded, iconBgColor: const Color(0xFF00D1FF),
+                          title: "17 December 2026", subtitle: "Heart Appointment\nHospital 1",
+                          isAppointment: true, surfaceColor: surfaceColor, textPrimary: textPrimary,
+                          textSecondary: textSecondary, dividerColor: dividerColor, isDark: isDark, themeProvider: themeProvider,
+                        ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 35),
-                  Padding(padding: const EdgeInsets.symmetric(horizontal: 25), child: Text(themeProvider.translate('feedback'), style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: textPrimary, fontFamily: "LexendExaNormal"))),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25),
+                    child: Text(themeProvider.translate('feedback'), style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: textPrimary, fontFamily: "LexendExaNormal")),
+                  ),
                   const SizedBox(height: 15),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
                       children: [
-                        // DYNAMIC AI TRANSLATION HERE!
                         _buildFeedbackCard("Dr. Ahmad Syafiq", "Heart Rate consistency is looking excellent this week. Keep up the light cardio.", "10:30 AM", surfaceColor, textPrimary, textSecondary, dividerColor, userBlue, isDark),
                         _buildFeedbackCard("Nutritionist Sarah", "Your glucose levels have stabilized perfectly after we adjusted your dinner macros.", "Yesterday", surfaceColor, textPrimary, textSecondary, dividerColor, userBlue, isDark),
                         const SizedBox(height: 100),
@@ -183,18 +398,67 @@ class _UserHomePageState extends State<UserHomePage> {
     );
   }
 
-  Widget _buildMetric(IconData icon, Color color, String value, String unit, String status, Color textPrimary, Color textSecondary, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(color: Colors.transparent, child: Row(children: [Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: color, shape: BoxShape.circle, boxShadow: [BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 8, offset: const Offset(0, 4))]), child: Icon(icon, color: Colors.white, size: 28)), const SizedBox(width: 15), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Row(crossAxisAlignment: CrossAxisAlignment.baseline, textBaseline: TextBaseline.alphabetic, children: [Flexible(child: FittedBox(fit: BoxFit.scaleDown, child: Text(value, style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: textPrimary, fontFamily: "LexendExaNormal")))), const SizedBox(width: 4), Text(unit, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: textSecondary))]), Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2), decoration: BoxDecoration(color: Colors.greenAccent.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(10)), child: FittedBox(fit: BoxFit.scaleDown, child: Text(status, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.green))))]))])),
-    );
-  }
-
-  Widget _buildQuickActionCard(IconData icon, Color iconBgColor, String title, String subtitle, bool isProgress, bool isAppointment, Color surfaceColor, Color textPrimary, Color textSecondary, Color dividerColor, bool isDark, ThemeProvider themeProvider, VoidCallback? onTap) {
+  // --- HELPER WIDGETS ---
+  Widget _buildMetric({
+    required IconData icon, required Color color, required String value, required String unit,
+    required String status, required Color textPrimary, required Color textSecondary, VoidCallback? onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 260, padding: const EdgeInsets.all(15), decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(20), border: Border.all(color: dividerColor), boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 5))]),
+        color: Colors.transparent,
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle, boxShadow: [BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 8, offset: const Offset(0, 4))]),
+              child: Icon(icon, color: Colors.white, size: 28),
+            ),
+            const SizedBox(width: 15),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline, textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Flexible(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(value, style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: textPrimary, fontFamily: "LexendExaNormal")),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(unit, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: textSecondary)),
+                    ],
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                    decoration: BoxDecoration(color: Colors.greenAccent.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(10)),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(status, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.green))
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickActionCard({
+    required IconData icon, required Color iconBgColor, required String title, required String subtitle,
+    bool isProgress = false, bool isAppointment = false, VoidCallback? onTap, required Color surfaceColor,
+    required Color textPrimary, required Color textSecondary, required Color dividerColor, required bool isDark, required ThemeProvider themeProvider,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 260, padding: const EdgeInsets.all(15),
+        decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(20), border: Border.all(color: dividerColor), boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 5))]),
         child: Row(
           children: [
             Container(padding: const EdgeInsets.all(15), decoration: BoxDecoration(color: iconBgColor, borderRadius: BorderRadius.circular(15)), child: Icon(icon, color: Colors.black87, size: 35)),
@@ -206,8 +470,20 @@ class _UserHomePageState extends State<UserHomePage> {
                   FittedBox(fit: BoxFit.scaleDown, child: Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: textPrimary))),
                   const SizedBox(height: 4),
                   FittedBox(fit: BoxFit.scaleDown, child: Text(subtitle, style: TextStyle(fontSize: 10, color: textSecondary, height: 1.2))),
-                  if (isProgress) ...[const SizedBox(height: 8), LinearProgressIndicator(value: 0.6, backgroundColor: isDark ? Colors.white10 : Colors.grey.shade200, valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFFFD93D)), borderRadius: BorderRadius.circular(5), minHeight: 5)],
-                  if (isAppointment) ...[const SizedBox(height: 8), Row(children: [Text(themeProvider.translate('cancel'), style: TextStyle(fontSize: 11, color: Colors.red.shade400, fontWeight: FontWeight.bold)), const SizedBox(width: 15), Text(themeProvider.translate('reschedule'), style: TextStyle(fontSize: 11, color: textSecondary, fontWeight: FontWeight.bold))])],
+                  if (isProgress) ...[
+                    const SizedBox(height: 8),
+                    LinearProgressIndicator(value: 0.6, backgroundColor: isDark ? Colors.white10 : Colors.grey.shade200, valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFFFD93D)), borderRadius: BorderRadius.circular(5), minHeight: 5),
+                  ],
+                  if (isAppointment) ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Text(themeProvider.translate('cancel'), style: TextStyle(fontSize: 11, color: Colors.red.shade400, fontWeight: FontWeight.bold)),
+                        const SizedBox(width: 15),
+                        Text(themeProvider.translate('reschedule'), style: TextStyle(fontSize: 11, color: textSecondary, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -239,8 +515,7 @@ class _UserHomePageState extends State<UserHomePage> {
                   ],
                 ),
                 const SizedBox(height: 5),
-                // --- MAGIC HAPPENS HERE: AI Translates the dynamic doctor's message ---
-                AiTranslatedText(message, style: TextStyle(color: textSecondary, fontSize: 12, height: 1.4)),
+                Text(message, style: TextStyle(color: textSecondary, fontSize: 12, height: 1.4)),
               ],
             ),
           ),
