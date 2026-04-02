@@ -90,13 +90,25 @@ class HPRequestSelected extends StatelessWidget {
                       Text("APPLICATION DETAILS", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 11, color: textSecondary, letterSpacing: 1.2, fontFamily: "LexendExaNormal")),
                       const SizedBox(height: 15),
 
-                      _buildInfoCard(
+                     _buildInfoCard(
                         "Patient Note", 
-                        "\"I would like to share my health data with your clinic to monitor my weekly progress and get feedback on my cardiovascular health.\"", 
+                        (user.patientNote != null && user.patientNote.isNotEmpty) 
+                            ? "\"${user.patientNote}\"" 
+                            : "No additional notes provided by the patient.", 
                         Icons.format_quote_rounded, 
                         themePurple, surfaceColor, textPrimary, textSecondary, dividerColor, isDark
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 15),
+
+                      _buildInfoCard(
+                        "Requested Timeframe", 
+                        (user.timeframe != null && user.timeframe.isNotEmpty) 
+                            ? user.timeframe 
+                            : "Not specified", 
+                        Icons.timer_rounded, 
+                        Colors.orangeAccent, surfaceColor, textPrimary, textSecondary, dividerColor, isDark
+                      ),
+                      const SizedBox(height: 25),
 
                       Text("DATA PERMISSIONS REQUESTED", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 11, color: textSecondary, letterSpacing: 1.2, fontFamily: "LexendExaNormal")),
                       const SizedBox(height: 15),

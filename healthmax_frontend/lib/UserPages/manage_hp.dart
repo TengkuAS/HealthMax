@@ -288,7 +288,7 @@ class _ManageHPPageState extends State<ManageHPPage> {
     );
   }
 
-  void _showConnectSheet(HPModel hp, HPProvider hpProvider, Color surfaceColor, Color textPrimary, Color textSecondary, Color dividerColor, bool isDark, ThemeProvider theme) {
+void _showConnectSheet(HPModel hp, HPProvider hpProvider, Color surfaceColor, Color textPrimary, Color textSecondary, Color dividerColor, bool isDark, ThemeProvider theme) {
     final List<String> availableData = ["Hearing Data", "Heart Rate", "Steps", "Blood Glucose", "Calories"];
     final List<String> selectedData = [];
     
@@ -297,7 +297,10 @@ class _ManageHPPageState extends State<ManageHPPage> {
     
     int selectedAmountIndex = 1; 
     int selectedTypeIndex = 0;   
-    bool isSaving = false; // Add loading state
+    bool isSaving = false; 
+
+    // --- NEW: Controller for Patient Note ---
+    final TextEditingController noteCtrl = TextEditingController();
 
     String calculateExpiry() {
       DateTime now = DateTime.now();
@@ -350,7 +353,7 @@ class _ManageHPPageState extends State<ManageHPPage> {
                   ),
                   const SizedBox(height: 30),
 
-                  Text(theme.translate('determine_timeframe'), style: TextStyle(color: textPrimary, fontSize: 13, fontWeight: FontWeight.bold)),
+                  Align(alignment: Alignment.centerLeft, child: Text(theme.translate('determine_timeframe'), style: TextStyle(color: textPrimary, fontSize: 13, fontWeight: FontWeight.bold))),
                   const SizedBox(height: 15),
 
                   Container(
@@ -384,24 +387,42 @@ class _ManageHPPageState extends State<ManageHPPage> {
                     ),
                   ),
                   const SizedBox(height: 15),
-                  
                   Text(expiryText, style: TextStyle(color: textSecondary, fontSize: 11)),
+                  const SizedBox(height: 30),
+
+                  // --- NEW: PATIENT NOTE FIELD ---
+                  Align(alignment: Alignment.centerLeft, child: Text("Patient Note (Optional)", style: TextStyle(color: textPrimary, fontSize: 13, fontWeight: FontWeight.bold))),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: noteCtrl,
+                    maxLines: 3,
+                    style: TextStyle(color: textPrimary, fontSize: 13, fontWeight: FontWeight.w600),
+                    decoration: InputDecoration(
+                      hintText: "E.g. I would like to monitor my cardiovascular progress...",
+                      hintStyle: TextStyle(color: textSecondary, fontWeight: FontWeight.normal),
+                      filled: true,
+                      fillColor: isDark ? Colors.white10 : Colors.grey.shade100,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none),
+                      contentPadding: const EdgeInsets.all(15)
+                    ),
+                  ),
                   const SizedBox(height: 30),
 
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      // --- AWAIT THE DATABASE SAVE ---
                       onPressed: isSaving ? null : () async {
                         if (selectedData.isEmpty) { ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please select at least one data type."), backgroundColor: Colors.redAccent)); return; }
                         
                         setModalState(() => isSaving = true);
                         try {
+                          // --- UPDATED: Pass Note to database ---
                           await hpProvider.grantAccess(
                             hp, 
                             selectedData, 
                             "${amounts[selectedAmountIndex]} ${types[selectedTypeIndex]}", 
-                            "Valid Until: ${expiryText.split('until ')[1]}"
+                            "Valid Until: ${expiryText.split('until ')[1]}",
+                            noteCtrl.text.trim()
                           );
                           
                           if (context.mounted) {
@@ -411,7 +432,7 @@ class _ManageHPPageState extends State<ManageHPPage> {
                         } catch (e) {
                           setModalState(() => isSaving = false);
                           if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Failed to connect to provider."), backgroundColor: Colors.redAccent));
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Failed to connect to provider."), backgroundColor: Colors.redAccent));
                           }
                         }
                       },

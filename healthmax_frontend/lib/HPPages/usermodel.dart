@@ -8,7 +8,9 @@ class UserModel {
   final double weight;
   final String device;
   final int heartRate; 
-  final List<String> requestedData; // <-- NEW: List of what they want to share
+  final String patientNote; 
+  final String timeframe;
+  final List<String> requestedData; 
 
   UserModel({
     required this.username,
@@ -18,6 +20,8 @@ class UserModel {
     required this.weight,
     required this.device,
     this.heartRate = 0,
+    this.patientNote = '',
+    this.timeframe = '',
     this.requestedData = const [], // Default to empty
   });
 

@@ -71,17 +71,15 @@ class _UserHomePageState extends State<UserHomePage> {
         });
       }
     } catch (e) {
-      print("Error fetching appointment: $e");
       if (mounted) {
         setState(() {
-          _upcomingAppointment = null; // Clear it if not found
+          _upcomingAppointment = null; 
           _isLoadingAppointment = false;
         });
       }
     }
   }
 
-  // --- NEW: MANUAL CANCEL BUTTON LOGIC ---
   void _confirmCancelAppointment(String appointmentId) {
     showDialog(
       context: context,
@@ -98,12 +96,11 @@ class _UserHomePageState extends State<UserHomePage> {
             onPressed: () async {
               Navigator.pop(context);
               try {
-                // Delete from database completely
                 await Supabase.instance.client.from('book_appointment').delete().eq('id', appointmentId);
                 
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Appointment cancelled."), backgroundColor: Colors.orange));
-                  _fetchUpcomingAppointment(); // Refresh the UI banner
+                  _fetchUpcomingAppointment(); 
                 }
               } catch (e) {
                 if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Failed to cancel appointment."), backgroundColor: Colors.redAccent));
@@ -137,6 +134,13 @@ class _UserHomePageState extends State<UserHomePage> {
     final hpData = Provider.of<HPProvider>(context);
     final feedbackData = Provider.of<FeedbackProvider>(context);
 
+    // --- NEW: DYNAMIC SECURITY FILTER ---
+    // 1. Get a list of names for ONLY the currently connected HPs
+    final connectedHpNames = hpData.providers.where((hp) => hp.isConnected).map((hp) => hp.name).toList();
+    
+    // 2. Filter the feedback list to ONLY show messages from those connected HPs
+    final activeFeedbacks = feedbackData.feedbackHistory.where((f) => connectedHpNames.contains(f.hospitalName)).toList();
+
     final String liveUsername = Supabase.instance.client.auth.currentUser?.userMetadata?['username'] ?? "User";
 
     final bgColor = Theme.of(context).scaffoldBackgroundColor;
@@ -160,6 +164,7 @@ class _UserHomePageState extends State<UserHomePage> {
           await _fetchUpcomingAppointment();
           await healthData.checkDeviceAndStartMock();
           await hpData.fetchHPConnections();
+          await feedbackData.fetchFeedback(); // Added fetch Feedback on pull!
         },
         color: userBlue,
         child: CustomScrollView(
@@ -399,9 +404,10 @@ class _UserHomePageState extends State<UserHomePage> {
                     ),
                     const SizedBox(height: 15),
                     
+                    // --- NEW: DISPLAYS ACTIVE FEEDBACK ONLY ---
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: feedbackData.feedbackHistory.isEmpty 
+                      child: activeFeedbacks.isEmpty 
                       ? Container(
                           width: double.infinity, padding: const EdgeInsets.all(30),
                           decoration: BoxDecoration(color: isDark ? Colors.white10 : Colors.grey.shade100, borderRadius: BorderRadius.circular(20), border: Border.all(color: dividerColor)),
@@ -411,13 +417,13 @@ class _UserHomePageState extends State<UserHomePage> {
                               const SizedBox(height: 10),
                               Text("No Feedback Yet", style: TextStyle(fontWeight: FontWeight.bold, color: textPrimary)),
                               const SizedBox(height: 5),
-                              Text("Feedback from your healthcare providers will appear here.", textAlign: TextAlign.center, style: TextStyle(color: textSecondary, fontSize: 12)),
+                              Text("Feedback from your connected healthcare providers will appear here.", textAlign: TextAlign.center, style: TextStyle(color: textSecondary, fontSize: 12)),
                             ],
                           ),
                         )
                       : Column(
                           children: [
-                            ...feedbackData.feedbackHistory.take(3).map((f) => 
+                            ...activeFeedbacks.take(3).map((f) => 
                               _buildFeedbackCard(f.hospitalName, f.message, "${f.date} • ${f.time}", surfaceColor, textPrimary, textSecondary, dividerColor, f.typeColor, isDark)
                             ),
                           ],
@@ -435,7 +441,6 @@ class _UserHomePageState extends State<UserHomePage> {
     );
   }
 
-// --- UPDATED: APPOINTMENT REMINDER WITH BEAUTIFUL BUTTONS ---
   Widget _buildAppointmentReminder(Map<String, dynamic> appointment, bool isDark, ThemeProvider theme) {
     String dateRaw = appointment['appointment_date'];
     String timeRaw = appointment['appointment_time'].toString().substring(0, 5);
@@ -460,7 +465,6 @@ class _UserHomePageState extends State<UserHomePage> {
         ),
         child: Column(
           children: [
-            // TOP ROW: Icon, Details, and Status Badge
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -501,7 +505,6 @@ class _UserHomePageState extends State<UserHomePage> {
             
             const SizedBox(height: 20),
             
-            // BOTTOM ROW: Action Buttons
             Row(
               children: [
                 Expanded(
@@ -518,7 +521,7 @@ class _UserHomePageState extends State<UserHomePage> {
                   child: _buildGlassyBtn(
                     icon: Icons.close_rounded, 
                     label: "Cancel", 
-                    isDestructive: true, // Turns it slightly red
+                    isDestructive: true, 
                     onTap: () => _confirmCancelAppointment(appointmentId),
                   ),
                 ),
@@ -530,7 +533,6 @@ class _UserHomePageState extends State<UserHomePage> {
     );
   }
 
-  // --- NEW: HELPER FOR BEAUTIFUL GLASSY BUTTONS ---
   Widget _buildGlassyBtn({required IconData icon, required String label, required VoidCallback onTap, bool isDestructive = false}) {
     return GestureDetector(
       onTap: onTap,
