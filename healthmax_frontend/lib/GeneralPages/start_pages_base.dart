@@ -314,6 +314,29 @@ class _LoginPageState extends State<LoginPage> {
                       } finally {
                         if (mounted) setState(() => _isLoggingIn = false);
                       }
+                    } else {
+                      // ==========================================
+                      // DEMO MODE: HP LOGIN BYPASS
+                      // ==========================================
+                      if (_usernameCtrl.text.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please enter a username for the demo!"), backgroundColor: Colors.redAccent));
+                        return;
+                      }
+
+                      setState(() => _isLoggingIn = true);
+
+                      // 1. Simulate a 1.5-second network loading effect for the presentation
+                      await Future.delayed(const Duration(milliseconds: 1500));
+
+                      if (mounted) {
+                        // 2. Inject the typed username directly into the provider so the Homepage sees it!
+                        context.read<AuthProvider>().setDemoUsername(_usernameCtrl.text);
+
+                        // 3. Force navigate to the HP Homepage instantly
+                        Navigator.pushNamedAndRemoveUntil(context, widget.homeRoute, (route) => false);
+                      }
+                      
+                      if (mounted) setState(() => _isLoggingIn = false);
                     }
                   },
                 ),

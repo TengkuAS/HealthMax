@@ -85,4 +85,10 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  // --- ADD THIS FOR THE DEMO ---
+  void setDemoUsername(String name) {
+    currentUsername = name; 
+    notifyListeners();
+  }
 }
